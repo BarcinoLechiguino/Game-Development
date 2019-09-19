@@ -33,12 +33,7 @@ public:
 	}
 
 	//Destructors are functions that are run when the class stops being called.
-	~Vec3() 
-	{
-		x = 0;
-		y = 0;
-		z = 0;
-	}
+	~Vec3() {}
 
 	//Get() function that returns a coordinate when called. It's const because it only returns a number, it does not modify it.
 	Vec getx() const { return x; }

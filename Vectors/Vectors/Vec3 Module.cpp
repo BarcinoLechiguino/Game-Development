@@ -23,6 +23,7 @@ int main()
 	VectorII.getVector();
 	VectorIII.getVector();
 	VectorIV.getVector();
+	emptyVector.getVector();
 
 	//Get Functions
 	Vector.getx();

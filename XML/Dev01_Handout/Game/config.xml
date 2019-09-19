@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Config file for the game -->
+<config>
+  <title>My super awesome game with XML</title>
+  <window>
+    <FULLSCREEN>false</FULLSCREEN>
+    <BORDERLESS>false</BORDERLESS>
+    <RESIZEABLE>true</RESIZEABLE>
+    <FULLSCREEN_WINDOW>false</FULLSCREEN_WINDOW>
+    <TITLE>" -- Replacement Title -- "</TITLE>
+    <WIDTH>1024</WIDTH>
+    <HEIGHT>768</HEIGHT>
+    <SCALE>1</SCALE>
+  </window>
+  
+  <audio>
+    
+  </audio>
+  
+  <input>
+    
+  </input>
+
+  <render>
+    
+  </render>
+
+  <textures>
+    
+  </textures>
+  
+</config>
