@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Configuration document-->
+<config>
+  <window WIDTH ="1024" HEIGHT="768" SCALE="1">
+    <title>YO WTF IS THIS SHIT TIER TITLE?</title>
+    <FULLSCREEN>false</FULLSCREEN>
+    <BORDERLESS>false</BORDERLESS>
+    <RESIZABLE>true</RESIZABLE>
+    <FULLSCREEN_WINDOW>false</FULLSCREEN_WINDOW>
+  </window>
+  
+  <audio>
+    
+  </audio>
+
+  <input>
+    
+  </input>
+
+  <render>
+    
+  </render>
+
+  <textures>
+    
+  </textures>
+  
+</config>
