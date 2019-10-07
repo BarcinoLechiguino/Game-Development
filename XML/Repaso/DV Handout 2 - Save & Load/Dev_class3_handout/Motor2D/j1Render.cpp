@@ -89,9 +89,29 @@ bool j1Render::CleanUp()
 
 
 // TODO 6: Create the load method on the renderer. For now load camera's x and y
+bool j1Render::Load(pugi::xml_node& data)
+{
+	//.child gets the tag it is given, .attribute looks for the given tag inside the first tag and .as_int() sets the type of value. 
+	camera.x = data.child("camera").attribute("x").as_int(); 
+	camera.y = data.child("camera").attribute("y").as_int();
+	
+	return true;
+}
 
 // TODO 8: Create the save method on the renderer. Fill the camera's data
 // using append_child and append_attribute
+bool j1Render::Save(pugi::xml_node& data) const
+{
+	//append_ allows to modify whatever it is given/defined with. child(tag) and attribute(value).
+	pugi::xml_node cam = data.append_child("camera");
+
+	//As we are setting a value by saving, we have to call the variable first.
+	cam.append_attribute("x") = camera.x;
+	cam.append_attribute("y") = camera.y;
+
+	return true;
+}
+
 
 void j1Render::SetBackgroundColor(SDL_Color color)
 {

@@ -60,6 +60,18 @@ public:
 	}
 
 	// TODO 3: Create new virtual methods to Load and Save
+	//Loads whatever the handle of the pointer is pointing too.
+	virtual bool Load(pugi::xml_node&)
+	{
+		return true;
+	}
+
+	//Saves whatever the handle of the pointer is pointing too.
+	virtual bool Save(pugi::xml_node&) const
+	{
+		return true;
+	} 
+
 
 public:
 

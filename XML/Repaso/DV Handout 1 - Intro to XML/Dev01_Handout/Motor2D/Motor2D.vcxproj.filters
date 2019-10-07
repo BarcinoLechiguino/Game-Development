@@ -103,6 +103,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="config.xml" />
+    <Xml Include="..\Game\config.xml" />
   </ItemGroup>
 </Project>

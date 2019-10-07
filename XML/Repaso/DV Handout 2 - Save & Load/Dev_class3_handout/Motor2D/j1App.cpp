@@ -16,6 +16,7 @@
 j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 {
 	frames = 0;
+	want_to_load = want_to_save = false;
 
 	input = new j1Input();
 	win = new j1Window();
@@ -152,7 +153,15 @@ void j1App::PrepareUpdate()
 void j1App::FinishUpdate()
 {
 	// TODO 2: This is a good place to call load / Save functions
+	if (want_to_load == true)
+	{
+		LoadGameNow();
+	}
 
+	if (want_to_save == true)
+	{
+		SaveGameNow();
+	}
 }
 
 // Call modules before each loop iteration
@@ -263,12 +272,97 @@ const char* j1App::GetOrganization() const
 	return organization.GetString();
 }
 
+void j1App::Load_Game()
+{
+	want_to_load = true;
+}
+
+void j1App::Save_Game() const
+{
+	want_to_save = true;
+}
 
 // TODO 5: Fill the application load function
 // Start by opening the file as an xml_document (as with config file)
+bool j1App::LoadGameNow()
+{
+	bool ret = false;
 
+	pugi::xml_document data; //Creates the tree and consists of loading functions.
+	pugi::xml_node root;  //Handle node that can point to any node inside the document, including the document itself. Allows for document inspection and modification. 
+
+	//load_file() destroys the existing tree and tries to load a new one from the specified file.
+	pugi::xml_parse_result result = data.load_file("save.xml"); //parse_result recieves the result of the load_file operation. Acts as a bool.
+
+	if (result != NULL )
+	{
+		LOG("Loading new save from save.xml");
+
+		root = data.child("save"); //Sets the handle pointer to the save node.
+
+		//Creates a list and sets the initial pointer to  the first module.
+		p2List_item<j1Module*>* item = modules.start; 
+		ret = true;
+
+		//Cycles as long as the pointer of the list isn't NULL (and ret).
+		while (item != NULL && ret == true)
+		{
+			//It iterates all modules and calls their load methods.
+			ret = item->data->Load(root.child(item->data->name.GetString())); //Sends the xml section as an argument. 
+			item = item->next;
+		}
+
+		data.reset();
+
+		if (ret == true) { LOG("... finished loading"); }
+		else { LOG("... loading process interrupted with error on module %s", item->data->name.GetString()); }
+	}
+
+	else
+	{
+		LOG("Could not parse game save xml file %s. Pugi error %s", load_game.GetString(), result.description());
+	}
+
+	want_to_load = false;
+	return ret;
+}
 
 // TODO 7: Fill the application save function
 // Generate a new pugi::xml_document and create a node for each module.
 // Call each module's save function and then save the file using pugi::xml_document::save_file()
+bool j1App::SaveGameNow()  const
+{
+	bool ret = false;
+	LOG("Saving save to save.xml");
 
+	pugi::xml_document data;
+	pugi::xml_node root;
+
+	//append_ adds the node with the save name.
+	root = data.append_child("save");
+
+	p2List_item<j1Module*>* item = modules.start;
+	ret = true;
+
+	while (item != NULL && ret == true)
+	{
+		//append_child adds the node with the given text.
+		ret = item->data->Save(root.append_child(item->data->name.GetString()));
+		item = item->next;
+	}
+
+	if (ret == true) 
+	{ 
+		//save_file() saves the whole document to a file and returns true on success.
+		data.save_file("save.xml");
+		LOG("... finished saving.");
+	}
+	else
+	{
+		LOG("Save process halted by an error in the module %s", item->data->name.GetString());
+	}
+
+	data.reset();
+	want_to_save = false;
+	return ret;
+}

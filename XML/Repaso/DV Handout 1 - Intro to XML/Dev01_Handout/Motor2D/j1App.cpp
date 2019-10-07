@@ -57,13 +57,25 @@ void j1App::AddModule(j1Module* module)
 // Called before render is available
 bool j1App::Awake()
 {
+	bool ret = true;
+	
 	// TODO 3: Load config.xml file using load_file() method from the xml_document class.
 	// If everything goes well, load the top tag inside the xml_node property
 	// created in the last TODO
-	pugi::xml_parse_result result = configDoc.load_file("config.xml"); //xml_parse_result recieves the result of the load_file operation. Acts as a bool.
-	configNode = configDoc.child("title");
+	//load_file() desstroys the existing tree and tries to load a new tree from the specified file.
+	pugi::xml_parse_result result = configFile.load_file("config.xml"); //parse_result recieves the result of the load_file() operation (operation status and the related info). Acts as a bool.
 
-	bool ret = true;
+	configNode = configFile.child("config");
+
+	if (result == NULL)
+	{
+		LOG("Could not load the XML Configuration file. Pugi error: %s", result.description()); //result.description() outputs what the result of the operation was.
+		//ret = false;
+	}
+	else
+	{
+		configNode = configFile.child("config"); //Sets the handle to the first node on the tree of the config File.
+	}
 
 	p2List_item<j1Module*>* item;
 	item = modules.start;
@@ -74,17 +86,14 @@ bool j1App::Awake()
 		// If the section with the module name exists in config.xml, fill the pointer with the valid xml_node
 		// that can be used to read all variables for that module.
 		// Send nullptr if the node does not exist in config.xml
-		item->data->configDoc(configNode.child(item->data->name.GetString()));
-		item = item->next;
-
-
+		configNode.child(item->data->name.GetString());
 		ret = item->data->Awake();
 		item = item->next; 
 	}
 	 
 	// TODO 4: Read the title from the config file
 	// and set the window title using win->SetTitle()
-	App->win->SetTitle(configNode.child("window").child("title").child_value());
+	win->SetTitle(configFile.child("title").child_value()); //child() sets the handle node to the node it is given and child_value() gets whatever is in that node.
 
 	return ret;
 }

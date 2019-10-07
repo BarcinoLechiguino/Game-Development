@@ -44,6 +44,9 @@ public:
 	const char* GetTitle() const;
 	const char* GetOrganization() const;
 
+	void Load_Game();
+	void Save_Game() const;
+
 private:
 
 	// Load config file
@@ -65,6 +68,8 @@ private:
 	bool PostUpdate();
 
 	// TODO 2: Create the functions for Loading / Saving the game state (leave those empty for now)
+	bool LoadGameNow();
+	bool SaveGameNow() const;
 
 public:
 
@@ -90,6 +95,11 @@ private:
 	p2SString			title;
 	p2SString			organization;
 
+	bool want_to_load;
+	mutable bool want_to_save;
+
+	p2SString			load_game;
+	mutable p2SString	save_game;
 };
 
 extern j1App* App;
