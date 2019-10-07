@@ -38,7 +38,7 @@ bool ModulePhysics::Start()
 	// TODO 4: Create a a big static circle as "ground"
 	b2BodyDef ground;
 	ground.type = b2_staticBody;
-	ground.position.Set(PIXELS_TO_METERS(SCREEN_WIDTH/2), PIXELS_TO_METERS(SCREEN_HEIGHT/2));
+	ground.position.Set(PIXELS_TO_METERS(SCREEN_WIDTH/2), PIXELS_TO_METERS(SCREEN_HEIGHT/1.5f));
 	b2Body * groundBody = world->CreateBody(&ground);
 
 	b2CircleShape globeEarth;
@@ -48,7 +48,18 @@ bool ModulePhysics::Start()
 	fixture.shape = &globeEarth;
 	groundBody->CreateFixture(&fixture);
 
+	//Homework: Create a big static rectangle as 2nd "ground"
+	b2BodyDef groundRectangle;
+	groundRectangle.type = b2_staticBody;
+	groundRectangle.position.Set(PIXELS_TO_METERS(SCREEN_WIDTH / 2), PIXELS_TO_METERS(SCREEN_HEIGHT / 1.5f));
+	b2Body * groundRectangleBody = world->CreateBody(&groundRectangle);
 
+	b2PolygonShape flatEarth;
+	flatEarth.SetAsBox(PIXELS_TO_METERS(SCREEN_WIDTH / 2.5f), PIXELS_TO_METERS(SCREEN_HEIGHT / 5));
+
+	b2FixtureDef fixtureRectangle;
+	fixtureRectangle.shape = &flatEarth;
+	groundRectangleBody->CreateFixture(&fixtureRectangle);
 
 	return true;
 }
@@ -71,6 +82,13 @@ update_status ModulePhysics::PostUpdate()
 	if(App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		debug = !debug;
 
+	SDL_Rect rect;
+
+	rect.x = PIXELS_TO_METERS(SCREEN_WIDTH / 2);
+	rect.y = PIXELS_TO_METERS(SCREEN_HEIGHT / 1.5f);
+	rect.w = PIXELS_TO_METERS(SCREEN_WIDTH / 2.5f);
+	rect.h = PIXELS_TO_METERS(SCREEN_HEIGHT / 5);
+
 	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
 	{
 		b2BodyDef circle;
@@ -80,7 +98,7 @@ update_status ModulePhysics::PostUpdate()
 		b2Body * circene = world->CreateBody(&circle);
 
 		b2CircleShape ball;
-		ball.m_radius = PIXELS_TO_METERS(200);
+		ball.m_radius = PIXELS_TO_METERS(100);
 
 		b2FixtureDef fixtureII;
 		fixtureII.shape = &ball;
@@ -108,6 +126,13 @@ update_status ModulePhysics::PostUpdate()
 				break;
 
 				// You will have to add more cases to draw boxes, edges, and polygons ...
+				case b2Shape::e_polygon:
+				{
+					b2PolygonShape* shape = (b2PolygonShape*)f->GetShape();
+					b2Vec2 pos = f->GetBody()->GetPosition();
+					App->renderer->DrawQuad(rect, 255, 255, 255, false, false);
+				}
+				break;
 			}
 		}
 	}
