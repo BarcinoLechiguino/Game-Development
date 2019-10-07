@@ -41,12 +41,14 @@ bool ModulePhysics::Start()
 	ground.position.Set(PIXELS_TO_METERS(SCREEN_WIDTH/2), PIXELS_TO_METERS(SCREEN_HEIGHT/2));
 	b2Body * groundBody = world->CreateBody(&ground);
 
-	b2CircleShape flatEarth;
-	flatEarth.m_radius = PIXELS_TO_METERS(SCREEN_WIDTH/3);
+	b2CircleShape globeEarth;
+	globeEarth.m_radius = PIXELS_TO_METERS(SCREEN_WIDTH/3);
 
 	b2FixtureDef fixture;
-	fixture.shape = &flatEarth;
+	fixture.shape = &globeEarth;
 	groundBody->CreateFixture(&fixture);
+
+
 
 	return true;
 }
