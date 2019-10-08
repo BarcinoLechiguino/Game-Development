@@ -62,10 +62,8 @@ bool j1App::Awake()
 	// TODO 3: Load config.xml file using load_file() method from the xml_document class.
 	// If everything goes well, load the top tag inside the xml_node property
 	// created in the last TODO
-	//load_file() desstroys the existing tree and tries to load a new tree from the specified file.
+	//load_file() destroys the existing tree and tries to load a new tree from the specified file.
 	pugi::xml_parse_result result = configFile.load_file("config.xml"); //parse_result recieves the result of the load_file() operation (operation status and the related info). Acts as a bool.
-
-	configNode = configFile.child("config");
 
 	if (result == NULL)
 	{
@@ -93,7 +91,7 @@ bool j1App::Awake()
 	 
 	// TODO 4: Read the title from the config file
 	// and set the window title using win->SetTitle()
-	win->SetTitle(configFile.child("title").child_value()); //child() sets the handle node to the node it is given and child_value() gets whatever is in that node.
+	//win->SetTitle(configFile.child("title").child_value()); //child() sets the handle node to the node it is given and child_value() gets whatever is in that node.
 
 	return ret;
 }

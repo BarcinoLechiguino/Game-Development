@@ -79,7 +79,7 @@ private:
 	// TODO 2: Create two new variables from pugui namespace:
 	// a xml_document to store the while config file and
 	// a xml_node to read specific branches of the xml
-	pugi::xml_document configFile; //Owner of the entire document structure. Creates the tree and consist of loading functions.
+	pugi::xml_document configFile; //Owner of the entire document structure. Creates the tree and consists of loading functions.
 	pugi::xml_node configNode; //Allows document inspection and modification. It can point to any node in the document including the document itself. It's only the handle of the node, not the node itself.
 
 	int					argc;
