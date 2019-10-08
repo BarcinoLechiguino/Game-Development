@@ -94,7 +94,7 @@ public:
 		return x * 32;
 	}
 
-	inline int GetPosY(int Y)
+	inline int GetPosY(int y)
 	{
 		return y * 32;
 	}
