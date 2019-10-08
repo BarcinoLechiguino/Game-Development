@@ -102,7 +102,7 @@ bool j1Render::Load(pugi::xml_node& data)
 // using append_child and append_attribute
 bool j1Render::Save(pugi::xml_node& data) const
 {
-	//append_ allows to modify whatever it is given/defined with. child(tag) and attribute(value).
+	//append_ allows to modify whatever it is given/defined with. .child(tag) and .attribute(value).
 	pugi::xml_node cam = data.append_child("camera");
 
 	//As we are setting a value by saving, we have to call the variable first.
