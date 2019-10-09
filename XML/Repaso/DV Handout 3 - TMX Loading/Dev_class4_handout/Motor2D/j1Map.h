@@ -11,23 +11,27 @@
 // ----------------------------------------------------
 struct TileSet
 {
-	uint firstgid = 0u;
-	char name[64];
-	uint tileWidth = 0u;
-	uint tileHeight = 0u;
-	uint spacing = 0u;
-	uint margin = 0u;
+	p2SString tileset_name; //Name of the tileset.
+	char img_source[128]; //The name of the TSX file where the tileset is stored at.
+	uint img_width = 0u; //Width of the source image.
+	uint img_height = 0u; //Height of the source image.
 
-	char imgSource[128];
-	uint imgWidth = 0u;
-	uint imgHeight = 0u;
+	uint first_gid = 0u; //The first tile ID of the whole tileset.
+	uint tile_max_width = 0u; //Maximum width of the tiles in this tileset.
+	uint tile_max_height = 0u; //Maximum height of the tiles in this tileset.
+	uint spacing = 0u; //The space in pixels between the tiles in this tileset.
+	uint margin = 0u; //The margin around the tiles in this tileset (applies to tileset image)
+
+	uint offset_x = 0u;
+	uint offset_y = 0u;
 };
+
 
 // TODO 1: Create a struct needed to hold the information to Map node
 struct MapData
 {
-	//"class" keeps the names used inside the struct in the same namespace so there is no name collision with other variables. New way of avoiding name collisions.
-	enum class orientation //"enum" creates a "list" of expected inputs/variable names. Used to reduce memory usage and loading time, only use when what will be recieved is known.
+	//Example: "class" keeps the names used inside the struct in the same namespace so there is no name collision with other variables. New way of avoiding name collisions.
+	enum class MapType //"enum" creates a "list" of expected inputs/variable names. Used to reduce memory usage and loading time, only use when what will be recieved is known.
 	{
 		error, //Declared error as an expected input so if something goes wrong with the code it can be seen where it falters.
 		orthogonal,
@@ -36,25 +40,38 @@ struct MapData
 		hexagonal
 	};
 
+	//Adding a prefix, OR_ in this case, to the names used inside the struct is the old way of avoiding name collisions. 
+	enum orientation
+	{
+		OR_ERROR = 0,
+		OR_ORTHOGONAL,
+		OR_ISOMETRIC,
+		OR_STAGGERED,
+		OR_HEXAGONAL
+	};
+	
 	//Adding a prefix, RO_ in this case, to the names used inside the struct is the old way of avoiding name collisions. 
 	enum renderorder
 	{
-		RO_error,
-		RO_right_up,
-		RO_right_down,
-		RO_left_up,
-		RO_left_down
+		RO_ERROR = 0,
+		RO_RIGHT_DOWN, //Standard rendering order. Starts at top left and ends bottom right.
+		RO_RIGHT_UP,
+		RO_LEFT_DOWN,
+		RO_LEFT_UP
+		
 	};
-
+	
 	// uint = 0 due to the fact that if there is any kind of error we can see where the code falters.
-	//"u" (standing for unsigned int) tells the compiler we only need an unsigned number. Unless it is specified, the compiler will take the most amount of memory it can, int in this case.
-	uint width = 0u;
-	uint height = 0u;
-	uint tileWidth = 0u;
-	uint tileHeight = 0u;
-	uint nextObjectId = 0u;
+	//"u" (standing for unsigned int) tells the compiler we only need an unsigned number. Unless it is specified otherwise, the compiler will allocate the maximum amount of memory it can at that moment (in this case int).
+	uint width = 0u; //Map width in tiles
+	uint height = 0u; //Map height in tiles.
+	uint tile_width = 0u; //The width of a tile.
+	uint tile_height = 0u; //The height of at tile.
+	uint nextObjectId = 0u; // Stores the next available ID for new objects. Prevents reuse of used IDs after object removal.
 
-	p2List<TileSet*> tilesets; // List of the TileSet struct we can iterate through.
+	orientation orientation_type; //Allows to access the enum with the MapData struct (data.type ...)
+	renderorder render_order_type; //Allows to access the enum with the MapData struct (data.type ...)
+	p2List<TileSet*> TileSet_list; //Creates a list that grants access to the variables stored in the TileSet struct. It can be iterated through with the p2List_Item pointer.
 };
 
 // ----------------------------------------------------
@@ -81,11 +98,13 @@ public:
 
 private:
 	bool LoadMap();
+	bool LoadTilesetDetails(pugi::xml_node& tileset_node, TileSet * set);
+	bool LoadTilesetImage(pugi::xml_node& tileset_node, TileSet * set);
 
 public:
 
 	// TODO 1: Add your struct for map info as public for now
-	MapData data;
+	MapData data; //Added so it is possible to call from the j1Map.cpp
 
 private:
 
