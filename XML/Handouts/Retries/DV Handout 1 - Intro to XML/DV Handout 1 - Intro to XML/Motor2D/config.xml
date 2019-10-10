@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Configuration file for the game-->
+<config>
+  <window>
+    <fullscreen>false</fullscreen>
+    <borderless>false</borderless>
+    <resizable>true</resizable>
+    <fullscreen_window>false</fullscreen_window>
+    <title>YO WTF THIS IS THE THIRD TIME</title>
+    <resolution width ="1024" height ="768" scale ="1"/>
+  </window>
+
+  <audio>
+    
+  </audio>
+
+  <input>
+    
+  </input>
+
+  <render>
+    
+  </render>
+
+  <textures>
+    
+  </textures>
+</config>
