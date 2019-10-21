@@ -65,46 +65,20 @@ update_status ModulePhysics::PostUpdate()
 	// On space bar press, create a circle on mouse position
 	if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
-		b2BodyDef body;
-		body.type = b2_dynamicBody;
-		float radius = PIXEL_TO_METERS(25);
-		body.position.Set(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()));
-
-		b2Body* b = world->CreateBody(&body);
-
-		b2CircleShape shape;
-		shape.m_radius = radius;
-		b2FixtureDef fixture;
-		fixture.shape = &shape;
-
-		b->CreateFixture(&fixture);
+		CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 50);
 	}
 
 	if(App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
 	{
-		// TODO 1: When pressing 2, create a box on the mouse position
-		b2BodyDef bodyBox;
-		bodyBox.type = b2_dynamicBody;
-		bodyBox.position.Set(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()));
-
-		b2Body* bBox = world->CreateBody(&bodyBox);
-
-		b2PolygonShape shapeBox;
-		shapeBox.SetAsBox(PIXEL_TO_METERS(25), PIXEL_TO_METERS(15));
-		b2FixtureDef fixture;
-		fixture.shape = &shapeBox;
-
-		// TODO 2: To have the box behave normally, set fixture's density to 1.0f
-		bBox->CreateFixture(&shapeBox, 1.0f);
+		CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 50, 25);
 	}
 
 	if(App->input->GetKey(SDL_SCANCODE_3) == KEY_DOWN)
 	{
-		// TODO 3: Create a chain shape using those vertices
-		// remember to convert them from pixels to meters!
-		b2Vec2 kunai[12];
-		
-		int points[24] = {
+		b2Vec2 chainVectors[12];
+
+		int chainPoints[24] =
+		{
 			-38, 80,
 			-44, -54,
 			-16, -60,
@@ -118,25 +92,8 @@ update_status ModulePhysics::PostUpdate()
 			-25, 13,
 			-9, 72
 		};
-
-		for (int i = 0; i < 12; i++)
-		{
-			kunai[i].Set(PIXEL_TO_METERS(points[i*2]), PIXEL_TO_METERS(points[i*2 + 1]));
-		}
-
-		b2BodyDef kunaiBody;
-		kunaiBody.type = b2_dynamicBody;
-		kunaiBody.position.Set(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()));
-
-		b2Body* kchain = world->CreateBody(&kunaiBody);
 		
-		b2ChainShape kunaiAndChain;
-		b2FixtureDef kunaiFixture;
-		kunaiFixture.shape = &kunaiAndChain;
-
-		kunaiAndChain.CreateLoop(kunai, 12);
-
-		kchain->CreateFixture(&kunaiAndChain, 1.0f);
+		CreateChain(App->input->GetMouseX(), App->input->GetMouseY(), chainVectors, 12, chainPoints, 24);
 	}
 
 	if (App->input->GetKey(SDL_SCANCODE_4) == KEY_DOWN)
