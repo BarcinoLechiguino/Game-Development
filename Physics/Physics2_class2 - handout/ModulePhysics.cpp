@@ -63,77 +63,12 @@ update_status ModulePhysics::PreUpdate()
 update_status ModulePhysics::PostUpdate()
 {
 	// On space bar press, create a circle on mouse position
-	if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+	/*if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
 		CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 50);
-	}
-
-	if(App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
-	{
-		CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 50, 25);
-	}
-
-	if(App->input->GetKey(SDL_SCANCODE_3) == KEY_DOWN)
-	{
-		b2Vec2 chainVectors[12];
-
-		int chainPoints[24] =
-		{
-			-38, 80,
-			-44, -54,
-			-16, -60,
-			-16, -17,
-			19, -19,
-			19, -79,
-			61, -77,
-			57, 73,
-			17, 78,
-			20, 16,
-			-25, 13,
-			-9, 72
-		};
-		
-		CreateChain(App->input->GetMouseX(), App->input->GetMouseY(), chainVectors, 12, chainPoints, 24);
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_4) == KEY_DOWN)
-	{
-		b2Vec2 Lliure[13];
-		int Palestina[26] = {
-			22, 247,
-			58, 185,
-			23, 121,
-			95, 120,
-			129, 58,
-			165, 121,
-			235, 119,
-			200, 185,
-			236, 244,
-			164, 243,
-			129, 306,
-			96, 244,
-			22, 247
-		};
-
-		for (int i = 0; i < 13; i++)
-		{
-			Lliure[i].Set(PIXEL_TO_METERS(Palestina[i * 2]), PIXEL_TO_METERS(Palestina[i * 2 + 1]));
-		}
-
-		b2BodyDef estrella;
-		estrella.type = b2_dynamicBody;
-		estrella.position.Set(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()));
-
-		b2Body* celeste = world->CreateBody(&estrella);
-
-		b2ChainShape etoile;
-		b2FixtureDef etoileFixture;
-		etoileFixture.shape = &etoile;
-
-		etoile.CreateLoop(Lliure, 13);
-
-		celeste->CreateFixture(&etoile, 1.0f);
-	}
+	}*/
+	
+	//Inputs moved to ModuleSceneIntro Update method.
 
 	if(App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
 		debug = !debug;
@@ -223,7 +158,32 @@ bool ModulePhysics::CleanUp()
 	LOG("Destroying physics world");
 
 	// Delete the whole physics world!
+	delete object;
 	delete world;
 
 	return true;
+}
+
+//Implementation of GetPosition() method from Object class
+b2Vec2* Object::GetPosition() //Passing the function as a pointer.
+{
+	b2Vec2* Position = new b2Vec2; //Vector that will be returned
+	
+	Position->x = METERS_TO_PIXELS(objectBody->GetPosition().x);  //Gets the x position of the objectBody.
+	Position->y = METERS_TO_PIXELS(objectBody->GetPosition().y);  //Gets the y position of the objectBody.
+
+	return Position;
+}
+
+float Object::GetRotation()
+{
+	/*b2Rot* Rotation = new b2Rot;
+	Rotation->s = objectBody->GetTransform().q.s * RADTODEG;
+	Rotation->c = objectBody->GetTransform().q.c * RADTODEG;
+	return Rotation;*/
+
+	float Angle;
+	Angle = objectBody->GetAngle() * RADTODEG;
+
+	return Angle;
 }
