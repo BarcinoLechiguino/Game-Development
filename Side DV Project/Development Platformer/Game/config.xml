@@ -1,0 +1,75 @@
+<!-- Config file for the game -->
+
+<config>
+  <app>
+    <title>Mutual Cooperation</title>
+    <organization>UPC</organization>
+  </app>
+	
+  <renderer>
+    <vsync value="true"/>
+    <camera x ="0" y ="-400"/>
+  </renderer>
+  
+  <window>
+    <resolution width="1024" height="768" scale="1"/>
+    <fullscreen value="false"/>
+    <borderless value="false"/>
+    <resizable value="false"/>
+    <fullscreen_window value="false"/>
+  </window>
+
+ 
+
+  
+  <audio>
+    <default_volume value="100"/>
+    <music>
+      <folder>audio/music/</folder>
+    </music>
+    <sfx>
+      <folder>audio/fx/</folder>
+    </sfx>
+  </audio>
+
+  <file_system>
+    <path>data.zip</path>
+  </file_system>
+
+  <map>
+    <folder>maps/</folder>
+  </map>
+
+  <player>
+    <player_1>
+      <position x="0" y="-100"/>
+      <speed x="0" y="0"/>
+      <max_speed x="10" y="10"/>
+      <acceleration x="1" y="1.4"/>
+      <gravity value="15"/>
+      <boost x="10"  y="10"/>
+      <jumpFX name ="Jump.wav"/>
+      <DuoJumpFX name ="Jump_Duo.wav"/>
+      <DeathFX name ="Death.wav"/>
+    </player_1>
+
+    <player_2>
+      <position x="0" y="-100"/>
+      <speed x="0" y="0"/>
+      <max_speed x="10" y="10"/>
+      <acceleration x="1" y="1.4"/>
+      <gravity value="15"/>
+      <boost x="10"  y="10"/>
+      <jumpFX name ="Jump.wav"/>
+      <DuoJumpFX name ="Jump_Duo.wav"/>
+      <DeathFX name ="Death.wav"/>
+    </player_2>
+  </player>
+  
+  <scene>
+    <map_name name="Tutorial Screen2.tmx"></map_name>
+    <map_name name="1st Screen2.tmx"></map_name>
+    <fade_time value="1"/>
+  </scene>
+
+</config>
