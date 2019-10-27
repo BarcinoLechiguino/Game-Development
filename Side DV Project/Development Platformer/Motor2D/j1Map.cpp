@@ -40,81 +40,39 @@ void j1Map::Draw()
 		return;
 	}
 	
-	p2List_item<TileSet*>* tileset = data.tilesets.start; //Tileset iteration list
-	p2List_item<MapLayer*>* layer_iterator = data.layers.start;
+	MapLayer* layer = data.layers[0];
 
-	//New Revise
-	while (layer_iterator != NULL)
-	{
-		while (tileset != NULL)
+	p2List_item<MapLayer*>* item = data.layers.start;
+
+	for (item; item != nullptr; item = item->next) {
+
+		uint* gid = item->data->gid;
+		int i = 0;
+		for (uint y = 0; y < data.height; ++y)
 		{
-			uint* gid = layer_iterator->data->gid;
-
-			uint i = 0;
-			uint j = 0;
-			for (uint y = 0; y < data.height; ++y)
+			for (uint x = 0; x < data.width; ++x)
 			{
-				for (uint x = 0; x < data.width; ++x)
-				{
-					p2Point<uint> pos = tileset->data->MapToWorld(x, y);
-					//New
-					//App->render->Blit(data.tilesets[j]->texture, data.tilesets[j]->MapToWorld(x, y).x, data.tilesets[j]->MapToWorld(x, y).y, data.tilesets[j]->GetTileRect(gid[i]));
-					App->render->Blit(tileset->data->texture, pos.x, pos.y, tileset->data->GetTileRect(gid[i]));
-					i++;
-				}
+				App->render->Blit(data.tilesets[0]->texture,
+					MapToWorld(x, y).x, MapToWorld(x, y).y,
+					data.tilesets[0]->GetTileRect(gid[i]));
+				i++;
 			}
-			tileset = tileset->next;
 		}
-		layer_iterator = layer_iterator->next; //Go to next layer.
+
+	}
+}
+
+iPoint j1Map::MapToWorld(int x, int y) const 
+{
+	iPoint ret(0, 0);
+
+	if (data.type == MAPTYPE_ORTHOGONAL)
+	{
+		ret.x = x * data.tile_width;
+		ret.y = y * data.tile_height;
 	}
 
-	//Old one
-	//for (layer_iterator; layer_iterator != NULL; layer_iterator = layer_iterator->next) 
-	//{
-	//	uint* gid = layer_iterator->data->gid;
-
-	//	uint i = 0;
-	//	for (uint y = 0; y < data.height; ++y)
-	//	{
-	//		for (uint x = 0; x < data.width; ++x)
-	//		{
-	//			//New
-	//			App->render->Blit(data.tilesets[0]->texture, data.tilesets[0]->MapToWorld(x, y).x, data.tilesets[0]->MapToWorld(x, y).y, data.tilesets[0]->GetTileRect(gid[i]));
-	//			i++;
-	//		}
-	//	}
-	//	layer_iterator = layer_iterator->next; //Go to next layer.
-	//}
-	
-	//New from Handout 5
-	/*MapLayer* layer = this->data.layers.start->data;
-
-	p2List_item<MapLayer*>* layerIterator = this->data.layers.start;
-
-	while (layerIterator != NULL)
-	{
-		layer = layerIterator->data;
-
-		for (int y = 0; y < data.height; ++y)
-		{
-			for (int x = 0; x < data.width; ++x)
-			{
-				int tile_id = layer->Get(x, y);
-				if (tile_id > 0)
-				{
-					TileSet* tileset = GetTilesetFromTileId(tile_id);
-					if (tileset != nullptr)
-					{
-						SDL_Rect r = *tileset->GetTileRect(tile_id);
-						p2Point<uint> pos = tileset->MapToWorld(x, y);
-
-						App->render->Blit(tileset->texture, pos.x, pos.y, &r);
-					}
-				}
-			}
-		}
-		layerIterator = layerIterator->next;
-	}*/
+	return ret;
 }
 
 //From Handout 5
@@ -165,10 +123,17 @@ bool j1Map::CleanUp()
 		RELEASE(map_layer_item->data);
 		map_layer_item = map_layer_item->next;
 	}
-
-	//Clean Colliders
 	data.layers.clear();
 
+	//Removing all Objects
+	p2List_item<ObjectGroup*>* object_iterator = data.objectGroups.start;
+	while (object_iterator != NULL)
+	{
+		RELEASE(object_iterator->data);				//RELEASE deletes all elements in a list (deletes a buffer).
+		object_iterator = object_iterator->next;
+	}
+	data.objectGroups.clear();
+	
 	// Clean up the pugui tree
 	map_file.reset();
 
@@ -200,46 +165,46 @@ bool j1Map::Load(const char* file_name)
 
 	for(tileset = map_file.child("map").child("tileset"); tileset && ret; tileset = tileset.next_sibling("tileset"))
 	{
-		TileSet* new_tileset = new TileSet();
+		TileSet* set = new TileSet();
 
 		if(ret == true)
 		{
-			ret = LoadTilesetDetails(tileset, new_tileset);
+			ret = LoadTilesetDetails(tileset, set);
 		}
 
 		if(ret == true)
 		{
-			ret = LoadTilesetImage(tileset, new_tileset);
+			ret = LoadTilesetImage(tileset, set);
 		}
 
-		data.tilesets.add(new_tileset);
+		data.tilesets.add(set);
 	}
 
 	// Load layer info ----------------------------------------------
 	pugi::xml_node layer;
-	for (layer = map_file.child("map").child("layer"); layer && ret; layer = layer.next_sibling("layer"))
+	for (layer = map_file.child("map").child("layer"); layer; layer = layer.next_sibling("layer"))
 	{
-		MapLayer* new_layer = new MapLayer();
+		MapLayer* set_layer = new MapLayer();
 
 		if (ret == true)
 		{
-			ret = LoadLayer(layer, new_layer);
+			ret = LoadLayer(layer, set_layer);
 		}
 
-		data.layers.add(new_layer);
+		data.layers.add(set_layer);
 	}
 
-	//Load objectgroup (Objects/Colliders) Info ------------------------------------------
+	//Load Collider Info ------------------------------------------
 	pugi::xml_node objectgroup;
 	for (objectgroup = map_file.child("map").child("objectgroup"); objectgroup && ret; objectgroup = objectgroup.next_sibling("objectgroup"))
 	{
-		ObjectGroup* new_objectgroup = new ObjectGroup(); //Allocates memory for the objectgroup being iterated.
+		ObjectGroup* new_objectgroup = new ObjectGroup();			//Allocates memory for the objectgroup being iterated.
 
 		if (ret == true)
 		{
-			ret = LoadObjectLayers(objectgroup, new_objectgroup);  //Loads the data members of the objectgroup that is being iterated.
+			ret = LoadObjectLayers(objectgroup, new_objectgroup);	//Loads the data members of the objectgroup that is being iterated.
 		}
-		data.objectGroups.add(new_objectgroup);
+		data.objectGroups.add(new_objectgroup);						//Adds the object group being iterated to the list.
 	}
 
 	if(ret == true)
@@ -248,37 +213,38 @@ bool j1Map::Load(const char* file_name)
 		LOG("width: %d height: %d", data.width, data.height);
 		LOG("tile_width: %d tile_height: %d", data.tile_width, data.tile_height);
 
-		p2List_item<TileSet*>* item_tileset = data.tilesets.start;
-		while(item_tileset != NULL)
+		p2List_item<TileSet*>* item = data.tilesets.start;
+		while(item != NULL)
 		{
-			TileSet* tileset = item_tileset->data;
+			TileSet* s = item->data;
 			LOG("Tileset ----");
-			LOG("name: %s firstgid: %d", tileset->name.GetString(), tileset->firstgid);
-			LOG("tile width: %d tile height: %d", tileset->tile_width, tileset->tile_height);
-			LOG("spacing: %d margin: %d", tileset->spacing, tileset->margin);
-			item_tileset = item_tileset->next;
+			LOG("name: %s firstgid: %d", s->name.GetString(), s->firstgid);
+			LOG("tile width: %d tile height: %d", s->tile_width, s->tile_height);
+			LOG("spacing: %d margin: %d", s->spacing, s->margin);
+			item = item->next;
 		}
 
 		// Adapt this code with your own variables
+		
 		p2List_item<MapLayer*>* item_layer = data.layers.start;
 		while (item_layer != NULL)
 		{
-			MapLayer* layer = item_layer->data;
+			MapLayer* l = item_layer->data;
 			LOG("Layer ----");
-			LOG("name: %s", layer->name.GetString());
-			LOG("tile width: %d tile height: %d", layer->width, layer->height);
-			LOG("parallax speed: %f", layer->speed_x);
+			LOG("name: %s", l->name.GetString());
+			LOG("tile width: %d tile height: %d", l->width, l->height);
+			LOG("parallax speed: %f", l->speed_x);
 			item_layer = item_layer->next;
 		}
 
-		p2List_item<ObjectGroup*>* item_objectgroup = data.objectGroups.start;
-		while (item_objectgroup != NULL)
+		p2List_item<ObjectGroup*>* obj_layer = data.objectGroups.start;
+		while (obj_layer != NULL)
 		{
-			ObjectGroup* objectgroup = item_objectgroup->data;
+			ObjectGroup* o = obj_layer->data;
 			LOG("Group ----");
-			LOG("Group name: %s", objectgroup->name.GetString());
+			LOG("Gname: %s", o->name.GetString());
 
-			item_objectgroup = item_objectgroup->next;
+			obj_layer = obj_layer->next;
 		}
 	}
 
@@ -369,7 +335,7 @@ bool j1Map::LoadTilesetImage(pugi::xml_node& tileset_node, TileSet* set)
 		/*p2SString debug = folder.GetString();
 		debug += image.attribute("source").as_string();
 		set->texture = App->tex->Load(debug.GetString());*/
-		set->texture = App->tex->Load(PATH(folder.GetString(), image.attribute("source").as_string())); //Revise Source bc of bad map loading.
+		set->texture = App->tex->Load(PATH(folder.GetString(), image.attribute("source").as_string()));
 		int w, h;
 		SDL_QueryTexture(set->texture, NULL, NULL, &w, &h);
 		set->tex_width = image.attribute("width").as_int();
@@ -414,23 +380,6 @@ bool j1Map::LoadLayer(pugi::xml_node& node, MapLayer* layer)
 	}
 	
 	pugi::xml_node layer_data = node.child("data");
-	//New comment
-	layer->gid = new uint[layer->width*layer->height];				
-	memset(layer->gid, 0u, sizeof(uint)*layer->height*layer->width);
-
-	//New Revise
-	/*Goes through all the objects and records how many of them there are.
-	int layer_quantity = 0;
-	for (pugi::xml_node layerIterator = node.child("layer"); layerIterator; layerIterator = layerIterator.next_sibling("layer"))
-	{
-		layer_quantity++;
-	}
-
-	//Sets the amount of layers to be drawn (Allocates memory for all layers)
-	layer->size = layer_quantity;
-	layer->tileset = new TileSet[layer_quantity];
-	memset(layer->tileset, 0, layer_quantity * sizeof(TileSet));*/
-	
 	if (layer_data == NULL)
 	{
 		LOG("Error parsing map xml file: Cannot find 'layer/data' tag.");
@@ -465,8 +414,8 @@ bool j1Map::LoadObjectLayers(pugi::xml_node& node, ObjectGroup * objectgroup)
 	objectgroup->name = node.attribute("name").as_string();		//Sets the name of a given objectgroup to the name loaded from the tmx map.
 
 	int object_count = 0;
-	//This loop iterates all the childs of the objectgroup tag, with each iteration of the loop one object is added to the count. Used to reduce memory space waste.
-	for (pugi::xml_node object_iterator = node.child("object"); object_iterator; object_iterator = object_iterator.next_sibling("object"))	//Iterates the items inside the objectgroup tag and stops when the pointer is NULL(there are no objectGroups left to iterate) or if ret == false.
+	//This loop iterates all the childs with the object tag, with each iteration of the loop one object is added to the count. Used to reduce memory space waste.
+	for (pugi::xml_node object_iterator = node.child("object"); object_iterator; object_iterator = object_iterator.next_sibling("object"))	//Iterates the data members inside the object tag and stops when the pointer is NULL(there are no objects left to iterate) or if ret == false.
 	{
 		object_count++;
 	}
@@ -475,57 +424,59 @@ bool j1Map::LoadObjectLayers(pugi::xml_node& node, ObjectGroup * objectgroup)
 	objectgroup->object = new ObjectData[object_count];					//Individually allocates memory for each object. Here object_count is the exact number of objects all objectgroups contain, so there is no memory waste.
 	memset(objectgroup->object, 0, object_count * sizeof(ObjectData));	//Sets all allocated memory to 0;
 
-	int i = 0;
-	for (pugi::xml_node object_iterator = node.child("object"); object_iterator; object_iterator = object_iterator.next_sibling("object"), i++)
+	int index = 0;
+	for (pugi::xml_node object_iterator = node.child("object"); object_iterator; object_iterator = object_iterator.next_sibling("object")) //Iterates again all objects passed in the tmx map.
 	{
-		objectgroup->object[i].id = object_iterator.attribute("id").as_int();			//Gets the id of the object being loaded from tmx and sets it to the corresponding object in the world.
-		objectgroup->object[i].name = object_iterator.attribute("name").as_string();	//Gets the name of the object being loaded from tmx and sets it to the corresponding object in the world.
+		objectgroup->object[index].id = object_iterator.attribute("id").as_int();			//Gets the id of the object being loaded from tmx and sets it to the corresponding object in the world.
+		objectgroup->object[index].name = object_iterator.attribute("name").as_string();	//Gets the name of the object being loaded from tmx and sets it to the corresponding object in the world.
 
-		SDL_Rect* collider = new SDL_Rect;			//Allocates memory for the buffer rect(x,y,w,z) that will receive the data members of an object from the objectgroup being iterated.
+		SDL_Rect* collider = new SDL_Rect;					//Allocates memory for the buffer rect(x,y,w,z) that will receive the data members of an object from the objectgroup being iterated.
 
 		collider->x = object_iterator.attribute("x").as_int();			//Sets the buffer rect's x position to the x position of the object given by the tmx map this iteration.
 		collider->y = object_iterator.attribute("y").as_int();			//Sets the buffer rect's y position to the y position of the object given by the tmx map this iteration.
 		collider->w = object_iterator.attribute("width").as_int();		//Sets the buffer rect's width to the width of the object given by the tmx map this iteration.
 		collider->h = object_iterator.attribute("height").as_int();		//Sets the buffer rect's height to the height of the object given by the tmx map this iteration.
 
-		objectgroup->object[i].collider = collider;		//Passes the buffer rect's data members to the object in this index position. Need to use a buffer due to objectgroup only accepting a class expression.
+		objectgroup->object[index].collider = collider;		//Passes the buffer rect's data members to the object in this index position. Need to use a buffer due to objectgroup only accepting a class expression.
 
-		
+
 		p2SString object_type(object_iterator.attribute("type").as_string());		//Buffer string that improves readability of the code.
-		
+
 		//Checking the object type string being loaded from the tmx file. It's a string that's abitrarily set on Tiled, so it should be known exactly which type strings will be passed. 
-		if (object_type == "solid") 
+		if (object_type == "solid")
 		{
-			objectgroup->object[i].type = SOLID;			//As the object type string matches "solid" the object's type will be set to SOLID.
+			objectgroup->object[index].type = SOLID;			//As the object type string matches "solid" the object's type will be set to SOLID.
 		}
 		else if (object_type == "platform")
 		{
-			objectgroup->object[i].type = PLATFORM;			//As the object type string matches "platform" the object's type will be set to PLATFORM.
+			objectgroup->object[index].type = PLATFORM;			//As the object type string matches "platform" the object's type will be set to PLATFORM.
 		}
 		else if (object_type == "hazard")
 		{
-			objectgroup->object[i].type = HAZARD;			//As the object type string matches "hazard" the object's type will be set to HAZARD.
+			objectgroup->object[index].type = HAZARD;			//As the object type string matches "hazard" the object's type will be set to HAZARD.
 		}
 		else if (object_type == "item")
 		{
-			objectgroup->object[i].type = ITEM;				//As the object type string matches "item" the object's type will be set to ITEM.
+			objectgroup->object[index].type = ITEM;				//As the object type string matches "item" the object's type will be set to ITEM.
 		}
-		else if (object_type == "desctivable")
+		else if (object_type == "desactivable")
 		{
-			objectgroup->object[i].type = DESACTIVABLE;		//As the object type string matches "desactivable" the object's type will be set to DESACTIVABLE.
+			objectgroup->object[index].type = DEACTIVABLE;		//As the object type string matches "desactivable" the object's type will be set to DESACTIVABLE.
 		}
 		else if (object_type == "respawn")
 		{
-			objectgroup->object[i].type = RESPAWN;			//As the object type string matches "respawn" the object's type will be set to RESPAWN.
+			objectgroup->object[index].type = RESPAWN;			//As the object type string matches "respawn" the object's type will be set to RESPAWN.
 		}
 		else if (object_type == "goal")
 		{
-			objectgroup->object[i].type = GOAL;				//As the object type string matches "goal" the object's type will be set to GOAL.
+			objectgroup->object[index].type = GOAL;				//As the object type string matches "goal" the object's type will be set to GOAL.
 		}
 		else
 		{
-			objectgroup->object[i].type = UNKNOWN;			//If the object type string does not match any type, the object will be assigned the UKNOWN type.
+			objectgroup->object[index].type = UNKNOWN;			//If the object type string does not match any type, the object will be assigned the UKNOWN type.
 		}
+
+		index++;	//index is increased in one so the next object is iterated.
 	}
 
 	return ret;
@@ -543,10 +494,6 @@ bool j1Map::SwitchMaps(p2SString* new_map)
 
 MapLayer::~MapLayer()
 {
-	RELEASE(gid);
+	/*delete[] gid;*/ //New comment
+	RELEASE(gid); //New
 }
-
-//ObjectsGroup::~ObjectsGroup()
-//{
-//	objects.clear();
-//}

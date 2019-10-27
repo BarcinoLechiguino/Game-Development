@@ -3,20 +3,22 @@
 	<input />
 	<window />
 	<textures />
-	<audio />
+	<audio>
+		<volume />
+	</audio>
 	<map />
 	<scene>
 		<currentMap num="0" />
 	</scene>
 	<collisions />
 	<player>
-		<position1 x="480" y="900" />
+		<position1 x="130" y="-58" />
 	</player>
 	<player>
-		<position2 x="670" y="900" />
+		<position2 x="0" y="-58" />
 	</player>
 	<:anonymous />
 	<renderer>
-		<camera x="0" y="-400" />
+		<camera x="90" y="360" />
 	</renderer>
 </game_state>

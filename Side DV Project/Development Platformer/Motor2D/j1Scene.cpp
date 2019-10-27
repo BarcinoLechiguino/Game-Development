@@ -79,6 +79,21 @@ bool j1Scene::Update(float dt)
 		App->render->camera.y -= 10;
 	}
 	
+	//A spritesheet switch button just for the flavour. Not functional at the moment.
+	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)
+	{
+		if (App->player1->p1.switch_sprites == false || App->player2->p2.switch_sprites == false)
+		{
+			App->player1->p1.switch_sprites == true;
+			App->player2->p2.switch_sprites == true;
+		}
+		else
+		{
+			App->player1->p1.switch_sprites == false;
+			App->player2->p2.switch_sprites == false;
+		}
+	}
+
 	//Debug Keys
 	//Load First Level Key
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
@@ -86,7 +101,9 @@ bool j1Scene::Update(float dt)
 		//Load_lvl(0);
 
 		//New
-		App->fadescene->FadeToBlack("Tutorial Screen2.tmx");
+		App->fadescene->FadeToBlack("Tutorial_Level.tmx");
+		App->player1->Restart();
+		App->player2->Restart();
 	}
 
 	//Load Second Level Key
@@ -94,14 +111,16 @@ bool j1Scene::Update(float dt)
 	{
 		//Load_lvl(1);
 
-		App->fadescene->FadeToBlack("1st Screen2.tmx");
+		App->fadescene->FadeToBlack("1st_Level.tmx");
+		App->player1->Restart();
+		App->player2->Restart();
 	}
 
 	//Restart Key
 	else if (App->input->GetKey(SDL_SCANCODE_F3) == KEY_DOWN)
 	{
 		App->player1->Restart();
-		//App->player2->Restart();
+		App->player2->Restart();
 	}
 	
 	//Save Game Key
@@ -132,15 +151,17 @@ bool j1Scene::Update(float dt)
 	//GodMode Activation Key
 	else if (App->input->GetKey(SDL_SCANCODE_F10) == KEY_DOWN)
 	{
-		if (App->player1->GodMode)
+		if (App->player1->p1.GodMode)
 		{
-			App->player1->GodMode = false;
-			App->player2->GodMode = false;
+			App->player1->p1.GodMode = false;
+			App->player2->p2.GodMode = false;
+			App->player1->p1.airborne = true;
+			App->player2->p2.airborne = true;
 		}
 		else 
 		{
-			App->player1->GodMode = true;
-			App->player2->GodMode = true;
+			App->player1->p1.GodMode = true;
+			App->player2->p2.GodMode = true;
 		}
 
 		//Deactivable bool activation deactivation
@@ -183,18 +204,10 @@ bool j1Scene::PostUpdate()
 {
 	bool ret = true;
 
-	if (to_end)
-	{
-		if (currentMap < map_names.count() - 1)
-			ret = App->fadescene->ChangeMap(++currentMap, fade_time);
-		else
-			currentMap = 0, ret = App->fadescene->ChangeMap(currentMap, fade_time);
-
-
-		to_end = false;
-	}
 	if (App->input->GetKey(SDL_SCANCODE_ESCAPE) == KEY_DOWN)
+	{
 		ret = false;
+	}
 
 	return ret;
 }

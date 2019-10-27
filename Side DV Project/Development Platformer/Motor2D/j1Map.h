@@ -14,7 +14,7 @@ enum Object_Type //Cuidado con el class. If enum class-> Object_Type::HAZARD and
 	PLATFORM,
 	HAZARD,
 	ITEM,
-	DESACTIVABLE,
+	DEACTIVABLE,
 	RESPAWN,
 	GOAL,
 	UNKNOWN = -1
@@ -156,7 +156,7 @@ public:
 	bool SwitchMaps(p2SString* new_map);
 
 	// Load new map
-	iPoint MapToWorld(int x, int y);
+	iPoint MapToWorld(int x, int y) const; //Ya hay un map to world en TileSet
 
 private:
 
@@ -171,8 +171,7 @@ private:
 public:
 
 	bool activated = false; //Bool for the deactivable colliders.
-	MapData data; 
-
+	MapData data;
 
 private:
 	pugi::xml_document	map_file;

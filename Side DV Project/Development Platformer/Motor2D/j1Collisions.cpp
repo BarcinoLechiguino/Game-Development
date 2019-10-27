@@ -1,19 +1,18 @@
-#include "p2Defs.h"
 #include "j1App.h"
 #include "j1Collisions.h"
 #include "j1Map.h"
 #include "j1Render.h"
 
-//With the constructor call collider_debug (draw colliders on screen) is set to false.
+
+//With the constructor call collider_debug (draw colliders on screen) is set to true or false.
 j1Collisions::j1Collisions() : j1Module()
 {
 	name.create("collisions");
-	collider_debug = false;		//F9 key sets it to true or false.
+	collider_debug = true;		//F9 key sets it to true or false.
 }
 
 bool j1Collisions::Init()
 {
-
 	return true;
 };
 
@@ -23,7 +22,7 @@ bool j1Collisions::Awake(pugi::xml_node& config)
 };
 
 //Loads all objects from the tmx file, adds a collider to them and assigns them a type
-bool j1Collisions::Start() 
+bool j1Collisions::Start()
 {
 	LoadColliderFromMap();
 
@@ -31,10 +30,10 @@ bool j1Collisions::Start()
 };
 
 //Calculates the colliders's collisions and deletes from memory any collider that has been set to be deleted.
-bool j1Collisions::PreUpdate() 
+bool j1Collisions::PreUpdate()
 {
 	p2List_item<Collider*>* collider_iterator = collider_list.start;
-	
+
 	//This loop deletes from memory any collider that has been set to be deleted before calculating any new collisions.
 	while (collider_iterator != NULL)
 	{
@@ -48,7 +47,7 @@ bool j1Collisions::PreUpdate()
 	//------------------------------------------ From this point onwards collider collisions will be calculated ------------------------------------------
 	Collider* C1;		//Declares the first collider's pointer.
 	Collider* C2;		//Declares the second collider's pointer.
-	
+
 	// Declares a new list item pointer that will be associated with the first collider and sets it to the start of the list in case any colliders have been deleted.
 	p2List_item<Collider*>* C1_iterator = collider_list.start;
 	while (C1_iterator != NULL)
@@ -66,7 +65,7 @@ bool j1Collisions::PreUpdate()
 				{
 					if (C1->callback)
 					{
-						C1->callback->OnCollision(C1, C2);
+						C1->callback->OnCollision(C1, C2);		//Callback sends the OnCollision methods in P1's and P2's modules the colliders being iterated in this iteration.
 					}
 					else if (C1->callback)
 					{
@@ -82,7 +81,7 @@ bool j1Collisions::PreUpdate()
 	return true;
 };
 
-bool j1Collisions::Update(float dt) 
+bool j1Collisions::Update(float dt)
 {
 	Collider_Debug();
 	return true;
@@ -100,39 +99,40 @@ void j1Collisions::Collider_Debug()
 	{
 		p2List_item<Collider*>* collider_iterator = collider_list.start;	//Declares a list item pointer that iterates a given list, in this case the collider list.
 		while (collider_iterator != NULL)
-		{	
+		{
 			switch (collider_iterator->data->type)	//We declare a switch that will consider collider types as possible cases.
 			{
 			//Declaring a DrawQuad() with a set colour depending of the type of the object/collider that is being iterated at that moment. ALPHA is the transparency value.
 
-			case PLAYER:	//PLAYER collider will be GREEN.
+			case PLAYER:		//PLAYER collider will be GREEN.
 				App->render->DrawQuad(collider_iterator->data->collider, 0, 255, 0, ALPHA);
 				break;
 
-			case SOLID:	//SOLID collider will be BLUE.
+			case SOLID:			//SOLID collider will be BLUE.
 				App->render->DrawQuad(collider_iterator->data->collider, 0, 0, 255, ALPHA);
 				break;
 
-			case PLATFORM: //PLATFORM collider will be WHITE.
+			case PLATFORM:		//PLATFORM collider will be WHITE.
 				App->render->DrawQuad(collider_iterator->data->collider, 255, 255, 255, ALPHA);
+				break;
 
-			case HAZARD: //HAZARD collider will be RED
+			case HAZARD:		//HAZARD collider will be RED
 				App->render->DrawQuad(collider_iterator->data->collider, 255, 0, 0, ALPHA);
 				break;
 
-			case ITEM: //ITEM collider will be ORANGE
+			case ITEM:			//ITEM collider will be ORANGE
 				App->render->DrawQuad(collider_iterator->data->collider, 255, 150, 0, ALPHA);
 				break;
 
-			case DESACTIVABLE: //DEACTIVABLE collider will be YELLOW
+			case DEACTIVABLE:	//DEACTIVABLE collider will be YELLOW
 				App->render->DrawQuad(collider_iterator->data->collider, 255, 255, 0, ALPHA);
 				break;
 
-			case RESPAWN: //RESPAWN collider will be PURPLE
+			case RESPAWN:		//RESPAWN collider will be PURPLE
 				App->render->DrawQuad(collider_iterator->data->collider, 255, 0, 255, ALPHA);
 				break;
 
-			case GOAL: //GOAL collider will be PINK
+			case GOAL:			//GOAL collider will be PINK
 				App->render->DrawQuad(collider_iterator->data->collider, 255, 0, 150, ALPHA);
 				break;
 			}
@@ -141,12 +141,12 @@ void j1Collisions::Collider_Debug()
 	}
 }
 
-bool j1Collisions::PostUpdate() 
+bool j1Collisions::PostUpdate()
 {
 	return true;
 };
 
-bool j1Collisions::CleanUp() 
+bool j1Collisions::CleanUp()
 {
 	return true;
 };
@@ -182,10 +182,10 @@ void j1Collisions::LoadColliderFromMap() // Remember to put in fade to black.
 //Checks all possible collider collisions
 bool Collider::Check_Collision(const SDL_Rect& r) const //Main collider calls the method and given collider is passed as an argument.
 {
-	return ((r.x + r.w > collider.x) &&				// Collision going from right to left.
-			(r.x < collider.x + collider.w) &&		// Collison going from left to right.
-			(r.y + r.h > collider.y) &&				// Collision going down up. Jumping collision (With player, ground, platform...).
-			(r.y < collider.y + collider.h));		// Collision going up down. Falling collision (With player, ground, platform...).
+	return ((r.x + r.w > collider.x) &&			// Collision going from left to right.
+		(r.x < collider.x + collider.w) &&		// Collison going from right to left.
+		(r.y + r.h > collider.y) &&				// Collision going up down. Falling collision (With player, ground, platform...).
+		(r.y < collider.y + collider.h));		// Collision going down up. Jumping collision (With player, ground, platform...).
 }
 
 //Method that sets a collider's data members with the values of the data members of a given object. 
