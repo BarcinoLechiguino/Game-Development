@@ -1,5 +1,7 @@
 #include "Globals.h"
 #include "Application.h"
+#include "ModuleRender.h"
+#include "ModuleTextures.h"
 #include "ModulePlayer.h"
 
 ModulePlayer::ModulePlayer(Application* app, bool start_enabled) : Module(app, start_enabled)
@@ -13,6 +15,9 @@ ModulePlayer::~ModulePlayer()
 bool ModulePlayer::Start()
 {
 	LOG("Loading player");
+
+	App->renderer->Blit(App->textures->Load())
+
 	return true;
 }
 
