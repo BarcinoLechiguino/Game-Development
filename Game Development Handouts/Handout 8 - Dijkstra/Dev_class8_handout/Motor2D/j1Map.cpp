@@ -51,20 +51,18 @@ void j1Map::Path(int x, int y)
 
 	// TODO 2: Follow the breadcrumps to goal back to the origin
 	// add each step into "path" dyn array (it will then draw automatically)
-	iPoint current = goal;
-	//iPoint start(19, 4);
+	iPoint current = goal;						//Assigns the end of the path as the current tile. The algotithm backtracks from here.
 
-	if (MovementCost(goal.x, goal.y) > 0) //If movement cost is higher than 0 (3 = grass, 0 = water)
+	if (MovementCost(goal.x, goal.y) >= 0)		//If movement cost is 0 or higher than 0 (3 = grass, 0 = water)
 	{
-		while (current != visited.start->data) //Iterate while current position is different from the starting position. the Starting position data is (19, 4)
+		while (current != visited.start->data)	//Iterate while current position is different from the starting position. the Starting position data is (19, 4)
 		{
-			int i = visited.find(current); //.find returns the first appearance of data as index.
-			current = breadcrumbs[i];
-			path.PushBack(current); //Allocates memory in the path array for the current point
+			int i = visited.find(current);		//.find returns the first appearance of data as index.
+			current = breadcrumbs[i];			//Assigns the breadcrumbs of index i to current.
+			path.PushBack(current);				//Allocates memory in the path array for the current point
 		}
 	}
-	
-	path.PushBack(visited.start->data); //Allocating memory in the path array for the Origin point
+	path.PushBack(visited.start->data);			//Allocating memory in the path array for the Origin point
 }
 
 void j1Map::PropagateDijkstra()
@@ -72,6 +70,36 @@ void j1Map::PropagateDijkstra()
 	// TODO 3: Taking BFS as a reference, implement the Dijkstra algorithm
 	// use the 2 dimensional array "cost_so_far" to track the accumulated costs
 	// on each cell (is already reset to 0 automatically)
+	iPoint current;
+	
+
+	if (frontier.Pop(current))
+	{
+		iPoint neighbours[4];
+		neighbours[0].create(current.x + 1, current.y + 0);
+		neighbours[1].create(current.x + 0, current.y + 1);
+		neighbours[2].create(current.x - 1, current.y + 0);
+		neighbours[3].create(current.x + 0, current.y - 1);
+
+		for (uint i = 0; i < 4; i++)
+		{
+			if (MovementCost(neighbours[i].x, neighbours[i].y) >= 0)
+			{
+				uint new_cost = cost_so_far[current.x][current.y] + MovementCost(neighbours[i].x, neighbours[i].y);
+
+				if ((new_cost < cost_so_far[neighbours[i].x][neighbours[i].y] || visited.find(neighbours[i]) == -1) && MovementCost(neighbours[i].x, neighbours[i].y) >= 0)
+				{
+					cost_so_far[neighbours[i].x][neighbours[i].y] = new_cost;
+
+					frontier.Push(neighbours[i], 0);
+					visited.add(neighbours[i]);
+					breadcrumbs.add(current);
+				}
+			}
+		}
+	}
+
+
 }
 
 int j1Map::MovementCost(int x, int y) const
@@ -95,28 +123,78 @@ void j1Map::PropagateBFS()
 {
 	// TODO 1: Record the direction to the previous node 
 	// with the new list "breadcrumps"
-	iPoint current;
-	if (frontier.Pop(current))
-	{
-		iPoint neighbours[4];
-		neighbours[0].create(current.x + 1, current.y + 0);
-		neighbours[1].create(current.x + 0, current.y + 1);
-		neighbours[2].create(current.x - 1, current.y + 0);
-		neighbours[3].create(current.x + 0, current.y - 1);
+	iPoint current;					//Position of the current tile (in tiles).
 
-		for (uint i = 0; i < 4; ++i)
-		{	
-			if (MovementCost(neighbours[i].x, neighbours[i].y) > 0)
+	if (frontier.Pop(current))		//If the first element of frontier is not empty, then this runs
+	{
+		//Need to iterate the current tile's neighbour:
+		iPoint neighbour[4];		//Declares an array of 4 iPoints that will hold the information of the 4 neighbours of current.
+		//.create creates a p2Point with the given tile data and fills neighbour with that p2Point.
+		neighbour[0].create(current.x + 1, current.y + 0);	//Right Neighbour tile.
+		neighbour[1].create(current.x + 0, current.y + 1);	//Up Neighbour tile.
+		neighbour[2].create(current.x - 1, current.y + 0);	//Left Neighbour tile.
+		neighbour[3].create(current.x + 0, current.y - 1);	//Down Neighbour tile.
+
+		for (int i = 0; i < 4; i++)		//We declare a loop that will iterate all neighbours.
+		{
+			if (MovementCost(neighbour[i].x, neighbour[i].y >= 0))	//If the movement cost of the neighbour tile is 0 or more, then this is run. If cost is -1 then it means that there is no tile there.
 			{
-				if (visited.find(neighbours[i]) == -1)
+				if (visited.find(neighbour[i]) == -1)	//If the tile/neighbour has not been visited yet (list returns -1 when it does not find any data of the tile).
 				{
-					frontier.Push(neighbours[i], 0);
-					visited.add(neighbours[i]);
-					breadcrumbs.add(current); //Adds the parent node.
+					frontier.Push(neighbour[i], 0);		//Adds to frontier the neighbour tile being iterated.
+					visited.add(neighbour[i]);			//Adds the neighbour being iterated to the visited list.
+					breadcrumbs.add(current);			//Adds the current tile being expanded to the breadcrumbs list.
 				}
 			}
-		}
-	}
+		} 
+	}		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//iPoint current;					//Position coordinates of the tile.
+	//if (frontier.Pop(current))		//If current is not empty then run. Pops out of the queue the current tile (passing the coordinates)
+	//{
+	//	iPoint neighbours[4];		//Declares an array of 4 points that represent the 4 tiles that are around the current/parent tile
+	//	neighbours[0].create(current.x + 1, current.y + 0);		//Right Neighbour Tile
+	//	neighbours[1].create(current.x + 0, current.y + 1);		//Up Neighbour Tile
+	//	neighbours[2].create(current.x - 1, current.y + 0);		//Left Neighbour Tile
+	//	neighbours[3].create(current.x + 0, current.y - 1);		//Down Neighbour Tile
+
+	//	for (uint i = 0; i < 4; ++i)							//Iterates all neighbours
+	//	{	
+	//		if (MovementCost(neighbours[i].x, neighbours[i].y) >= 0)		//Checks the cost of a tile
+	//		{
+	//			if (visited.find(neighbours[i]) == -1)			//Checks if the neighbour hasn't been visited yet.
+	//			{
+	//				frontier.Push(neighbours[i], 0);			//Puts on the neighbour being iterated in the frontier queue.
+	//				visited.add(neighbours[i]);					//Adds the neighbour being iterated to the visited list.
+	//				breadcrumbs.add(current);					//Adds the parent node to the breadcrumb list.
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void j1Map::DrawPath()
