@@ -71,7 +71,7 @@ void j1Map::PropagateDijkstra()
 	// use the 2 dimensional array "cost_so_far" to track the accumulated costs
 	// on each cell (is already reset to 0 automatically)
 	iPoint current;
-	
+
 
 	if (frontier.Pop(current))
 	{
@@ -98,8 +98,6 @@ void j1Map::PropagateDijkstra()
 			}
 		}
 	}
-
-
 }
 
 int j1Map::MovementCost(int x, int y) const
