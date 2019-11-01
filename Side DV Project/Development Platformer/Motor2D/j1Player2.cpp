@@ -637,6 +637,11 @@ bool j1Player2::LoadPlayer2()		//Loads P2 on screen.
 	return true;
 }*/
 
+void j1Player2::AddAnimationPushbacks()
+{
+
+}
+
 void j1Player2::Restart()
 {
 	p2.position = p2.spawn_position;

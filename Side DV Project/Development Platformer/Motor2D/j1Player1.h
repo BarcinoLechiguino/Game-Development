@@ -120,7 +120,8 @@ public: //P1 Variables
 	bool Load(pugi::xml_node &node);				//Loading from xml file.
 	bool Save(pugi::xml_node &node) const;			//Saving to xml file.
 	bool LoadPlayer1();								//Loads P1 on screen (Position, Colliders...)
-	//bool LoadPlayer1Textures();						//Loads P1's textures on screen.
+	//bool LoadPlayer1Textures();					//Loads P1's textures on screen.
+	void AddAnimationPushbacks();					//Loads P1's animation pushbacks.
 	void Restart();									//Resets P1's position to where P1 started the level. 
 	void GodModeInput();							//Enables / Disables the God Mode.
 

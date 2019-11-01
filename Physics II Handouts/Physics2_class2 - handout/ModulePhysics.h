@@ -22,10 +22,10 @@ class b2Body;
 class Object
 {	
 public:
-	b2Body* objectBody;				//Pointer to b2Body
-	b2Vec2* GetPosition();			//Has to return a vector
-	b2Vec2* GetCenterPosition();
-	float GetRotation();
+	b2Body*	objectBody;				//Pointer to b2Body
+	b2Vec2*	GetPosition();			//Has to return a vector
+	b2Vec2*	GetCenterPosition();
+	float	GetRotation();
 };
 
 class ModulePhysics : public Module
