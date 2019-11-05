@@ -16,7 +16,7 @@ bool ModulePlayer::Start()
 {
 	LOG("Loading player");
 
-	App->renderer->Blit(App->textures->Load())
+	//App->renderer->Blit(App->textures->Load())
 
 	return true;
 }

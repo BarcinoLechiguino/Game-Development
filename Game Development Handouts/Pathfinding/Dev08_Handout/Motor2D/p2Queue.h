@@ -14,7 +14,7 @@
 template<class tdata>
 struct p2Queue_item
 {
-	tdata				   data;
+	tdata                 data;
 	p2Queue_item<tdata>*   next;
 
 	inline p2Queue_item(const tdata& _data) : data(_data), next(NULL)

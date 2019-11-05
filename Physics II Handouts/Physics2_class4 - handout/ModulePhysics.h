@@ -10,7 +10,7 @@
 #define METER_PER_PIXEL 0.02f // this is 1 / PIXELS_PER_METER !
 
 #define METERS_TO_PIXELS(m) ((int) floor(PIXELS_PER_METER * m))
-#define PIXEL_TO_METERS(p)  ((float) METER_PER_PIXEL * p)
+#define PIXELS_TO_METERS(p)  ((float) METER_PER_PIXEL * p)
 
 // Small class to return to other modules to track position and rotation of physics bodies
 class PhysBody
@@ -47,8 +47,6 @@ public:
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
 	PhysBody* CreateChain(int x, int y, int* points, int size);
 
-	PhysBody* foundBody;
-
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);
 
@@ -58,4 +56,7 @@ private:
 	b2World* world;
 	b2MouseJoint* mouse_joint;
 	b2Body* ground;
+	b2Body* clickedObject;
+	b2Vec2 mouse_position;
+	bool clicked;
 };

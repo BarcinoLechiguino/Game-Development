@@ -131,6 +131,7 @@ update_status ModuleSceneIntro::Update()
 		};
 
 		Object* body = App->physics->CreateChain(App->input->GetMouseX(), App->input->GetMouseY(), Im_Rick, 40, rick_head, 80);
+		bodyList.add(*body);
 	}
 
 	if (App->input->GetKey(SDL_SCANCODE_5) == KEY_DOWN)

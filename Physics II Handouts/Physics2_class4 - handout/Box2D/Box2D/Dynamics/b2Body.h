@@ -54,7 +54,7 @@ struct b2BodyDef
 	b2BodyDef()
 	{
 		userData = NULL;
-		position.Set(0.0f, 0.0f);
+		mouse_position.Set(0.0f, 0.0f);
 		angle = 0.0f;
 		linearVelocity.Set(0.0f, 0.0f);
 		angularVelocity = 0.0f;
@@ -75,7 +75,7 @@ struct b2BodyDef
 
 	/// The world position of the body. Avoid creating bodies at the origin
 	/// since this can lead to many overlapping shapes.
-	b2Vec2 position;
+	b2Vec2 mouse_position;
 
 	/// The world angle of the body in radians.
 	float32 angle;
@@ -158,7 +158,7 @@ public:
 	/// Note: contacts are updated on the next call to b2World::Step.
 	/// @param position the world position of the body's local origin.
 	/// @param angle the world rotation in radians.
-	void SetTransform(const b2Vec2& position, float32 angle);
+	void SetTransform(const b2Vec2& mouse_position, float32 angle);
 
 	/// Get the body transform for the body's origin.
 	/// @return the world transform of the body's origin.

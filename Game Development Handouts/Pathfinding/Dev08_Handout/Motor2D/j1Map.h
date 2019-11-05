@@ -88,8 +88,8 @@ enum MapTypes
 // ----------------------------------------------------
 struct MapData
 {
-	int					width;
-	int					height;
+	int					width;				//Map's width in tiles.
+	int					height;				//Map's height in tiles. 
 	int					tile_width;
 	int					tile_height;
 	SDL_Color			background_color;
@@ -150,6 +150,7 @@ private:
 	bool				map_loaded;
 
 	/// BFS
+	iPoint				current;
 	p2Queue<iPoint>		frontier;
 	p2List<iPoint>		visited;
 };

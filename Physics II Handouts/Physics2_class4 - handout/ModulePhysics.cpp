@@ -42,12 +42,12 @@ bool ModulePhysics::Start()
 
 	b2BodyDef body;
 	body.type = b2_staticBody;
-	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	body.position.Set(PIXELS_TO_METERS(x), PIXELS_TO_METERS(y));
 
 	b2Body* big_ball = world->CreateBody(&body);
 
 	b2CircleShape shape;
-	shape.m_radius = PIXEL_TO_METERS(diameter) * 0.5f;
+	shape.m_radius = PIXELS_TO_METERS(diameter) * 0.5f;
 
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
@@ -79,12 +79,12 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
 {
 	b2BodyDef body;
 	body.type = b2_dynamicBody;
-	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	body.position.Set(PIXELS_TO_METERS(x), PIXELS_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
 
 	b2CircleShape shape;
-	shape.m_radius = PIXEL_TO_METERS(radius);
+	shape.m_radius = PIXELS_TO_METERS(radius);
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
 	fixture.density = 1.0f;
@@ -103,11 +103,11 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
 {
 	b2BodyDef body;
 	body.type = b2_dynamicBody;
-	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	body.position.Set(PIXELS_TO_METERS(x), PIXELS_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
 	b2PolygonShape box;
-	box.SetAsBox(PIXEL_TO_METERS(width) * 0.5f, PIXEL_TO_METERS(height) * 0.5f);
+	box.SetAsBox(PIXELS_TO_METERS(width) * 0.5f, PIXELS_TO_METERS(height) * 0.5f);
 
 	b2FixtureDef fixture;
 	fixture.shape = &box;
@@ -128,12 +128,12 @@ PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int heig
 {
 	b2BodyDef body;
 	body.type = b2_staticBody;
-	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	body.position.Set(PIXELS_TO_METERS(x), PIXELS_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
 
 	b2PolygonShape box;
-	box.SetAsBox(PIXEL_TO_METERS(width) * 0.5f, PIXEL_TO_METERS(height) * 0.5f);
+	box.SetAsBox(PIXELS_TO_METERS(width) * 0.5f, PIXELS_TO_METERS(height) * 0.5f);
 
 	b2FixtureDef fixture;
 	fixture.shape = &box;
@@ -155,7 +155,7 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
 {
 	b2BodyDef body;
 	body.type = b2_dynamicBody;
-	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	body.position.Set(PIXELS_TO_METERS(x), PIXELS_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
 
@@ -164,8 +164,8 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
 
 	for(uint i = 0; i < size / 2; ++i)
 	{
-		p[i].x = PIXEL_TO_METERS(points[i * 2 + 0]);
-		p[i].y = PIXEL_TO_METERS(points[i * 2 + 1]);
+		p[i].x = PIXELS_TO_METERS(points[i * 2 + 0]);
+		p[i].y = PIXELS_TO_METERS(points[i * 2 + 1]);
 	}
 
 	shape.CreateLoop(p, size / 2);
@@ -193,6 +193,8 @@ update_status ModulePhysics::PostUpdate()
 
 	if(!debug)
 		return UPDATE_CONTINUE;
+
+	clicked = false;
 
 	// Bonus code: this will iterate all objects in the world and draw the circles
 	// You need to provide your own macro to translate meters to pixels
@@ -269,12 +271,13 @@ update_status ModulePhysics::PostUpdate()
 			// test if the current body contains mouse position
 			if(App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_DOWN)
 			{
-				b2Vec2 point(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()));
+				mouse_position.x = PIXELS_TO_METERS(App->input->GetMouseX());
+				mouse_position.y = PIXELS_TO_METERS(App->input->GetMouseY());
 
-				foundBody = (PhysBody*)b->GetUserData();
-				if (!foundBody->Contains(PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY())) /*b->GetFixtureList()->GetShape()->TestPoint(b->GetTransform(), point)*/)
+				if (f->TestPoint(mouse_position))
 				{
-					foundBody = NULL;
+					clicked = true;
+					clickedObject = f->GetBody();
 				}
 			}
 		}
@@ -284,15 +287,16 @@ update_status ModulePhysics::PostUpdate()
 	// so we can pull it around
 	// TODO 2: If a body was selected, create a mouse joint
 	// using mouse_joint class property
-	if (foundBody != NULL)
+	if (clicked)
 	{
 		b2MouseJointDef mouse_JointDef;
-		mouse_JointDef.bodyA = foundBody->body;
-		mouse_JointDef.bodyB = ground;
-		mouse_JointDef.target = { PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()) };
+		mouse_JointDef.bodyA = ground;
+		mouse_JointDef.bodyB = clickedObject;
+		mouse_JointDef.target = mouse_position;
 		mouse_JointDef.dampingRatio = 0.5f;
 		mouse_JointDef.frequencyHz = 2.0f;
 		mouse_JointDef.maxForce = 100.0f * ground->GetMass();
+		
 		mouse_joint = (b2MouseJoint*)world->CreateJoint(&mouse_JointDef);
 	}
 
@@ -302,14 +306,15 @@ update_status ModulePhysics::PostUpdate()
 	// target position and draw a red line between both anchor points
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT)
 	{
-		//App->renderer->DrawLine(ground->GetFixtureList()->GetBody()->GetPosition().x, ground->GetFixtureList()->GetBody()->GetPosition().y, PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()), 255, 0, 0);
-		
+		mouse_joint->SetTarget({ PIXELS_TO_METERS(App->input->GetMouseX()),PIXELS_TO_METERS(App->input->GetMouseY()) });
+		App->renderer->DrawLine((App->input->GetMouseX()) , (App->input->GetMouseY()), METERS_TO_PIXELS(mouse_joint->GetAnchorB().x), METERS_TO_PIXELS(mouse_joint->GetAnchorB().y), 255, 0, 0);
 	}
 
 
 	// TODO 4: If the player releases the mouse button, destroy the joint
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_UP)
 	{
+		world->DestroyJoint(mouse_joint);
 		mouse_joint = NULL;
 	}
 
@@ -343,7 +348,7 @@ float PhysBody::GetRotation() const
 
 bool PhysBody::Contains(int x, int y) const
 {
-	b2Vec2 p(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	b2Vec2 p(PIXELS_TO_METERS(x), PIXELS_TO_METERS(y));
 
 	const b2Fixture* fixture = body->GetFixtureList();
 
@@ -364,8 +369,8 @@ int PhysBody::RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& no
 	b2RayCastInput input;
 	b2RayCastOutput output;
 
-	input.p1.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
-	input.p2.Set(PIXEL_TO_METERS(x2), PIXEL_TO_METERS(y2));
+	input.p1.Set(PIXELS_TO_METERS(x1), PIXELS_TO_METERS(y1));
+	input.p2.Set(PIXELS_TO_METERS(x2), PIXELS_TO_METERS(y2));
 	input.maxFraction = 1.0f;
 
 	const b2Fixture* fixture = body->GetFixtureList();
