@@ -71,6 +71,14 @@ bool j1Scene::Update(float dt)
 	if (App->input->GetKey(SDL_SCANCODE_M) == KEY_REPEAT)
 		App->map->PropagateBFS();
 
+	if (App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)
+	{
+		iPoint goal;
+		App->input->GetMousePosition(goal.x, goal.y);
+		App->map->Path(goal.x, goal.y);
+	}
+		
+
 	App->map->Draw();
 
 	int x, y;

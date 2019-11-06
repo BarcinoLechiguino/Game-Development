@@ -4,6 +4,7 @@
 #include "j1Render.h"
 #include "j1Textures.h"
 #include "j1Map.h"
+#include "j1Input.h"
 #include <math.h>
 
 j1Map::j1Map() : j1Module(), map_loaded(false)
@@ -36,31 +37,39 @@ void j1Map::ResetBFS()
 }
 
 void j1Map::PropagateBFS()
-{
+{	
 	// TODO 1: If frontier queue contains elements
 	// pop the last one and calculate its 4 neighbors
-	frontier.start;
-
-	if (frontier.Count() != 0)
+	//Before propagating the BFS the frontier queue should be reset to the first element. ResetBFS() --> frontier.Clear(), visited.clear(), frontier.Push(origin), visited.add(origin).
+	current = { 19, 4 };											//Done for readability. Could also be declared as current = iPoint(x, y).
+																	//Using if because we only want to do only ONE iteration each time the method is called.
+	if (frontier.Count() != 0)										//.Count() counts the elements that are in the queue.
 	{
-		iPoint current;
-		frontier.Pop(current);
+		frontier.Pop(current);										//Pops the given element from the queue, in this case the position data members of current.
 
-		iPoint neighbours[4];
+		iPoint neighbour[4];										//Declares an array that will hold the position data of the current tile's neighbours.
 
-		neighbours[0] = iPoint{ current.x + 1, current.y }; //Right
-		neighbours[1] = iPoint{ current.x - 1, current.y }; //Left
-		neighbours[2] = iPoint{ current.x, current.y + 1 }; //Up
-		neighbours[3] = iPoint{ current.x, current.y - 1 }; //Down
+		//Having (0, 0) (in tiles) at the top left corner of the screen:
+		neighbour[0] = { current.x + 1, current.y + 0 };			//Neighbour tile to the RIGHT.
+		neighbour[1] = { current.x + 0, current.y + 1 };			//Neighbour tile directly UP.
+		neighbour[2] = { current.x - 1, current.y + 0 };			//Neighbour tile to the LEFT.
+		neighbour[3] = { current.x + 0, current.y - 1 };			//Neighbour tile directly DOWN.
 
+		// TODO 2: For each neighbor, if not visited, add it
+		// to the frontier queue and visited list
 		for (int i = 0; i < 4; i++)
 		{
-			// TODO 2: For each neighbor, if not visited, add it
-			// to the frontier queue and visited list
-			if (visited.find(neighbours[i]) == -1) //When the neighbour has been iterated 
+			if (neighbour[i] != goal)
 			{
-				frontier.Push(neighbours[i]);
-				visited.add(neighbours[i]);
+				if (IsWalkable(neighbour[i].x, neighbour[i].y) == true) //IsWalkable returns true whenthe given poisition is inside the bounds of the map and the terrain is walkable (tile_id = 0).
+				{
+					if (visited.find(neighbour[i]) == -1)				//.find() returns the index of the given data (iPoint in this case). If nothing is found then it returns -1. 
+					{
+						frontier.Push(neighbour[i]);					//Adds the neighbour being iterated to the frontier queue.
+						visited.add(neighbour[i]);						//Adds the neighbour being iterated to the visited list.
+						breadcrumbs.add(current);						//Adds the parent of the neighbour being iterated.
+					}
+				}
 			}
 		}
 	}
@@ -104,25 +113,45 @@ bool j1Map::IsWalkable(int x, int y) const
 {
 	// TODO 3: return true only if x and y are within map limits
 	// and the tile is walkable (tile id 0 in the navigation layer)
-	if (x <= data.width && y <= data.height)
+	bool ret = false;
+
+	if (x >= 0 && x < data.width && y >= 0 && y < data.height)		//The MapData struct contains all the data members of a given map. In this case the data members data.width and data.height return the map's width and height in tiles.
 	{
-		/*p2List_item<MapLayer*>* map_iterator = data.layers.start;
-		while (map_iterator != NULL)
+		int tile_id = data.layers.start->next->data->Get(x, y);		//Gets the properties of the tile in the given position in the navigation layer. As we only have 2 layers we can just use data.layers.start->next to get to the second layer.
+
+		if(tile_id == 0)
 		{
-			if ()
-			{
-
-			}
-		}*/
-
-
-		if (data.layers.start->data->data[data.layers.start->data->Get(x, y)])
+			ret = true;
+		}
+		else
 		{
-			return true;
+			ret = false;
 		}
 	}
 
-	return true;
+	return ret;
+}
+
+void j1Map::Path(int x, int y)
+{
+	goal = WorldToMap(x, y);							//Converts the coordinates of the position of the mouse in the world to coordinates in the map.
+
+	current = goal;										//Makes current the goal tile.
+
+	if (IsWalkable(current.x, current.y) == true)		//We check that the path back is walkable. (Not outside the map's boundaries or on unwalkable terrain)
+	{
+		while (current != visited.start->data)			//Checks that the position of current is not the same as the position of the first element in the visited list (the origin).
+		{
+			for (int i = 0; i != breadcrumbs.count(); i++) //Maybe an array will solve the problem of not having DynArray?
+			{
+				i++;
+			}
+			
+			int i = visited.find(current);				//Finds the index position in the visited list of the current tile. 
+			current = breadcrumbs[i];					//Gets the parent of the current tile.
+
+		}
+	}
 }
 
 void j1Map::Draw()

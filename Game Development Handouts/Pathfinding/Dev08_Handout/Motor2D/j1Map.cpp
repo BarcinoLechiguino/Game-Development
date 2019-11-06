@@ -41,18 +41,23 @@ void j1Map::PropagateBFS()
 	// pop the last one and calculate its 4 neighbors
 	current = iPoint(19, 4);
 
-	if (frontier.Pop(current) != NULL)								//Checks that the first element of the queue is not empty.
-	{
-		iPoint neighbour[4];										//Declaring an array that will have the position of all 4 neighbours of the current tile.
-																	//Having (0, 0) at the top left corner of the screen:
-		neighbour[0] = { current.x + 1, current.y + 0 };			//Neighbour 1 will be the tile directly to the right of the current tile.
-		neighbour[1] = { current.x + 0, current.y + 1 };			//Neighbour 2 will be the tile directly up of the current tile.
-		neighbour[2] = { current.x - 1, current.y + 0 };			//Neighbour 3 will be the tile directly to the left of the current tile.
-		neighbour[3] = { current.x + 0, current.y - 1 };			//Neighbour 4 will be the tile directly down of the current tile.
-	
-		// TODO 2: For each neighbor, if not visited, add it
-		// to the frontier queue and visited list
-		for (int i = 0; i < 4; i++)										//Loop that iterates each element of the neighbour[] array.
+	//if (frontier.Pop(current) != NULL)							//Checks that the first element of the queue is not empty.
+	//{
+	//	iPoint neighbour[4];										//Declaring an array that will have the position of all 4 neighbours of the current tile.
+	//																//Having (0, 0) at the top left corner of the screen:
+	//	neighbour[0] = { current.x + 1, current.y + 0 };			//Neighbour 1 will be the tile directly to the right of the current tile.
+	//	neighbour[1] = { current.x + 0, current.y + 1 };			//Neighbour 2 will be the tile directly up of the current tile.
+	//	neighbour[2] = { current.x - 1, current.y + 0 };			//Neighbour 3 will be the tile directly to the left of the current tile.
+	//	neighbour[3] = { current.x + 0, current.y - 1 };			//Neighbour 4 will be the tile directly down of the current tile.
+	//
+	//	// TODO 2: For each neighbor, if not visited, add it
+	//	// to the frontier queue and visited list
+	//	for (int i = 0; i < 4; i++) //Loop that iterates each element of the neighbour[] array.
+	//	{
+	//		
+
+	//	}
+		
 		iPoint current;
 	if (frontier.Pop(current) !=  NULL)
 	{
@@ -64,14 +69,13 @@ void j1Map::PropagateBFS()
 		neighbours[3] = { current.x + 0, current.y - 1 }; //Down
 	
 		for (int i = 0; i < 4; i++)
->>>>>>
 		{
-			if (IsWalkable(neighbour[i].x, neighbour[i].y) == true)		//Checks if the tile the neigbour beint iterated is at is walkable or not (out of bounds of map = not walkable).
+			if (IsWalkable(neighbours[i].x, neighbours[i].y) == true)		//Checks if the tile the neigbour beint iterated is at is walkable or not (out of bounds of map = not walkable).
 			{
-				if (visited.find(neighbour[i]) == -1)					//If the neighbour being iterated is not already in the visited list. The find() method returns -1 when it does not find anything.
+				if (visited.find(neighbours[i]) == -1)					//If the neighbour being iterated is not already in the visited list. The find() method returns -1 when it does not find anything.
 				{
-					frontier.Push(neighbour[i]);						//Adds the neighbour being iterated to the frontier queue.
-					visited.add(neighbour[i]);							//Adds the neighbour being iterated to the visited list.
+					frontier.Push(neighbours[i]);						//Adds the neighbour being iterated to the frontier queue.
+					visited.add(neighbours[i]);							//Adds the neighbour being iterated to the visited list.
 				}
 			}
 		}
@@ -115,6 +119,7 @@ void j1Map::DrawBFS()
 bool j1Map::IsWalkable(int x, int y) const
 {
 	bool ret = false;
+	
 	// TODO 3: return true only if x and y are within map limits
 	// and the tile is walkable (tile id 0 in the navigation layer)
 
@@ -131,7 +136,6 @@ bool j1Map::IsWalkable(int x, int y) const
 			ret = false;
 		}
 	}
->>>>>>> 
 
 	return ret;
 }

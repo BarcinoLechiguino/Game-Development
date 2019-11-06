@@ -128,6 +128,7 @@ public:
 	void DrawBFS();
 	bool IsWalkable(int x, int y) const;
 	void ResetBFS();
+	void Path(int x, int y);
 
 private:
 
@@ -141,7 +142,7 @@ private:
 
 public:
 
-	MapData data;
+	MapData			data;
 
 private:
 
@@ -150,8 +151,12 @@ private:
 	bool				map_loaded;
 
 	/// BFS
+	iPoint				current;		//Has the position of the current tile
+	iPoint				goal;		//Position that has been designated as a goal.
 	p2Queue<iPoint>		frontier;
 	p2List<iPoint>		visited;
+	
+	p2List<iPoint>		breadcrumbs;	//Parent of each traversed node.
 };
 
 #endif // __j1MAP_H__
