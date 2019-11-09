@@ -32,17 +32,18 @@ void j1Map::ResetBFS()
 {
 	frontier.Clear();
 	visited.clear();
-	frontier.Push(iPoint(19, 4));
-	visited.add(iPoint(19, 4));
+	
+	current = { 19, 4 };											//Done for readability. Could also be declared as current = iPoint(x, y).
+	frontier.Push(current);
+	visited.add(current);
 }
 
 void j1Map::PropagateBFS()
 {	
 	// TODO 1: If frontier queue contains elements
 	// pop the last one and calculate its 4 neighbors
-	//Before propagating the BFS the frontier queue should be reset to the first element. ResetBFS() --> frontier.Clear(), visited.clear(), frontier.Push(origin), visited.add(origin).
-	current = { 19, 4 };											//Done for readability. Could also be declared as current = iPoint(x, y).
-																	//Using if because we only want to do only ONE iteration each time the method is called.
+		//Before propagating the BFS the frontier queue should be reset to the first element. ResetBFS() --> frontier.Clear(), visited.clear(), frontier.Push(origin), visited.add(origin).
+		//Using if because we only want to do only ONE iteration each time the method is called.
 	if (frontier.Count() != 0)										//.Count() counts the elements that are in the queue.
 	{
 		frontier.Pop(current);										//Pops the given element from the queue, in this case the position data members of current.
@@ -61,7 +62,7 @@ void j1Map::PropagateBFS()
 		{
 			if (neighbour[i] != goal)
 			{
-				if (IsWalkable(neighbour[i].x, neighbour[i].y) == true) //IsWalkable returns true whenthe given poisition is inside the bounds of the map and the terrain is walkable (tile_id = 0).
+				if (IsWalkable(neighbour[i].x, neighbour[i].y) == true) //IsWalkable returns true when the given poisition is inside the bounds of the map and the terrain is walkable (tile_id = 0).
 				{
 					if (visited.find(neighbour[i]) == -1)				//.find() returns the index of the given data (iPoint in this case). If nothing is found then it returns -1. 
 					{
@@ -113,7 +114,7 @@ bool j1Map::IsWalkable(int x, int y) const
 {
 	// TODO 3: return true only if x and y are within map limits
 	// and the tile is walkable (tile id 0 in the navigation layer)
-	bool ret = false;
+	bool ret = false;												//This needs to be set to false as default state so when the algorithm gets to a space out of the map (no tile id) it also stops iterating. 
 
 	if (x >= 0 && x < data.width && y >= 0 && y < data.height)		//The MapData struct contains all the data members of a given map. In this case the data members data.width and data.height return the map's width and height in tiles.
 	{
@@ -149,7 +150,6 @@ void j1Map::Path(int x, int y)
 			
 			int i = visited.find(current);				//Finds the index position in the visited list of the current tile. 
 			current = breadcrumbs[i];					//Gets the parent of the current tile.
-
 		}
 	}
 }
