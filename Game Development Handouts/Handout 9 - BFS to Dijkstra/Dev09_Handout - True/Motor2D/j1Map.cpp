@@ -84,6 +84,8 @@ void j1Map::PropagateDijkstra()
 		neighbour[2] = { current.x - 1, current.y + 0 };	//LEFT neighbour
 		neighbour[3] = { current.x + 0, current.y - 1 };	//DOWN neighbour
 
+		LOG("Current Tile: (%d, %d)", current.x, current.y);
+
 		for (int i = 0; i < 4; i++)
 		{
 			if (MovementCost(neighbour[i].x, neighbour[i].y) >= 0)																	//Checks that the position of the neighbour being iterated is inide the map's bounds.
@@ -101,6 +103,7 @@ void j1Map::PropagateDijkstra()
 					}
 				}
 			}
+			LOG("Neighbour Tile: (%d, %d)", neighbour[i].x, neighbour[i].y);
 		}
 	}
 }
@@ -129,20 +132,20 @@ void j1Map::PropagateBFS()
 	iPoint current;
 	if (frontier.Pop(current))
 	{
-		iPoint neighbours[4];
-		neighbours[0].create(current.x + 1, current.y + 0);
-		neighbours[1].create(current.x + 0, current.y + 1);
-		neighbours[2].create(current.x - 1, current.y + 0);
-		neighbours[3].create(current.x + 0, current.y - 1);
+		iPoint neighbour[4];
+		neighbour[0].create(current.x + 1, current.y + 0);
+		neighbour[1].create(current.x + 0, current.y + 1);
+		neighbour[2].create(current.x - 1, current.y + 0);
+		neighbour[3].create(current.x + 0, current.y - 1);
 
 		for (uint i = 0; i < 4; ++i)
 		{
-			if (MovementCost(neighbours[i].x, neighbours[i].y) > 0)
+			if (MovementCost(neighbour[i].x, neighbour[i].y) > 0)
 			{
-				if (visited.find(neighbours[i]) == -1)
+				if (visited.find(neighbour[i]) == -1)
 				{
-					frontier.Push(neighbours[i], 0);
-					visited.add(neighbours[i]);
+					frontier.Push(neighbour[i], 0);
+					visited.add(neighbour[i]);
 					breadcrumbs.add(current);
 				}
 			}

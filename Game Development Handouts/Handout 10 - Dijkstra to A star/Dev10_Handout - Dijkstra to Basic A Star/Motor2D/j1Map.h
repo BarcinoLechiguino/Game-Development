@@ -132,12 +132,16 @@ public:
 	void ResetPath();
 	void DrawPath();
 	void Path(int x, int y);
+	int ManhattanDistance(iPoint goal, iPoint current);
+	int NoSqrDistance(iPoint goal, iPoint current);
+	int Distance(iPoint goal, iPoint current);
+	float SqrDistance(iPoint goal, iPoint current);
 
 	// Propagation style
 	void PropagateBFS();
 	void PropagateDijkstra();
 	
-	// TODO 2: Create a PropagateAStar as a copy from Dijstra
+	// TODO 2: Create a PropagateAStar() as a copy from Dijstra
 	void PropagateAStar();
 
 private:
@@ -154,7 +158,8 @@ public:
 
 	MapData data;
 
-	p2Point<int>		goal;
+	p2Point<int>		goal;								//Position from the final destination of the algorithm. Set on mouse click (see Scene.cpp)
+	bool				goalReached;						//Checks whether or not the algorithm expansion has reached the goal.
 
 private:
 
@@ -167,6 +172,7 @@ private:
 	p2List<iPoint>		visited;
 	p2List<iPoint>		breadcrumbs;
 	uint				cost_so_far[COST_MAP][COST_MAP];
+	uint				priority;							//Takes into account the new_cost and the distance (priority = new_cost + distance).
 	p2DynArray<iPoint>	path;
 	SDL_Texture*		tile_x = nullptr;
 };

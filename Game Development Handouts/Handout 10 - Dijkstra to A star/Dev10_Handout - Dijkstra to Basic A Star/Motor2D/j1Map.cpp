@@ -42,6 +42,8 @@ void j1Map::ResetPath()
 	visited.add(iPoint(19, 4));
 	breadcrumbs.add(iPoint(19, 4));
 	memset(cost_so_far, 0, sizeof(uint) * COST_MAP * COST_MAP);
+
+	goalReached = false;
 }
 
 void j1Map::Path(int x, int y)
@@ -69,7 +71,54 @@ void j1Map::Path(int x, int y)
 // The distance heuristic should be one of three: Manhattan, Square root, Distance.
 void j1Map::PropagateAStar()
 {
+	iPoint current;
 
+	if (goalReached == false)
+	{
+		if (frontier.Count() != 0)
+		{
+			frontier.Pop(current);
+
+			iPoint neighbour[8];
+
+			neighbour[0] = { current.x + 1, current.y + 0 };	//RIGHT neighbour
+			neighbour[1] = { current.x + 0, current.y + 1 };	//UP neighbour
+			neighbour[2] = { current.x - 1, current.y + 0 };	//LEFT neighbour
+			neighbour[3] = { current.x + 0, current.y - 1 };	//DOWN neighbour
+			neighbour[4] = { current.x + 1, current.y + 1 };	//RIGHT UP neighbour
+			neighbour[5] = { current.x + 1, current.y - 1 };	//RIGHT DOWN neighbour
+			neighbour[6] = { current.x - 1, current.y + 1 };	//LEFT UP neighbour
+			neighbour[7] = { current.x - 1, current.y - 1 };	//LEFT DOWN neighbour
+
+			if (current == goal)
+			{
+				goalReached = true;
+				return;
+			}
+
+			for (int i = 0; i < 8; i++)
+			{
+				if (MovementCost(neighbour[i].x, neighbour[i].y) >= 0)
+				{
+					int new_cost = cost_so_far[current.x][current.y] + MovementCost(neighbour[i].x, neighbour[i].y);
+					//int distance = goal.DistanceNoSqrt(neighbour[i]);
+					int distance = Distance(goal, neighbour[i]);						//Calculates the distance between the neighbour being iterated and the goal.
+
+					if ((cost_so_far[neighbour[i].x][neighbour[i].y] == NULL || new_cost < cost_so_far[neighbour[i].x][neighbour[i].y]))
+					{
+						if (visited.find(neighbour[i]) == -1)
+						{
+							cost_so_far[neighbour[i].x][neighbour[i].y] = new_cost;
+							priority = new_cost + distance;								//Calculates the priority of this neighbour by taking into account the new cost and distance between the neighbour and the goal.
+							frontier.Push(neighbour[i], priority);
+							visited.add(neighbour[i]);
+							breadcrumbs.add(current);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void j1Map::PropagateDijkstra()
@@ -79,28 +128,32 @@ void j1Map::PropagateDijkstra()
 	// Stop propagation as soon as the goal is found. Test with Dijkstra
 	iPoint current;											//No need to declare the points of current as .Pop sets it's data members to the data members of the first item in the queue (first element in the frontier queue), regardless of which data members it had before. 
 
-	if (frontier.Count() != 0)
+	if (goalReached == false)
 	{
-		frontier.Pop(current);
-
-		iPoint neighbour[8];
-
-		neighbour[0] = { current.x + 1, current.y + 0 };	//RIGHT neighbour
-		neighbour[1] = { current.x + 0, current.y + 1 };	//UP neighbour
-		neighbour[2] = { current.x - 1, current.y + 0 };	//LEFT neighbour
-		neighbour[3] = { current.x + 0, current.y - 1 };	//DOWN neighbour
-		neighbour[4] = { current.x + 1, current.y + 1 };	//RIGHT UP neighbour
-		neighbour[5] = { current.x + 1, current.y - 1 };	//RIGHT DOWN neighbour
-		neighbour[6] = { current.x - 1, current.y + 1 };	//LEFT UP neighbour
-		neighbour[7] = { current.x - 1, current.y - 1 };	//LEFT DOWN neighbour
-	
-		if (current == goal)
+		if (frontier.Count() != 0)
 		{
-			return;
-		}
-		
-		if (current != goal)																											//Checks if the current tile is the same as the goal one (current position == goal position). If it does then it stops expanding the algorithm. 	
-		{
+			frontier.Pop(current);
+
+			iPoint neighbour[8];
+
+			neighbour[0] = { current.x + 1, current.y + 0 };	//RIGHT neighbour
+			neighbour[1] = { current.x + 0, current.y + 1 };	//UP neighbour
+			neighbour[2] = { current.x - 1, current.y + 0 };	//LEFT neighbour
+			neighbour[3] = { current.x + 0, current.y - 1 };	//DOWN neighbour
+			neighbour[4] = { current.x + 1, current.y + 1 };	//RIGHT UP neighbour
+			neighbour[5] = { current.x + 1, current.y - 1 };	//RIGHT DOWN neighbour
+			neighbour[6] = { current.x - 1, current.y + 1 };	//LEFT UP neighbour
+			neighbour[7] = { current.x - 1, current.y - 1 };	//LEFT DOWN neighbour
+
+			LOG("Goal Tile: (%d, %d)", goal.x, goal.y);
+			LOG("Current Tile: (%d, %d)", current.x, current.y);
+
+			if (current == goal)
+			{
+				goalReached = true;
+				return;
+			}
+
 			for (int i = 0; i < 8; i++)
 			{
 				if (MovementCost(neighbour[i].x, neighbour[i].y) >= 0)																	//Checks that the position of the neighbour being iterated is inide the map's bounds.
@@ -118,6 +171,7 @@ void j1Map::PropagateDijkstra()
 						}
 					}
 				}
+				LOG("Neighbour Tile: (%d, %d)", neighbour[i].x, neighbour[i].y);
 			}
 		}
 	}
@@ -140,34 +194,50 @@ int j1Map::MovementCost(int x, int y) const
 	return ret;
 }
 
+int j1Map::Distance(iPoint goal, iPoint current)
+{
+	return  goal.DistanceNoSqrt(current);
+}
+
 void j1Map::PropagateBFS()
 {
 	iPoint current;
-	if (frontier.Pop(current))
+	
+	if (goalReached != true)
 	{
-		iPoint neighbour[8];
-		neighbour[0].create(current.x + 1, current.y + 0);	//RIGHT neighbour
-		neighbour[1].create(current.x + 0, current.y + 1);	//UP neighbour
-		neighbour[2].create(current.x - 1, current.y + 0);	//LEFT neighbour
-		neighbour[3].create(current.x + 0, current.y - 1);	//DOWN  neighbour
-		neighbour[4].create(current.x + 1, current.y + 1);	//RIGHT UP neighbour
-		neighbour[5].create(current.x + 1, current.y - 1);	//RIGHT DOWN neighbour
-		neighbour[6].create(current.x - 1, current.y + 1);	//LEFT UP neighbour
-		neighbour[7].create(current.x - 1, current.y - 1);	//LEFT DOWN neighbour
-
-		for (uint i = 0; i < 8; ++i)
+		if (frontier.Pop(current))
 		{
-			if (MovementCost(neighbour[i].x, neighbour[i].y) > 0)
+			iPoint neighbour[8];
+			neighbour[0].create(current.x + 1, current.y + 0);	//RIGHT neighbour
+			neighbour[1].create(current.x + 0, current.y + 1);	//UP neighbour
+			neighbour[2].create(current.x - 1, current.y + 0);	//LEFT neighbour
+			neighbour[3].create(current.x + 0, current.y - 1);	//DOWN  neighbour
+			neighbour[4].create(current.x + 1, current.y + 1);	//RIGHT UP neighbour
+			neighbour[5].create(current.x + 1, current.y - 1);	//RIGHT DOWN neighbour
+			neighbour[6].create(current.x - 1, current.y + 1);	//LEFT UP neighbour
+			neighbour[7].create(current.x - 1, current.y - 1);	//LEFT DOWN neighbour
+
+			if (current == goal)
 			{
-				if (visited.find(neighbour[i]) == -1)
+				goalReached = true;
+				return;
+			}
+
+			for (uint i = 0; i < 8; ++i)
+			{
+				if (MovementCost(neighbour[i].x, neighbour[i].y) > 0)
 				{
-					frontier.Push(neighbour[i], 0);
-					visited.add(neighbour[i]);
-					breadcrumbs.add(current);
+					if (visited.find(neighbour[i]) == -1)
+					{
+						frontier.Push(neighbour[i], 0);
+						visited.add(neighbour[i]);
+						breadcrumbs.add(current);
+					}
 				}
 			}
 		}
 	}
+	
 }
 
 void j1Map::DrawPath()
