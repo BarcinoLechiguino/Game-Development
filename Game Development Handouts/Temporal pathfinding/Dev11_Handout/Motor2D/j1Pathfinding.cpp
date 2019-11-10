@@ -225,7 +225,8 @@ int j1PathFinding::CreatePath(const iPoint& origin, const iPoint& destination)
 
 		for (; adjacent_iterator; adjacent_iterator = adjacent_iterator->next)
 		{
-			iterations++;
+			open.list.find(adjacent_iterator->data);
+			//iterations++;
 		}
 
 

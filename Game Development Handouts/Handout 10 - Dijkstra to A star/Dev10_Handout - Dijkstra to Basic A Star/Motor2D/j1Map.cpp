@@ -104,12 +104,15 @@ void j1Map::PropagateAStar()
 					//int distance = goal.DistanceNoSqrt(neighbour[i]);
 					int distance = Distance(goal, neighbour[i]);						//Calculates the distance between the neighbour being iterated and the goal.
 
-					if ((cost_so_far[neighbour[i].x][neighbour[i].y] == NULL || new_cost < cost_so_far[neighbour[i].x][neighbour[i].y]))
+					if (cost_so_far[neighbour[i].x][neighbour[i].y] == NULL || new_cost < cost_so_far[neighbour[i].x][neighbour[i].y])
 					{
 						if (visited.find(neighbour[i]) == -1)
 						{
 							cost_so_far[neighbour[i].x][neighbour[i].y] = new_cost;
 							priority = new_cost + distance;								//Calculates the priority of this neighbour by taking into account the new cost and distance between the neighbour and the goal.
+							
+							LOG("This tile's priority is: %d", priority);
+							
 							frontier.Push(neighbour[i], priority);
 							visited.add(neighbour[i]);
 							breadcrumbs.add(current);
@@ -237,7 +240,6 @@ void j1Map::PropagateBFS()
 			}
 		}
 	}
-	
 }
 
 void j1Map::DrawPath()

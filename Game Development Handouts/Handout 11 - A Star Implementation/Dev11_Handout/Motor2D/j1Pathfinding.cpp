@@ -67,7 +67,7 @@ const p2DynArray<iPoint>* j1PathFinding::GetLastPath() const
 // PathList ------------------------------------------------------------------------
 // Looks for a node in this list and returns it's list node or NULL
 // ---------------------------------------------------------------------------------
-const p2List_item<PathNode>* PathList::Find(const iPoint& point) const
+p2List_item<PathNode>* PathList::Find(const iPoint& point) const
 {
 	p2List_item<PathNode>* item = list.start;
 	while(item)
@@ -140,6 +140,26 @@ uint PathNode::FindWalkableAdjacents(PathList& list_to_fill) const
 	if(App->pathfinding->IsWalkable(cell))
 		list_to_fill.list.add(PathNode(-1, -1, cell, this));
 
+	//// North east
+	//cell.create(pos.x + 1, pos.y + 1);
+	//if (App->pathfinding->IsWalkable(cell))
+	//	list_to_fill.list.add(PathNode(-1, -1, cell, this));
+
+	//// North west
+	//cell.create(pos.x - 1, pos.y + 1);
+	//if (App->pathfinding->IsWalkable(cell))
+	//	list_to_fill.list.add(PathNode(-1, -1, cell, this));
+
+	//// South east
+	//cell.create(pos.x + 1, pos.y - 1);
+	//if (App->pathfinding->IsWalkable(cell))
+	//	list_to_fill.list.add(PathNode(-1, -1, cell, this));
+
+	//// South west
+	//cell.create(pos.x - 1, pos.y - 1);
+	//if (App->pathfinding->IsWalkable(cell))
+	//	list_to_fill.list.add(PathNode(-1, -1, cell, this));
+
 	return list_to_fill.list.count();
 }
 
@@ -167,26 +187,103 @@ int PathNode::CalculateF(const iPoint& destination)
 // ----------------------------------------------------------------------------------
 int j1PathFinding::CreatePath(const iPoint& origin, const iPoint& destination)
 {
+	int ret = -1;															//The value returned by the function. Done to improve readability.
+	
 	// TODO 1: if origin or destination are not walkable, return -1
+	if (IsWalkable(origin) == false || IsWalkable(destination) == false)	//IsWalkable() checks if origin and destination are walkable tiles. IsWalkable calls GetTile(), which returns the walkability value only if the given tile is inside the map's boundaries.
+	{
+		ret = -1;
+	}
 
 	// TODO 2: Create two lists: open, close
 	// Add the origin tile to open
 	// Iterate while we have tile in the open list
-
-	// TODO 3: Move the lowest score cell from open list to the closed list
+	PathList open;													//Declares/Creates the open list (frontier queue).
+	PathList closed;												//Declares/Creates the closed list (visited list).
+	PathNode origin_node (0, 0, origin, NULL);						//Declares/Creates a node that will hold the data of the origin tile. G, H, position and parent are passed as arguments. 
 	
-	// TODO 4: If we just added the destination, we are done!
-	// Backtrack to create the final path
-	// Use the Pathnode::parent and Flip() the path when you are finish
+	open.list.add(origin_node);										//Adds the current node holding the data of the origin tile to the open (frontier) list.
 
-	// TODO 5: Fill a list of all adjancent nodes
+	//current.pos.create(origin.x, origin.y);						//Sets the position data members of the origin tile to the current node.
+	//current.pos = origin;											//Same as the above line, just more readable.
 
-	// TODO 6: Iterate adjancent nodes:
-	// ignore nodes in the closed list
-	// If it is NOT found, calculate its F and add it to the open list
-	// If it is already in the open list, check if it is a better path (compare G)
-	// If it is a better path, Update the parent
+	while (open.list.count() != 0)									//While the list is not empty. If the count is higher than 0 that means the list is not empty.
+	{
+		// TODO 3: Move the lowest score cell from open list to the closed list
+		p2List_item<PathNode>* lowestNode = open.GetNodeLowestScore();					//Gets the node with the lowest score (F = G + H) in the open list. Coded like this to improve readability. 
 
-	return -1;
+		closed.list.add(lowestNode->data);												//Adds to the closed (visited) list the node that has de lowest score (the one that will be chosen to move forward).
+		open.list.del(lowestNode);														//Deletes from the open (frontier) list the node with the lowest score, as it has been the one chosen to be moved to.
+
+		p2List_item<PathNode>* current_node = closed.list.add(lowestNode->data);		//Assigns current_node the data members of the node/tile with the lowest score. Done to improve readability.
+
+		// TODO 4: If we just added the destination, we are done!
+		// Backtrack to create the final path
+		// Use the Pathnode::parent and Flip() the path when you are finish
+		if (/*closed.Find(destination) != NULL &&*/ current_node->data.pos == destination)	//If destination is in the closed list (visited) and the position of the current node is the same as destination's.
+		{
+			last_path.Clear();															//Sets the last_path dynArray count of number of elements to 0. Clears the dynArray.
+			
+			const PathNode* path_node = &current_node->data;							//Declares a node with the data members of the current_node (current position, parent, cost...). Improves readability.
+
+			while (path_node != NULL)													//While path_node is not NULL (path_node contains data)
+			{
+				last_path.PushBack(path_node->pos);										//Adds to last_path dynArray the current path_node tile (position data members).
+				path_node = path_node->parent;											//Sets the data members of the current path_node as the data members of the parent node. (Backtracks one node/tile)
+			}
+
+			last_path.Flip();															//Flips the dynArray members so the first element of the array is the origin tile and the destination tile the last.
+
+			ret = last_path.Count();													//Returns the amount of steps the path has.
+
+			/*last_path.PushBack(destination);											//Adds to the last_path dynArray the destination tile. (Position data members)
+
+			while (current_node->data.pos != closed.list.start->data.pos)				//While the position data members of the current node does not match the position data members of closed list's first element
+			{
+				//int i = closed.list.find(current_node->data);							//Position index in the closed list where the current_node data members are stored at.
+				current_node->data.pos = current_node->data.parent->pos;				//Sets the position data members of the current node as the position data members of the parent node.
+				last_path.PushBack(current_node->data.pos);								//Adds to the last_path dynArray the parent (now current) node/tile position data members.
+			}
+			last_path.PushBack(closed.list.start->data.pos);							//Adds to the last_path dynArray the original position tile. (Position data members)
+
+			last_path.Flip();															//Flips the dynArray members so the first element of the array is the origin tile and the destination tile the last.
+
+			return -1;*/
+		}
+
+		// TODO 5: Fill a list with all adjacent nodes
+		PathList neighbours;
+		current_node->data.FindWalkableAdjacents(neighbours);
+
+		// TODO 6: Iterate adjancent nodes:
+		// ignore nodes in the closed list
+		// If it is NOT found, calculate its F and add it to the open list
+		// If it is already in the open list, check if it is a better path (compare G)
+		// If it is a better path, Update the parent
+		p2List_item<PathNode>* neighbour_iterator = neighbours.list.start;				//Declares a list item pointer that will iterate the neighbours list.
+
+		while (neighbour_iterator != NULL)												//If neighbour_iterator pointer is not NULL.
+		{
+			if (closed.list.find(neighbour_iterator->data) == -1)						//If the neighbour being iterated is not in the closed list (find() returns -1 when the item requested is not found.
+			{
+				if (open.list.find(neighbour_iterator->data) != -1)						//If the neighbour being iterated is already in the open list.
+				{
+					if (neighbour_iterator->data.g < open.Find(neighbour_iterator->data.pos)->data.g)				//Compares Gs (total flat movement cost) between the neigbour being iterated and the same neighbour in the list.
+					{
+						open.Find(neighbour_iterator->data.pos)->data.parent = neighbour_iterator->data.parent;		//Updates the parent of the neighbour in the list with the parent of the neighbour being iterated. 
+					}
+				}
+				else
+				{
+					int neighbour_F = neighbour_iterator->data.CalculateF(destination)/*Score()*/;					//Calculates the F (F = G + H) of the neighbour being iterated.
+					open.list.add(neighbour_iterator->data);														//Adds the neighbour being iterated to the open list.
+				}
+			}
+
+			neighbour_iterator = neighbour_iterator->next;
+		}
+	}
+	
+	return ret;
 }
 
