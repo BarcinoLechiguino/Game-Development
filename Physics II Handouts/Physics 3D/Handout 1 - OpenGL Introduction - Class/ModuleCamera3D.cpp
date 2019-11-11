@@ -42,14 +42,14 @@ update_status ModuleCamera3D::Update()
 	// TODO 3: Make the camera go up/down when pressing R (up) F(down)
 	if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)
 	{
-		Position.y += 0.1f;									//Increases the position of the camera in the y axis by 0.1 units per frame.
-		Reference.y += 0.1f;								//Increases the position of the camera's point of reference in the y axis by 0.1 units per frame.
+		App->camera->Position.y += 0.05f;
+		Reference.y += 0.05f;
 	}
 
 	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)
 	{
-		Position.y -= 0.1f;									//Decreases the position of the camera in the y axis by 0.1 units per frame.
-		Reference.y -= 0.1f;								//Decreases the position of the camera's point of reference in the y axis by 0.1 units per frame.
+		App->camera->Position.y -= 0.05f;
+		Reference.y -= 0.05f;
 	}
 
 	// TODO 4: Make the camera go forward (w) and backward with (s)
@@ -57,19 +57,18 @@ update_status ModuleCamera3D::Update()
 	// you can read them to modify Position
 	if (App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
 	{
-		//Position.z -= 0.1f;								//Decreases the position of the camera in the z axis by 0.1 units per frame.
-		//Z;												//It is the position of the Z vector of the camera in 0.1 units per frame. The Z vector defines where in the z axis the camera is placed/looks at.
-		//Reference.z -= 0.1f;								//Decreases the position of the camera's point of reference in the z axis by 0.1 units per frame.
+		/*App->camera->Position -= {App->camera->Position.x * 0.05f, App->camera->Position.y * 0.05f, App->camera->Position.z * 0.05f};
+		Reference -= {App->camera->Position.x * 0.05f, App->camera->Position.y * 0.05f, App->camera->Position.z * 0.05f};*/
 
-		//Move() receives a movement vector and updates both 
-		//the position of the camera and the reference point. 
-		//Moreover it recalculates the view matrix (rotations).
-		Move(-Z);											//Moves the camera forward along the z axis while taking into account the point of reference and the Z vector of the camera.
+		Move(-Z * 0.1f);
 	}
 
 	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)
 	{
-		Move(Z);											//Moves the camera backward along the z axis while taking into account the poing of reference and the Z vector of the camera.
+		/*App->camera->Position += {App->camera->Position.x * 0.05f, App->camera->Position.y * 0.05f, App->camera->Position.z * 0.05f};
+		Reference = {App->camera->Position.x * 0.05f, App->camera->Position.y * 0.05f, App->camera->Position.z * 0.05f};*/
+
+		Move(Z * 0.1f);
 	}
 
 	// TODO 5: Make the camera go left (a) and right with (d)
@@ -77,14 +76,20 @@ update_status ModuleCamera3D::Update()
 	// you can read them to modify Position
 	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
 	{
-		Move(-X);											//Moves the camera to the left along the x axis while taking into account the point of reference and the X vector of the camera.
-	}
-	
-	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
-	{
-		Move(X);											//Moves the camera to the right along the x axis while taking into account the point of reference and the X vector of the camera.
+		/*App->camera->Position += {App->camera->Position.x * 0.05f, App->camera->Position.y * 0.05f, App->camera->Position.z * 0.05f};
+		Reference.x += 0.05f;*/
+
+		Move(-X * 0.1f);
 	}
 
+	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
+	{
+		/*App->camera->Position -= {App->camera->Position.x * 0.05f, App->camera->Position.y, App->camera->Position.z};
+		Reference.x -= 0.05f;*/
+		
+		Move(X * 0.1f);
+	}
+	
 	// Mouse motion ----------------
 	if(App->input->GetMouseButton(SDL_BUTTON_RIGHT) == KEY_REPEAT)
 	{
@@ -92,18 +97,10 @@ update_status ModuleCamera3D::Update()
 		int dy = -App->input->GetMouseYMotion();
 
 		// TODO (Homework): Rotate the camera with the mouse
-		vec3 Forward = -Z;							//Sets a new Vec3 that with the data of the camera's Z vector. -Z represents the vector that determines where the camera is looking directly. Imagine as a bar going through the camera horizontally.
-		
-		//In rotate():
-		//"u" is the vector to rotate (the Z axis of the camera) 
-		//"angle" is the value to rotate (the movement in pixels of the mouse) 
-		//"v" is the axis of rotation (fixed axis around which the camera will rotate).
-		Forward = rotate(Forward, dx, Y);			//The movement of the mouse in the x axis will be translated to rotation of the Z vector around the Y axis.
-		Forward = rotate(Forward, dy, X);			//The movement of the mouse in the y axis will be translated to rotation of the Z vector around the X axis.
-
-		LookAt(Reference - Forward);				//Changes the camera's point of reference according to the camera's -Z vector after it has been rotated according to mouse movement.
-
-		//Look(Forward, Reference - Forward, true);	//Rotates the camera around a position and taking into account a point of recerence. It hass a bool that if set to true makes the camera rotate around the given reference.
+		vec3 Forward = -Z;					//Vector that defines the Z axis.
+		Forward = rotate(Forward, dx, Y);	//"u" is the vector to rotate, "angle" is the value to rotate and "v" is the axis of rotation.
+		Forward = rotate(Forward, dy, X);	//"u" is the vector to rotate, "angle" is the value to rotate and "v" is the axis of rotation.
+		LookAt(Position - Forward);			//Changes the reference point of the camera.
 	}
 
 	// Recalculate matrix -------------
