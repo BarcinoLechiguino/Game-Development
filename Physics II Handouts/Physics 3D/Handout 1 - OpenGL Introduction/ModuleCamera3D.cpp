@@ -97,7 +97,10 @@ update_status ModuleCamera3D::Update()
 		int dy = -App->input->GetMouseYMotion();
 
 		// TODO (Homework): Rotate the camera with the mouse
-
+		vec3 Forward = -Z;					//Vector that defines the Z axis.
+		Forward = rotate(Forward, dx, Y);	//"u" is the vector to rotate, "angle" is the value to rotate and "v" is the axis of rotation.
+		Forward = rotate(Forward, dy, X);	//"u" is the vector to rotate, "angle" is the value to rotate and "v" is the axis of rotation.
+		LookAt(Position - Forward);			//
 	}
 
 	// Recalculate matrix -------------

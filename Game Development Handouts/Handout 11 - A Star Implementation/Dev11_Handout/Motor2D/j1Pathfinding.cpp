@@ -198,24 +198,21 @@ int j1PathFinding::CreatePath(const iPoint& origin, const iPoint& destination)
 	// TODO 2: Create two lists: open, close
 	// Add the origin tile to open
 	// Iterate while we have tile in the open list
-	PathList open;													//Declares/Creates the open list (frontier queue).
-	PathList closed;												//Declares/Creates the closed list (visited list).
-	PathNode origin_node (0, 0, origin, NULL);						//Declares/Creates a node that will hold the data of the origin tile. G, H, position and parent are passed as arguments. 
+	PathList open;																		//Declares/Creates the open list (frontier queue).
+	PathList closed;																	//Declares/Creates the closed list (visited list).
 	
-	open.list.add(origin_node);										//Adds the current node holding the data of the origin tile to the open (frontier) list.
+	PathNode origin_node (0, 0, origin, NULL);											//Declares/Creates a node that will store the data of the origin tile. G, H, position and parent are passed as arguments. 
+	
+	open.list.add(origin_node);															//Adds the current node storing the data of the origin tile to the open (frontier) list.
 
-	//current.pos.create(origin.x, origin.y);						//Sets the position data members of the origin tile to the current node.
-	//current.pos = origin;											//Same as the above line, just more readable.
-
-	while (open.list.count() != 0)									//While the list is not empty. If the count is higher than 0 that means the list is not empty.
+	while (open.list.count() != 0)														//While the list is not empty. If the count is higher than 0 that means the list is not empty.
 	{
 		// TODO 3: Move the lowest score cell from open list to the closed list
 		p2List_item<PathNode>* lowestNode = open.GetNodeLowestScore();					//Gets the node with the lowest score (F = G + H) in the open list. Coded like this to improve readability. 
-
-		closed.list.add(lowestNode->data);												//Adds to the closed (visited) list the node that has de lowest score (the one that will be chosen to move forward).
-		open.list.del(lowestNode);														//Deletes from the open (frontier) list the node with the lowest score, as it has been the one chosen to be moved to.
-
 		p2List_item<PathNode>* current_node = closed.list.add(lowestNode->data);		//Assigns current_node the data members of the node/tile with the lowest score. Done to improve readability.
+
+		//closed.list.add(lowestNode->data);												//Adds to the closed (visited) list the node that has de lowest score (the one that will be chosen to move forward).
+		open.list.del(lowestNode);														//Deletes from the open (frontier) list the node with the lowest score, as it has been the one chosen to be moved to.
 
 		// TODO 4: If we just added the destination, we are done!
 		// Backtrack to create the final path
@@ -229,12 +226,14 @@ int j1PathFinding::CreatePath(const iPoint& origin, const iPoint& destination)
 			while (path_node != NULL)													//While path_node is not NULL (path_node contains data)
 			{
 				last_path.PushBack(path_node->pos);										//Adds to last_path dynArray the current path_node tile (position data members).
+				LOG("Path_node at: (%d, %d)", path_node->pos.x, path_node->pos.y);
 				path_node = path_node->parent;											//Sets the data members of the current path_node as the data members of the parent node. (Backtracks one node/tile)
 			}
 
 			last_path.Flip();															//Flips the dynArray members so the first element of the array is the origin tile and the destination tile the last.
-
 			ret = last_path.Count();													//Returns the amount of steps the path has.
+			LOG("Number of steps: %d", last_path.Count());
+			break;
 
 			/*last_path.PushBack(destination);											//Adds to the last_path dynArray the destination tile. (Position data members)
 
@@ -252,36 +251,39 @@ int j1PathFinding::CreatePath(const iPoint& origin, const iPoint& destination)
 		}
 
 		// TODO 5: Fill a list with all adjacent nodes
-		PathList neighbours;
-		current_node->data.FindWalkableAdjacents(neighbours);
+		PathList neighbours;															//Declares a list that will store the Walkable Adjacent nodes of a given node (current_node).
+		current_node->data.FindWalkableAdjacents(neighbours);							//Fills the neighbours list with the walkable adjacent nodes of current_node.
 
 		// TODO 6: Iterate adjancent nodes:
 		// ignore nodes in the closed list
 		// If it is NOT found, calculate its F and add it to the open list
 		// If it is already in the open list, check if it is a better path (compare G)
 		// If it is a better path, Update the parent
-		p2List_item<PathNode>* neighbour_iterator = neighbours.list.start;				//Declares a list item pointer that will iterate the neighbours list.
+		p2List_item<PathNode>* neighbour_iterator = neighbours.list.start;											//Declares a list item pointer that will iterate the neighbours list.
 
-		while (neighbour_iterator != NULL)												//If neighbour_iterator pointer is not NULL.
+		while (neighbour_iterator != NULL)																			//If neighbour_iterator pointer is not NULL.
 		{
-			if (closed.list.find(neighbour_iterator->data) == -1)						//If the neighbour being iterated is not in the closed list (find() returns -1 when the item requested is not found.
+			if (closed.Find(neighbour_iterator->data.pos) == NULL)													//If the neighbour being iterated is not in the closed list (.Find() returns NULL when the item requested is not found).
 			{
-				if (open.list.find(neighbour_iterator->data) != -1)						//If the neighbour being iterated is already in the open list.
+				if (open.Find(neighbour_iterator->data.pos) != NULL)												//If the neighbour being iterated is already in the open list.
 				{
+					neighbour_iterator->data.CalculateF(destination);												//Calculates the F (F = G + H) of the neighbour being iterated. As G is recalculated (taking into account this new path), it can be compared with the same node in the open list (old path), if it's in it.
+
 					if (neighbour_iterator->data.g < open.Find(neighbour_iterator->data.pos)->data.g)				//Compares Gs (total flat movement cost) between the neigbour being iterated and the same neighbour in the list.
 					{
 						open.Find(neighbour_iterator->data.pos)->data.parent = neighbour_iterator->data.parent;		//Updates the parent of the neighbour in the list with the parent of the neighbour being iterated. 
 					}
 				}
 				else
-				{
-					int neighbour_F = neighbour_iterator->data.CalculateF(destination)/*Score()*/;					//Calculates the F (F = G + H) of the neighbour being iterated.
+				{				
+					neighbour_iterator->data.CalculateF(destination);												//Calculates the F (F = G + H) of the neighbour being iterated. Sets both G and H for this tile/node for a specific path.
 					open.list.add(neighbour_iterator->data);														//Adds the neighbour being iterated to the open list.
 				}
 			}
 
-			neighbour_iterator = neighbour_iterator->next;
+			neighbour_iterator = neighbour_iterator->next;															//Iterates the list. Advances to the next node/element in the list.
 		}
+		neighbours.list.clear();																					//Clears the neighbours list so the elements are not accumulated from node to node (tile to tile).
 	}
 	
 	return ret;

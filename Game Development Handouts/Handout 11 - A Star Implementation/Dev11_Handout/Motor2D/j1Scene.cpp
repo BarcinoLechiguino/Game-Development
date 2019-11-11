@@ -64,6 +64,7 @@ bool j1Scene::PreUpdate()
 		if(origin_selected == true)
 		{
 			App->pathfinding->CreatePath(origin, p);
+			LOG("Tiles selected: (%d, %d) and (%d, %d)", origin.x, origin.y, p.x, p.y);
 			origin_selected = false;
 		}
 		else
