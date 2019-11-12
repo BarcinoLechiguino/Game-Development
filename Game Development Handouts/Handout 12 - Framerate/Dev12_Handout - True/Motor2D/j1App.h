@@ -82,7 +82,6 @@ public:
 	//Tools	
 	j1Timer*			timer = NULL;				//Creates a pointer to j1Timer tool. Gives acces to j1Timer's elements. Used to keep track of time since app start.
 	j1PerfTimer*		perf_timer = NULL;			//Creates a pointer to j1PerfTimer tool. Gives access to j1PerfTimer's elements. Used to keep track of time since app start.
-	j1PerfTimer*		cycle_timer = NULL;			//Creates a pointer to j1PerfTimer tool. Used to calculate variables in cycles.
 	j1PerfTimer*		last_second_timer = NULL;	//Creates a pointer to j1PerfTimer tool. Used to calculate variables in spans of one second.
 
 	// Modules
@@ -113,6 +112,7 @@ private:
 	int					frames;					//Calcultes the amount of frames per second. frames++ after each Update() loop.
 	float				seconds;				//Calculates the amount of seconds that have passed since execution start.
 	float				average_frames;			//Calculates the average rate of frames per second.
+	j1Timer				frame_timer;			//Keeps track of everything time related in the span of a frame.
 	uint32				last_update_ms;			//Calculates the amount of milliseconds that the last update spent running.
 	uint32				frames_last_second;		//Calculates the amount of frames that where processed the last second.
 	uint32				prev_sec_frames;

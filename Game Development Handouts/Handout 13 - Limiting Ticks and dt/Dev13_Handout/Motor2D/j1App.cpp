@@ -78,6 +78,8 @@ bool j1App::Awake()
 		
 	config = LoadConfig(config_file);
 
+	frame_cap = 60;						//In case the framerate cap was not specified anywhere.
+
 	if(config.empty() == false)
 	{
 		// self-config
@@ -87,7 +89,7 @@ bool j1App::Awake()
 		organization.create(app_config.child("organization").child_value());
 
 		// TODO 1: Read from config file your framerate cap
-		frame_cap = config.child("app").attribute("framerate_cap").as_int();
+		frame_cap = config.child("app").attribute("framerate_cap").as_uint();	//Loads the framerate cap from the xml file.
 	}
 
 	if(ret == true)
@@ -171,13 +173,11 @@ void j1App::PrepareUpdate()
 	last_sec_frame_count++;
 
 	// TODO 4: Calculate the dt: differential time since last frame
-	expected_timer.Start();
+	//float frameTime = dt_timer.ReadMs();
+	dt = frame_time.ReadSec();										//Stores the amount of time that has passed since last frame in seconds (processing time of a frame: Frame 1: 0.033secs, ...).
 	frame_time.Start();
 
-	//Revise
-	float dt = expected_timer.ReadMs() - frame_time.Read();
-
-	LOG("Calculated dt: %f", dt);
+	LOG("The differential time since last frame: %f", dt);
 }
 
 // ---------------------------------------------
@@ -204,24 +204,24 @@ void j1App::FinishUpdate()
 	uint32 frames_on_last_update = prev_last_sec_frame_count;
 
 	static char title[256];
-	sprintf_s(title, 256, "Av.FPS: %.2f Last Frame Ms: %02u Last sec frames: %i  Time since startup: %.3f Frame Count: %lu ",
-			  avg_fps, last_frame_ms, frames_on_last_update, seconds_since_startup, frame_count);
+	sprintf_s(title, 256, "Av.FPS: %.2f Last Frame Ms: %02u Last sec frames: %i Last dt: %.3f Time since startup: %.3f Frame Count: %lu ",
+			  avg_fps, last_frame_ms, frames_on_last_update, dt,  seconds_since_startup, frame_count);
 	App->win->SetTitle(title);
 
 	// TODO 2: Use SDL_Delay to make sure you get your capped framerate
-	float frame_cap_ms = 1000 / frame_cap;
-	float current_ms = frame_time.Read();
+	float frame_cap_ms = 1000 / frame_cap;						//Calculates the frame_cap in ms (how fast a frame is processed / how fast an image is refreshed). Done for readability.
+	float current_frame_ms = frame_time.Read();					//Calculates the current frame's time spent processing. Need to declare it here so the time is consistent  through the whole check. Could be below or above the cap.
 
-	if (current_ms < frame_cap_ms)
+	if (current_frame_ms < frame_cap_ms)						//If the current frame processing time is lower than the specified frame_cap. Timer instead of PerfTimer was used because SDL_Delay is inaccurate.
 	{
-		expected_timer.Start();
+		real_delay_timer.Start();									//Starts the perf timer so it checks the actual amount of delay in milliseconds.
 		
-		SDL_Delay(frame_cap_ms - current_ms);
+		SDL_Delay(frame_cap_ms - current_frame_ms);				//SDL_Delay delays processing for a specified time. In this case, it delays for the difference in ms between the frame cap (33,3ms) and the current frame.
 
-		// TODO 3: Measure accurately the amount of time it SDL_Delay actually waits compared to what was expected
-		float delay = frame_cap_ms - current_ms;
+		int intended_delay = frame_cap_ms - current_frame_ms;	//Done for readability. Set as the value of  the intended delay.
 
-		LOG("We waited for %f milliseconds and got back in %f", delay, expected_timer.ReadMs());
+		// TODO3: Measure accurately the amount of time it SDL_Delay actually waits compared to what was expected
+		LOG("We waited for %d milliseconds and got back in %f", intended_delay, real_delay_timer.ReadMs());	//Testing the results. It checks the intended amount of delay vs the actual amount of delay.
 	}
 }
 
@@ -266,7 +266,7 @@ bool j1App::DoUpdate()
 		// TODO 5: send dt as an argument to all updates
 		// you will need to update module parent class
 		// and all modules that use update
-		ret = item->data->Update();
+		ret = item->data->Update(dt);					//Passes the calculated dt as an argument to all modules. This will make every update run in the same timestep.
 	}
 
 	return ret;

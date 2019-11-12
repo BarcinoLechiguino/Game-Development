@@ -45,7 +45,7 @@ public:
 	}
 
 	// Called each loop iteration
-	virtual bool Update()
+	virtual bool Update(float dt)		//dt will be sent as an argument to all updates. Will make all updates run in the same timestep.
 	{
 		return true;
 	}

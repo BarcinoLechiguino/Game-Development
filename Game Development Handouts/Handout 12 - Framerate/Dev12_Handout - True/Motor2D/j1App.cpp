@@ -25,13 +25,12 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 	//Tools
 	timer = new j1Timer();
 	perf_timer = new j1PerfTimer();
-	cycle_timer = new j1PerfTimer();
 	last_second_timer = new j1PerfTimer();
 
 	//Constructor Timer
 	timer->Start();							//Initializes the low resolution timer at the beginning of the constructor's call.
 	perf_timer->Start();					//Initializes the timer at the beginning of the constructor's call.
-	last_second_timer->Start();				//Initializes the timer that will be used to count the amount of frames in a second.
+	//last_second_timer->Start();			//Initializes the timer that will be used to count the amount of frames in a second.
 
 	//Modules
 	input = new j1Input();
@@ -182,8 +181,7 @@ void j1App::PrepareUpdate()
 	frames++;											//Adds +1 to the frame count before each update loop.
 	frames_last_second++;
 
-	last_update_ms = cycle_timer->ReadMs();
-	cycle_timer->Start();
+	frame_timer.Start();								//Starts the frame timer. Used to calculate ms per frame.
 }
 
 // ---------------------------------------------
@@ -203,21 +201,18 @@ void j1App::FinishUpdate()
 	// Amount of frames during the last second
 	if (last_second_timer->ReadMs() > 1000)
 	{
+		last_second_timer->Start();
 		prev_sec_frames = frames_last_second;
 		frames_last_second = 0;
-		last_second_timer->Start();
 	}
 
 	seconds = perf_timer->ReadMs() / 1000;				//Equals seconds to the returning value of the ReadSec() method, which returns the amount of time passed in seconds. Use timer->ReadSec() to have no decimals (as its a low resolution timer)
 	average_frames = frames / seconds;					//Gets the average frames per second by dividing the actual number of frames with the amount of seconds that have passed.
-	/*last_update_ms = cycle_timer->ReadMs();
-	cycle_timer->Start();*/
-
 
 	float avg_fps = average_frames;
 	float seconds_since_startup = seconds;
 	float dt = 0.0f;
-	uint32 last_frame_ms = last_update_ms; //revise
+	uint32 last_frame_ms = frame_timer.Read();			//As it is the end of the update, the frame's ms can be calculated.
 	uint32 frames_on_last_update = prev_sec_frames;
 	uint64 frame_count = frames;
 

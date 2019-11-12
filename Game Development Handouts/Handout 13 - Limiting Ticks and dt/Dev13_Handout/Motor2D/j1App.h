@@ -110,8 +110,10 @@ private:
 	uint32				last_sec_frame_count = 0;
 	uint32				prev_last_sec_frame_count = 0;
 
-	uint32				frame_cap;
-	j1PerfTimer			expected_timer;
+	j1PerfTimer			real_delay_timer;				//Timer that will be used to see the actual amount of time that was delayed to cap the framerate.
+	uint32				frame_cap;						//Stores the frames per second cap to be applied.
+	float				dt;								//Stores the amount of milliseconds that have passed in a frame.
+	
 };
 
 extern j1App* App; // No student is asking me about that ... odd :-S
