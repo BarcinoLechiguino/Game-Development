@@ -111,14 +111,17 @@ update_status ModulePhysics3D::Update(float dt)
 		if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 		{
 			// TODO 7: Create a Solid Sphere when pressing 1 on camera position
-			mat4x4 matrix = IdentityMatrix;
+			mat4x4 matrix = IdentityMatrix;																	//First we create the matrix.
+			matrix.translate(App->camera->Position.x, App->camera->Position.y, App->camera->Position.z);	//Translate actualizes the position of the matrix (x, y, z).
+
+			//btTransform transform = new btTransform;														//Declaring a transform so it can be set with the matrix's data members.
 			btTransform transform;
-			
-			//transform.getOpenGLMatrix(matrix);
-			
+			transform.setFromOpenGLMatrix(&matrix);															//Sets the transform with the data from the matrix.
+
 			mass = 1.0f;
 			radius = 1.0f;
-			mState = new btDefaultMotionState();		//Default motion initializes everything to (0, 0, 0)
+			//mState = new btDefaultMotionState();															//Default motion initializes everything to (0, 0, 0)
+			mState = new btDefaultMotionState(transform);
 			cShape = new btSphereShape(radius);
 
 			btRigidBody::btRigidBodyConstructionInfo construction_info(mass, mState, cShape);
@@ -148,6 +151,7 @@ bool ModulePhysics3D::CleanUp()
 
 	delete mState;
 	delete cShape;
+	//delete transform;
 
 	return true;
 }

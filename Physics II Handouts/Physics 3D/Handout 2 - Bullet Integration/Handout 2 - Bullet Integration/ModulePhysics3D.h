@@ -32,6 +32,7 @@ private:
 	btConstraintSolver* solver;
 	btCollisionConfiguration* config;
 
+	//btTransform* transform;
 	btRigidBody* body;
 	btMotionState* mState;
 	btCollisionShape* cShape;
