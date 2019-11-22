@@ -61,7 +61,7 @@ int main()
 
 	vec3d fpos, fvel;
 
-	float dt = 1.0f / 30.0f;		//Time that will be applied to the object / objects.
+	float dt = 1.0f / 30.0f;																	//Time that will be applied to the object / objects.
 
 	cout << "Initial position: (" << ipos.x << " " << ipos.y << " " << ipos.z << ")" << endl;
 
