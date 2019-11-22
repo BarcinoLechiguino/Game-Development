@@ -214,7 +214,7 @@ void j1App::FinishUpdate()
 
 	if (current_frame_ms < frame_cap_ms)						//If the current frame processing time is lower than the specified frame_cap. Timer instead of PerfTimer was used because SDL_Delay is inaccurate.
 	{
-		real_delay_timer.Start();									//Starts the perf timer so it checks the actual amount of delay in milliseconds.
+		real_delay_timer.Start();								//Starts the perf timer so it checks the actual amount of delay in milliseconds.
 		
 		SDL_Delay(frame_cap_ms - current_frame_ms);				//SDL_Delay delays processing for a specified time. In this case, it delays for the difference in ms between the frame cap (33,3ms) and the current frame.
 
