@@ -61,5 +61,41 @@ const SDL_Texture* j1Gui::GetAtlas() const
 	return atlas;
 }
 
+
+//------------------------------------------------ GUI METHODS ------------------------------------------------
+GuiImage::GuiImage(int x, int y, SDL_Rect rect)
+{
+	position.x = x;
+	position.y = y;
+
+	imgRect = rect;
+}
+
+GuiText::GuiText(int x, int y, p2SString string)
+{
+	App->font->Print(string.GetString());
+	
+	position.x = x;
+	position.y = y;
+}
+
+GuiImage* j1Gui::CreateGuiImage(int x, int y, SDL_Rect rect)
+{
+	GuiImage* gui_image = new GuiImage(x, y, rect);
+
+	elements.add(gui_image);
+
+	return gui_image;
+}
+
+GuiText* j1Gui::CreateGuiText(int x, int y, SDL_Rect rect, p2SString string)
+{
+	GuiText* gui_text = new GuiText(x, y, string);
+
+	elements.add(gui_text);
+
+	return gui_text;
+}
+
 // class Gui ---------------------------------------------------
 
