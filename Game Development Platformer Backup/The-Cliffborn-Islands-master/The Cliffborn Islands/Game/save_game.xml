@@ -18,7 +18,7 @@
 		<player>
 			<position x="0" y="25" />
 			<godmode value="false" />
-			<lives value="0" />
+			<lives value="2" />
 			<hud>
 				<coins_score value="0" />
 				<score value="0" />
