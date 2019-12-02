@@ -16,6 +16,8 @@ struct Properties
 
 	~Properties()
 	{
+		LOG("The properties destructor has been called");
+		
 		p2List_item<Property*>* item;
 		item = list.start;
 
