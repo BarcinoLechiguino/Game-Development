@@ -26,10 +26,13 @@ bool ModuleSceneIntro::Start()
 	const float BallDistance = 0.3f;
 
 	float XPos = 0.f;
+	float XPos_2 = 0.f;
 	float Size = StartingSize;
+	float Size_2 = StartingSize;
 	
 	Sphere * previous = nullptr;
-	
+	Sphere * previousHinge = nullptr;
+
 	for (int n = 0; n < SnakeLength; n++)
 	{
 		Sphere* s = new Sphere(Size);
@@ -52,7 +55,25 @@ bool ModuleSceneIntro::Start()
 	}
 
 	//TODO 4: Link some other spheres with your Hinge constraint
+	//for (int n = 0; n < SnakeLength; n++)
+	//{
+	//	Sphere* s = new Sphere(Size_2);
+	//	primitives.PushBack(s);
+	//	s->SetPos(XPos_2, 10.f, 2.5f);
 
+	//	if (primitives.Count() > 1 && previousHinge != nullptr)
+	//	{
+	//		//This takes into account the LOCAL position of the sphere ((0, 0) on the center of the sphere), so the distance is a value that does not take into account the position according to the world.
+	//		App->physics->AddConstraintHinge(*s, *previous,
+	//			btVector3((Size_2 + BallDistance), 0, 0), btVector3(-(Size_2 + BallDistance), 0, 0), 
+	//			btVector3((Size_2 + BallDistance), 0, 0), btVector3(-(Size_2 + BallDistance), 0, 0));
+	//	}
+
+	//	XPos_2 += Size_2 + Size_2 + SizeIncrement + BallDistance;
+	//	Size_2 += SizeIncrement;
+
+	//	previousHinge = s;
+	//}
 
 	return ret;
 }
