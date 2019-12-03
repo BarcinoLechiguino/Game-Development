@@ -65,6 +65,8 @@ int main()
 
 	cout << "Initial position: (" << ipos.x << " " << ipos.y << " " << ipos.z << ")" << endl;
 
+	cout << endl;
+
 	for (int i = 0; i < 4; i++)
 	{
 		EulerIntegrator(ipos, ivel, fpos, fvel, acceleration, 1);								//EulerIntegrator() function declaration.
@@ -73,7 +75,13 @@ int main()
 		cout << "	fvel is: (" << fvel.x << " " << fvel.y << " " << fvel.z << ")" << endl;
 	}
 
+	cout << endl;
+
 	cout << "Final position: (" << ipos.x << " " << ipos.y << " " << ipos.z << ")" << endl;
+	cout << "Final velocity: (" << ivel.x << " " << ivel.y << " " << ivel.z << ")" << endl;
+	cout << "Final acceleration: (" << acceleration.x << " " << acceleration.y << " " << acceleration.z << ")" << endl;
+
+	cout << endl;
 
 	system("pause");
 	return 0;
