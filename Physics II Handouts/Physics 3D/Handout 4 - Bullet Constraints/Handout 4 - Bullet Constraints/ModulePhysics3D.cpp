@@ -22,7 +22,6 @@ ModulePhysics3D::ModulePhysics3D(bool start_enabled) : Module(start_enabled), wo
 	dispatcher = new btCollisionDispatcher(collision_conf);
 	broad_phase = new btDbvtBroadphase();
 	solver = new btSequentialImpulseConstraintSolver();
-	//constraint = new btPoint2PointConstraint();
 	debug_draw = new DebugDrawer();
 }
 
@@ -136,9 +135,7 @@ bool ModulePhysics3D::CleanUp()
 		world->removeCollisionObject(obj);
 	}
 
-	delete constraint;				//Use delete[] when new was declared as new[].
-
-	delete world;					
+	delete world;
 
 	return true;
 }
@@ -172,19 +169,6 @@ void ModulePhysics3D::AddBodyToWorld(btRigidBody * body)
 void ModulePhysics3D::RemoveBodyFromWorld(btRigidBody * body)
 {
 	world->removeRigidBody(body);
-}
-
-void ModulePhysics3D::AddConstraintP2P(const Primitive& bodyA, const Primitive& bodyB, const btVector3& pivotA, const btVector3& pivotB)
-{
-	//To have all constraints in the same spot declare an array of constraints. This array will need to be iterated through to delete each element.
-	constraint = new btPoint2PointConstraint(*bodyA.body.GetBody(), *bodyB.body.GetBody(), pivotA, pivotB);		//If you put a * before a pointer, the pointer's content will be accessed.
-	world->addConstraint(constraint, false);		// The false bool refers to enabling or disabling collisions between linked bodies.
-}
-
-void ModulePhysics3D::AddConstraintHinge(const Primitive & bodyA, const Primitive & bodyB, const btVector3& pivotA, const btVector3& pivotB, btVector3& axisInA, btVector3& axisInB)
-{
-	constraint = new btHingeConstraint(*bodyA.body.GetBody(), *bodyB.body.GetBody(), pivotA, pivotB, axisInA, axisInB);
-	world->addConstraint(constraint, false);
 }
 
 // =============================================

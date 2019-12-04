@@ -83,14 +83,6 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 	// - Make sure both PhysBodies exist!
 	// - Call "OnCollision" function on all listeners from both bodies
 
-
-	for (int i = 0; i < 10; i++)
-	{
-		world->getDispatcher()->getManifoldByIndexInternal(i);
-	}
-	
-	//world->
-
 	return UPDATE_CONTINUE;
 }
 

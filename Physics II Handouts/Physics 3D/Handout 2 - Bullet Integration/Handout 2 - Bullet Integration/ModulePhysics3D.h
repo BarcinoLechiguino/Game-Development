@@ -23,22 +23,18 @@ public:
 
 private:
 
-	bool debug;
-
 	//Here we need to create the pointers to the mother class, then in the cpp the specific classes need to be called.
-	btDiscreteDynamicsWorld* world;
-	btDispatcher* dispatcher;
-	btBroadphaseInterface* broadphase;
-	btConstraintSolver* solver;
-	btCollisionConfiguration* config;
+	btDiscreteDynamicsWorld*	world;				//Physics world. Space where the physics will happen / be calculated.
+	btCollisionDispatcher*		dispatcher;			//Detects collisions and finds contact points. Finds the right algorithm to calculate the collision between a pair of objects.
+	btBroadphaseInterface*		broadphase;			//Does a first pass to detect objects that "may collide". Simplifies all objects to spheres or cubes.
+	btConstraintSolver*			solver;				//Calculates how the constraints affect an object attached to  them and "solves" how the object and it's restraints interact.
+	btCollisionConfiguration*	collision_config;	//Contains the default setup for bullet, with memory and collision setups.
 
-	//btTransform* transform;
-	btRigidBody* body;
-	btMotionState* mState;
-	btCollisionShape* cShape;
+	btMotionState*				motionState;		//Holds the position, velocity, inertia... of the body.
+	btCollisionShape*			collisionShape;		//Defines the shape of the body. We can use a big.
+	btRigidBody*				rigidBody;			//Body of an object in the world.
 
-	float mass;
-	float radius;
+	bool debug;
 
 	DebugDrawer* debug_draw;
 };

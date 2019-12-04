@@ -20,7 +20,6 @@ PrimitiveTypes Primitive::GetType() const
 void Primitive::Update()
 {
 	//TODO 5: Set the primitive position and rotation to the PhysBody position and rotation
-	physBody.GetTransform(&transform);					//Sets the transform of the primitive as the same as the physBody transform.
 }
 
 // ------------------------------------------------------------
@@ -91,27 +90,21 @@ void Primitive::InnerRender() const
 void Primitive::SetPos(float x, float y, float z)
 {
 	transform.translate(x, y, z);
-
 	//TODO 6: Set the body position to the new position too!
-	physBody.SetTransform(&transform);		//Actualizes physBody's transform matrix to the transform of the primitive
 }
 
 // ------------------------------------------------------------
 void Primitive::SetRotation(float angle, const vec3 &u)
 {
 	transform.rotate(angle, u);
-
 	//TODO 6: Set the body rotation to the new rotation too!
-	physBody.SetTransform(&transform);		//Actualizes physBody's transform matrix to the transform of the primitive
 }
 
 // ------------------------------------------------------------
 void Primitive::Scale(float x, float y, float z)
 {
 	transform.scale(x, y, z);
-
 	//TODO 6: Set the body scale to the new scale too!
-	physBody.SetTransform(&transform);		//Actualizes physBody's transform matrix to the transform of the primitive
 }
 
 // CUBE ============================================
@@ -178,7 +171,6 @@ Sphere::Sphere(float _radius, float mass) : Primitive(), radius(_radius)
 {
 	type = PrimitiveTypes::Primitive_Sphere;
 	//TODO 4: Initialize the PhysBody to be a Sphere
-	physBody.InitBody(this, 1.0f);
 }
 
 void Sphere::InnerRender() const
