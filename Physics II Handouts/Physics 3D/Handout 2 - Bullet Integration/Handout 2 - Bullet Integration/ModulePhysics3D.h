@@ -35,7 +35,6 @@ private:
 	btRigidBody*				rigidBody;			//Body of an object in the world.
 
 	bool debug;
-
 	DebugDrawer* debug_draw;
 };
 
