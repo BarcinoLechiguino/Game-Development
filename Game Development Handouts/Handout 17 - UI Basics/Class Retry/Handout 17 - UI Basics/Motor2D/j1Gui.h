@@ -17,17 +17,6 @@ class UI;
 //class j1UiImage : public j1UI {};
 //class j1UiText : public j1UI {};
 
-enum class UI_ELEMENT
-{
-	NONE,
-	IMAGE,
-	TEXT,
-	TOGGLE,
-	SCROLLBAR,
-	CHECKPOINT,
-	UNKNOWN
-};
-
 // ---------------------------------------------------
 class j1Gui : public j1Module
 {
