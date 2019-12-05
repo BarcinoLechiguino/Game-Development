@@ -25,14 +25,8 @@ public:
 	void SetPos(float x, float y, float z);
 
 private:
-	//TODO 1: Store all "new" created values
 	btRigidBody* body;
-	btCollisionShape* colShape;
-	btDefaultMotionState* motionState;
-
-
-	/*btDiscreteDynamicsWorld* world;
-	btDispatcher* dispatcher;*/
+	//TODO 1: Store all "new" created values
 
 public:
 	Primitive* parentPrimitive;

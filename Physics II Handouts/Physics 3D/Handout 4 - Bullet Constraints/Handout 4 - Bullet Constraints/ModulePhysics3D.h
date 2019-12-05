@@ -31,19 +31,18 @@ public:
 	PhysBody3D* RayCast(const vec3& Origin, const vec3& Direction, vec3& HitPoint = vec3());
 
 	//TODO 1: Implement the code to add a Point to Point constraint ( btPoint2PointConstraint )
-	void AddConstraintP2P(const Primitive& bodyA, const Primitive& bodyB, const btVector3& pivotA, const btVector3& pivotB);
+	//void AddConstraintP2P(const Primitive& bodyA, const Primitive& bodyB, ...);
 
 	//TODO 3: Implement the code to add a Hinge constraint ( btHingeConstraint )
-	void AddConstraintHinge(const Primitive & bodyA, const Primitive & bodyB, const btVector3& pivotA, const btVector3& pivotB, btVector3& axisInA, btVector3& axisInB);
+	//void AddConstraintHinge(const Primitive & bodyA, const Primitive & bodyB, ...);
 
 private:
-	btDefaultCollisionConfiguration*		collision_conf;
-	btCollisionDispatcher*					dispatcher;
-	btBroadphaseInterface*					broad_phase;
-	btSequentialImpulseConstraintSolver*	solver;
-	btDiscreteDynamicsWorld*				world;
-	btTypedConstraint*						constraint;
-	DebugDrawer*							debug_draw;
+	btDefaultCollisionConfiguration*	collision_conf;
+	btCollisionDispatcher*				dispatcher;
+	btBroadphaseInterface*				broad_phase;
+	btSequentialImpulseConstraintSolver* solver;
+	btDiscreteDynamicsWorld*			world;
+	DebugDrawer*						debug_draw;
 };
 
 class DebugDrawer : public btIDebugDraw

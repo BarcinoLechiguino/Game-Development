@@ -17,6 +17,8 @@ void log(const char file[], int line, const char* format, ...);
 #define RADTODEG 57.295779513082320876f
 #define HAVE_M_PI
 
+#define GRAVITY btVector3(0, -9.8f, 0)		//Gravity macro. The origin of the axis in OpenGL / Bullet is at bottom left.
+
 
 typedef unsigned int uint;
 
@@ -28,7 +30,6 @@ enum update_status
 };
 
 // Configuration -----------
-#define GRAVITY btVector3(0.0f, -9.8f, 0.0f)	//Gravity macro definition.
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 1024
 #define SCREEN_SIZE 1
