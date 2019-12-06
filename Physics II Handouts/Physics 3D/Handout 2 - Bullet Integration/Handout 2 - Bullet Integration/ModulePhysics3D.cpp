@@ -74,7 +74,7 @@ bool ModulePhysics3D::Start()
 	{
 		// TODO 6: Create a big rectangle as ground
 		// Big rectangle as ground
-		float mass = 0.0f;							//An object with a mass of value 0 will be static.
+		mass = 0.0f;							//An object with a mass of value 0 will be static.
 
 		btVector3 ground(200, 1, 200);
 
@@ -116,8 +116,8 @@ update_status ModulePhysics3D::Update(float dt)
 		if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 		{
 			// TODO 7: Create a Solid Sphere when pressing 1 on camera position
-			float mass = 1.0f;		//As we want the sphere to be dynamic, we add a mass != 0.
-			float radius = 1.0f;
+			mass = 1.0f;		//As we want the sphere to be dynamic, we add a mass != 0.
+			radius = 1.0f;
 
 			mat4x4 matrix = IdentityMatrix;
 			matrix.translate(App->camera->Position.x, App->camera->Position.y, App->camera->Position.z);

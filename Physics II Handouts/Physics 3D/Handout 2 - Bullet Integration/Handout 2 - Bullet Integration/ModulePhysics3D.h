@@ -34,6 +34,9 @@ private:
 	btCollisionShape*			collisionShape;		//Defines the shape of the body. We can use a big.
 	btRigidBody*				rigidBody;			//Body of an object in the world.
 
+	float mass;
+	float radius;
+
 	bool debug;
 	DebugDrawer* debug_draw;
 };
