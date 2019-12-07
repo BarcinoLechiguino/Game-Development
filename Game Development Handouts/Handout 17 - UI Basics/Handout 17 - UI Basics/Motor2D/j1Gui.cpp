@@ -32,18 +32,44 @@ bool j1Gui::Start()
 {
 	atlas = App->tex->Load(atlas_file_name.GetString());
 
+	ui_debug = false;
+
 	return true;
 }
 
 // Update all guis
 bool j1Gui::PreUpdate()
 {
+	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+	{
+		iPoint position = element_iterator->data->GetPosition();
+		SDL_Rect rek = element_iterator->data->GetRect();
+
+		LOG("UI Element Position: (%d, %d)", position.x, position.y);
+		element_iterator->data->Draw();
+		LOG("UI Element Rect: (%d, %d, %d, %d)", rek.x, rek.y, rek.w, rek.h);
+	}
+
+	Debug_UI();
+
 	return true;
 }
 
 // Called after all Updates
 bool j1Gui::PostUpdate()
-{
+{	
+	/*for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+	{
+		iPoint position = element_iterator->data->GetPosition();
+		SDL_Rect rek = element_iterator->data->GetRect();
+
+		LOG("UI Element Position: (%d, %d)", position.x, position.y);
+		element_iterator->data->Draw();
+		LOG("UI Element Rect: (%d, %d, %d, %d)", rek.x, rek.y, rek.w, rek.h);
+	}*/
+
+	Debug_UI();
+
 	return true;
 }
 
@@ -52,49 +78,64 @@ bool j1Gui::CleanUp()
 {
 	LOG("Freeing GUI");
 
+	//Iterate the elements list and frees all allocated memory.
+	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+	{
+		RELEASE(element_iterator->data);
+	}
+
+	elements.clear();
+
 	return true;
 }
 
 // const getter for atlas
-const SDL_Texture* j1Gui::GetAtlas() const
+/*const*/ SDL_Texture* j1Gui::GetAtlas() const
 {
 	return atlas;
 }
 
-
-//------------------------------------------------ GUI METHODS ------------------------------------------------
-GuiImage::GuiImage(int x, int y, SDL_Rect rect)
+UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* rect, p2SString* string)
 {
-	position.x = x;
-	position.y = y;
+	UI* elem = nullptr;
 
-	imgRect = rect;
+	switch (element)
+	{
+	case UI_Element::IMAGE:
+		elem = new UI_Image(element, x, y, *rect);			//In *rect the "*" is used to access rect pointer's data members.
+		break;
+
+	case UI_Element::TEXT:
+		elem = new UI_Text(element, x, y, *rect, string);
+		break;
+
+	case UI_Element::BUTTON:
+		break;
+
+	case UI_Element::SCROLLBAR:
+		break;
+
+	case UI_Element::INPUTBOX:
+		break;
+	}
+
+	if (elem != nullptr)
+	{
+		elements.add(elem);
+	}
+
+	return elem;
 }
 
-GuiText::GuiText(int x, int y, p2SString string)
+void j1Gui::Debug_UI()
 {
-	App->font->Print(string.GetString());
-	
-	position.x = x;
-	position.y = y;
-}
-
-GuiImage* j1Gui::CreateGuiImage(int x, int y, SDL_Rect rect)
-{
-	GuiImage* gui_image = new GuiImage(x, y, rect);
-
-	elements.add(gui_image);
-
-	return gui_image;
-}
-
-GuiText* j1Gui::CreateGuiText(int x, int y, SDL_Rect rect, p2SString string)
-{
-	GuiText* gui_text = new GuiText(x, y, string);
-
-	elements.add(gui_text);
-
-	return gui_text;
+	if (ui_debug == true)
+	{
+		for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+		{	
+			App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 0, 0, 255, false, false);
+		}
+	}
 }
 
 // class Gui ---------------------------------------------------

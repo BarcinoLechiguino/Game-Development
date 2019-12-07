@@ -2,60 +2,18 @@
 #define __j1GUI_H__
 
 #include "j1Module.h"
+#include "j1Textures.h"
+#include "p2List.h"
+#include "UI.h"
+#include "UI_Image.h"
+#include "UI_Text.h"
+
+//class UI;
 
 #define CURSOR_WIDTH 2
 
 // TODO 1: Create your structure of classes
-enum class UI_ELEMENT
-{
-	IMAGE,
-	TEXT,
-	BUTTON,
-	TOGGLE,
-	SCROLLBAR,
-	CHECKBOX
-};
 
-class Gui
-{
-public:
-	//virtual ~Gui();
-
-	bool Update();
-
-	void Draw();
-
-public:
-	iPoint position;
-};
-
-class GuiImage : public Gui
-{
-public:
-	GuiImage(int x, int y, SDL_Rect rect);
-	~GuiImage();
-
-	bool Update();
-
-	void Draw(SDL_Texture* atlas);
-
-private:
-	SDL_Rect imgRect;
-};
-
-class GuiText : public Gui
-{
-public:
-	GuiText(int x, int y, p2SString string);
-	~GuiText();
-
-	bool Update();
-
-	void Draw();
-
-private:
-	SDL_Texture* text;
-};
 // ---------------------------------------------------
 
 class j1Gui : public j1Module
@@ -82,19 +40,22 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+public:
+	/*const*/ SDL_Texture* GetAtlas() const;
+	
 	// TODO 2: Create the factory methods
 	// Gui creation functions
-	GuiImage* CreateGuiImage(int x, int y, SDL_Rect rect);
-	GuiText* CreateGuiText(int x, int y, SDL_Rect rect, p2SString string);
-
-	const SDL_Texture* GetAtlas() const;
+	UI* CreateElement(UI_Element element, int x, int y, SDL_Rect* rect = nullptr, p2SString* string = nullptr); //This might cause a problem when the element is RELEASED
+	
+	void Debug_UI();
+	bool ui_debug;
 
 private:
 
 	SDL_Texture* atlas;
 	p2SString atlas_file_name;
 
-	p2List<Gui*> elements;					//This is where the elements are added.
+	p2List<UI*> elements;		//List where all the UI elements in a scene will be stored at.
 };
 
 #endif // __j1GUI_H__
