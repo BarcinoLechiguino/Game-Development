@@ -2,6 +2,7 @@
 #include "p2Log.h"
 #include "j1App.h"
 #include "j1Input.h"
+#include "j1Fonts.h"
 #include "j1Textures.h"
 #include "j1Audio.h"
 #include "j1Render.h"
@@ -47,12 +48,25 @@ bool j1Scene::Start()
 	// TODO 3: Create the banner (rect {485, 829, 328, 103}) as a UI element
 	SDL_Rect rect{ 485, 829, 328, 103 };
 
-	App->gui->CreateElement(UI_Element::IMAGE, 300, 100, &rect);
+	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect);
 
 	// TODO 4: Create the text "Hello World" as a UI element
 	SDL_Rect textHitbox{ 432, 75, 65, 20};
 	p2SString bufferString = "Hello World";
-	App->gui->CreateElement(UI_Element::TEXT, 432, 75, &textHitbox, &bufferString);
+	_TTF_Font* font = App->font->Load("fonts/open_sans/OpenSans-SemiboldItalic.ttf");
+	SDL_Color fontRgb = { 255, 255, 255, 255 };
+
+	text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 432, 75, textHitbox, font, fontRgb, NULL, &bufferString);
+
+	
+	//Creating a button:
+	SDL_Rect idle		= { 642,169,229,69 };
+	SDL_Rect hover		= { 0,113,229,69 };
+	SDL_Rect clicked	= { 411,169,229,69 };
+
+	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, &idle, &hover, &clicked, NULL);
+
+	//App->gui->CreateButton(UI_Element::BUTTON, 200, 205, &idle, &hover, &clicked, NULL);
 
 	return true;
 }

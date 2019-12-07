@@ -1,17 +1,21 @@
+#include "p2Log.h"
 #include "j1App.h"
 #include "j1Render.h"
+#include "j1Input.h"
 #include "j1Gui.h"
 #include "UI.h"
 #include "UI_Image.h"
 #include "UI_Text.h"
 
-UI::UI(UI_Element element, int x, int y, SDL_Rect rect) :
+UI::UI(UI_Element element, int x, int y, SDL_Rect rect, UI* parent) :
 	element(element),										//The variables of the UI element are initialized at the constructor.
 	position(x, y),
-	rect(rect)
+	rect(rect),
+	parent(parent)
 {
 	//hitbox = {GetPosition().x, GetPosition().y, GetRect().w, GetRect().h };
 	hitbox = {position.x, position.y, this->rect.w, this->rect.h };
+	focused = false;
 }
 
 UI::~UI()
@@ -52,6 +56,19 @@ void UI::SetHitbox(SDL_Rect hitbox)
 SDL_Rect UI::GetHitbox() const
 {
 	return hitbox;						//Returns the hitbox of a UI element.
+}
+
+iPoint UI::GetMousePos() /*const*/
+{
+	App->input->GetMousePosition(mousePos.x, mousePos.y);
+
+	return mousePos;
+}
+
+bool UI::CheckMousePos()
+{
+	return(mousePos.x > hitbox.x && mousePos.x < hitbox.x + hitbox.w 
+		&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
 }
 
 void UI::BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect)

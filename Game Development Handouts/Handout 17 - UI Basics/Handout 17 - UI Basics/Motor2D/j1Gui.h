@@ -7,6 +7,7 @@
 #include "UI.h"
 #include "UI_Image.h"
 #include "UI_Text.h"
+#include "UI_Button.h"
 
 //class UI;
 
@@ -45,8 +46,16 @@ public:
 	
 	// TODO 2: Create the factory methods
 	// Gui creation functions
-	UI* CreateElement(UI_Element element, int x, int y, SDL_Rect* rect = nullptr, p2SString* string = nullptr); //This might cause a problem when the element is RELEASED
+	UI* CreateElement(UI_Element element, int x, int y, SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr, p2SString* string = nullptr); //This might cause a problem when the element is RELEASED
+	UI* CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI* parent = nullptr);
+	UI* CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI* parent = nullptr, p2SString* string = nullptr, 
+					p2SString* hoverString = nullptr, p2SString* focusString = nullptr, p2SString* leftClickString = nullptr, p2SString* rightClickString = nullptr);
+	UI* CreateButton(UI_Element element, int x, int y, SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr, UI* parent = nullptr);
+
+	j1Gui* elementCallback;
 	
+	void PassFocus();
+
 	void Debug_UI();
 	bool ui_debug;
 

@@ -40,7 +40,50 @@ bool j1Gui::Start()
 // Update all guis
 bool j1Gui::PreUpdate()
 {
+	if (App->input->GetKey(SDL_SCANCODE_TAB) == KEY_DOWN)
+	{
+		PassFocus();
+	}
 
+	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+	{
+		switch (element_iterator->data->element)
+		{
+		case UI_Element::IMAGE:
+			break;
+
+		case UI_Element::TEXT:
+			if (element_iterator->data->ui_event == UI_Event::CLICKED)
+			{
+				if (ui_debug == false)
+				{
+					ui_debug = true;
+				}
+				else
+				{
+					ui_debug = false;
+				}
+			}
+			
+			break;
+
+		case UI_Element::BUTTON:
+
+			if (element_iterator->data->ui_event == UI_Event::CLICKED)
+			{
+				if (ui_debug == false)
+				{
+					ui_debug = true;
+				}
+				else
+				{
+					ui_debug = false;
+				}
+			}
+			break;
+		}
+	}
+	
 	return true;
 }
 
@@ -49,7 +92,34 @@ bool j1Gui::PostUpdate()
 {	
 	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 	{
-		element_iterator->data->Draw();
+		switch (element_iterator->data->element)
+		{
+		case UI_Element::IMAGE:
+			element_iterator->data->Draw();
+			break;
+
+		case UI_Element::TEXT:
+			element_iterator->data->Draw();
+			break;
+
+		case UI_Element::BUTTON:
+			if (element_iterator->data->parent == NULL)
+			{
+				element_iterator->data->Draw();
+			}
+			/*else
+			{
+
+			}*/
+
+			break;
+
+		case UI_Element::SCROLLBAR:
+			break;
+
+		case UI_Element::INPUTBOX:
+			break;
+		}
 	}
 
 	Debug_UI();
@@ -79,21 +149,23 @@ bool j1Gui::CleanUp()
 	return atlas;
 }
 
-UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* rect, p2SString* string)
+//----------------------------------- UI ELEMENT CREATION METHODS -----------------------------------
+UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked, p2SString* string)
 {
 	UI* elem = nullptr;
 
 	switch (element)
 	{
 	case UI_Element::IMAGE:
-		elem = new UI_Image(element, x, y, *rect);			//In *rect the "*" is used to access rect pointer's data members.
+		elem = new UI_Image(element, x, y, *idle);					//In *rect the "*" is used to access rect pointer's data members.
 		break;
 
 	case UI_Element::TEXT:
-		elem = new UI_Text(element, x, y, *rect, string);
+		//elem = new UI_Text(element, x, y, *idle, string);
 		break;
 
 	case UI_Element::BUTTON:
+		//elem = new UI_Button(element, x, y, *idle, *hover, *clicked);
 		break;
 
 	case UI_Element::SCROLLBAR:
@@ -111,6 +183,83 @@ UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* rect, p2SSt
 	return elem;
 }
 
+UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI* parent)
+{
+	UI* elem = nullptr;
+
+	elem = new UI_Image(element, x, y, rect, parent);
+
+	if (elem != nullptr)
+	{
+		elements.add(elem);
+	}
+
+	return elem;
+}
+
+UI* j1Gui::CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI* parent, p2SString* string, p2SString* hoverString,
+						p2SString* focusString, p2SString* leftClickString, p2SString* rightClickString)
+{
+	UI* elem = nullptr;
+
+	elem = new UI_Text(element, x, y, hitbox, font, fontColour, parent, string, hoverString, focusString, leftClickString, rightClickString);
+
+	if (elem != nullptr)
+	{
+		elements.add(elem);
+	}
+
+	return elem;
+}
+
+UI* j1Gui::CreateButton(UI_Element element, int x, int y, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked, UI* parent)
+{
+	UI* elem = nullptr;
+
+	elem = new UI_Button(element, x, y, idle, hover, clicked, parent);
+
+	if (elem != nullptr)
+	{
+		elements.add(elem);
+	}
+
+	return elem;
+}
+
+
+//----------------------------------- FOCUS METHOD -----------------------------------
+void j1Gui::PassFocus()
+{
+	p2List_item<UI*>* element_iterator = elements.start;
+
+	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+	{
+		if (element_iterator->data->interactible == true)
+		{
+			if (element_iterator->data->focused == false/* && element_iterator->data->hadFocus == false*/)
+			{
+				element_iterator->data->focused = true;
+				//element_iterator->data->hadFocus = true;		//Had focus marks that a UI Element has alerady had focus, so it cannot have  focus until the next cycle.
+				break;
+			}
+			else
+			{
+				element_iterator->data->focused = false;
+				//element_iterator->data->hadFocus = false;
+				//break;
+			}
+
+			/*if (element_iterator->data->hadFocus == true && element_iterator->next->data->hadFocus == true)
+			{
+				element_iterator->data->hadFocus = false;
+				element_iterator->next->data->hadFocus = false;
+			}*/
+		}
+		
+	}
+}
+
+//----------------------------------- UI DEBUG METHOD -----------------------------------
 void j1Gui::Debug_UI()
 {
 	if (ui_debug == true)
