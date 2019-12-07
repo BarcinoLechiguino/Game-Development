@@ -45,9 +45,9 @@ bool j1Scene::Start()
 	debug_tex = App->tex->Load("maps/path2.png");
 
 	// TODO 3: Create the banner (rect {485, 829, 328, 103}) as a UI element
-	/*SDL_Rect rect{ 485, 829, 328, 103 };
+	SDL_Rect rect{ 485, 829, 328, 103 };
 
-	App->gui->CreateElement(UI_Element::IMAGE, 300, 100, &rect);*/
+	App->gui->CreateElement(UI_Element::IMAGE, 300, 100, &rect);
 
 	// TODO 4: Create the text "Hello World" as a UI element
 	SDL_Rect textHitbox{ 432, 75, 65, 20};
@@ -82,10 +82,6 @@ bool j1Scene::PreUpdate()
 			origin_selected = true;
 		}
 	}
-
-	SDL_Rect rect{ 485, 829, 328, 103 };
-
-	App->gui->CreateElement(UI_Element::IMAGE, 300, 100, &rect);
 
 	return true;
 }

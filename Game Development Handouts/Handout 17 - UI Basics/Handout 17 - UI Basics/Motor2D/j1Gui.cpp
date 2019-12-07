@@ -40,17 +40,6 @@ bool j1Gui::Start()
 // Update all guis
 bool j1Gui::PreUpdate()
 {
-	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
-	{
-		iPoint position = element_iterator->data->GetPosition();
-		SDL_Rect rek = element_iterator->data->GetRect();
-
-		LOG("UI Element Position: (%d, %d)", position.x, position.y);
-		element_iterator->data->Draw();
-		LOG("UI Element Rect: (%d, %d, %d, %d)", rek.x, rek.y, rek.w, rek.h);
-	}
-
-	Debug_UI();
 
 	return true;
 }
@@ -58,15 +47,10 @@ bool j1Gui::PreUpdate()
 // Called after all Updates
 bool j1Gui::PostUpdate()
 {	
-	/*for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 	{
-		iPoint position = element_iterator->data->GetPosition();
-		SDL_Rect rek = element_iterator->data->GetRect();
-
-		LOG("UI Element Position: (%d, %d)", position.x, position.y);
 		element_iterator->data->Draw();
-		LOG("UI Element Rect: (%d, %d, %d, %d)", rek.x, rek.y, rek.w, rek.h);
-	}*/
+	}
 
 	Debug_UI();
 
