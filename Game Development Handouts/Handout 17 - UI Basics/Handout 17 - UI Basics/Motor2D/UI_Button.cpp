@@ -3,10 +3,11 @@
 #include "j1Gui.h"
 #include "UI_Button.h"
 
-UI_Button::UI_Button(UI_Element element, int x, int y, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked, UI* parent) : UI(element, x, y, *idle, parent)
+UI_Button::UI_Button(UI_Element element, int x, int y, UI_Button* elementCallback, UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked) : UI(element, x, y, *idle, parent)
 {
 	tex = App->gui->GetAtlas();
 
+	//If the SDL_Rect pointers are not null, then set the button rects to their data memebers.
 	if (idle != NULL)
 	{
 		this->idle = *idle;
@@ -22,12 +23,23 @@ UI_Button::UI_Button(UI_Element element, int x, int y, SDL_Rect* idle, SDL_Rect*
 		this->clicked = *clicked;
 	}
 
+	buttonCallback = elementCallback;		//Sets the button element's callback to the one passed as argument
+
 	interactible = true;
 
 	//focused = false;
 }
 
 bool UI_Button::Draw()
+{
+	CheckInput();
+	
+	BlitElement(tex, GetPosition().x, GetPosition().y, &currentRect);
+
+	return true;
+}
+
+void UI_Button::CheckInput()
 {
 	GetMousePos();
 
@@ -56,7 +68,5 @@ bool UI_Button::Draw()
 		currentRect = clicked;									//Button Hover sprite.
 	}
 
-	BlitElement(tex, GetPosition().x, GetPosition().y, &currentRect);
-
-	return true;
+	App->gui->OnEventCall(buttonCallback, ui_event);
 }

@@ -39,11 +39,19 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+public:
+	bool escape;
+	
+	UI_Button* button;
+	UI_Button* escButton;
+
+
 private:
 	SDL_Texture* debug_tex;
 	UI_Image* banner;
 	UI_Text* text;
-	UI_Button* button;
+	//UI_Button* button;
+	//UI_Button* escButton;
 
 	//j1Gui* elementCallback;
 

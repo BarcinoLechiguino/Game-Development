@@ -4,7 +4,7 @@
 #include "UI.h"
 #include "UI_Text.h"
 
-UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI* parent, p2SString* string, p2SString* hoverString,
+UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI_Text* elementCallback, UI* parent, p2SString* string, p2SString* hoverString,
 				p2SString* focusString, p2SString* leftClickString, p2SString* rightClickString) : UI(UI_Element::TEXT, x, y, hitbox, parent),
 				idleTex(nullptr), hoverTex(nullptr), focusTex(nullptr), leftClickTex(nullptr), rightClickTex(nullptr)
 {	
@@ -37,6 +37,8 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 	//interactible = true;																	//A UI_Text type of UI Element will never be interactible.
 	interactible = false;	//Temporal measure to debug the focus.
 	//focused = false;
+
+	textCallback = elementCallback;
 }
 
 bool UI_Text::Draw()

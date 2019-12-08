@@ -31,10 +31,21 @@ enum class UI_Event
 	TEXT_EXECUTION
 };
 
-//enum class Element_Callback
-//{
-//	
-//};
+enum class UI_Callback			//Assigns a functionality to a button.
+{
+	NONE,
+	START_BUTTON,
+	CONTIINUE_BUTTON,
+	SETTINGS_BUTTON,
+	CREDITS_BUTTON,
+	ESCAPE_BUTTON,
+	MENU_BUTTON,
+	SAVE_BUTTON,
+	LOAD_BUTTON,
+	NEXTMAP_BUTTON,
+	PREVMAP_BUTTON,
+	UI_DEBUG_BUTTON,
+};
 
 class UI
 {
@@ -57,6 +68,8 @@ public:
 	iPoint GetMousePos() /*const*/;		//Gets the mouse's position.
 	bool CheckMousePos();				//Checks the position of the mouse.
 
+	void OnEventCall(UI* element, UI_Event ui_event);
+
 	void BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect);
 
 	bool		interactible;			//Keeps track of whether a UI Element is interactible or not.
@@ -64,6 +77,10 @@ public:
 	bool		hadFocus;
 	UI_Event	ui_event;				//Defines which events will the UI_Elements send when interacted with.
 	UI_Element	element;				//Enum that defines which kind of element a UI element is.
+	UI_Callback elementCallback;		//Enum that defines the functionality of a button.
+
+	//UI*			callback;				//Callback pointer of a UI_Element, mainly used for buttons.
+	j1Module*	callback;				//Callback to j1Module, maybe need to make a virtual event detection function.
 	UI*			parent;					//Keeps track of the dependencies between UI elements.
 
 private:

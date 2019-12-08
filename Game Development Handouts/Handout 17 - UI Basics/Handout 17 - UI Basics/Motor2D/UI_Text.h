@@ -11,7 +11,7 @@ class UI_Text : public UI
 {
 public:
 
-	UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI* parent = nullptr, p2SString* string = nullptr, p2SString* hoverString = nullptr,
+	UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI_Text* elementCallback, UI* parent = nullptr, p2SString* string = nullptr, p2SString* hoverString = nullptr,
 			p2SString* focusString = nullptr, p2SString* leftClickString = nullptr, p2SString* rightClickString = nullptr);
 
 	bool Draw();
@@ -26,6 +26,8 @@ private:
 	SDL_Texture*	leftClickTex;		//Texture for the left-Clicked state of the text.
 	SDL_Texture*	rightClickTex;		//Texture for the right-Clicked state of the text.
 	SDL_Texture*	currentTex;			//Current texture to be blitted. Depends on the input the UI Text element receives.
+
+	UI_Text*		textCallback;		//Pointer of the text, if we want to assign a function to a specific button, the pointer needs to be compared
 };
 
 #endif // !__UI_TEXT_H__

@@ -3,6 +3,7 @@
 #include "j1Render.h"
 #include "j1Input.h"
 #include "j1Gui.h"
+#include "j1Scene.h"
 #include "UI.h"
 #include "UI_Image.h"
 #include "UI_Text.h"
@@ -70,6 +71,21 @@ bool UI::CheckMousePos()
 	return(mousePos.x > hitbox.x && mousePos.x < hitbox.x + hitbox.w 
 		&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
 }
+
+//void UI::OnEventCall(UI* element, UI_Event ui_event)
+//{
+//	if (element == App->scene->button && ui_event == UI_Event::CLICKED)
+//	{
+//		if (App->gui->ui_debug == false)
+//		{
+//			App->gui->ui_debug = true;
+//		}
+//		else
+//		{
+//			App->gui->ui_debug = false;
+//		}
+//	}
+//}
 
 void UI::BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect)
 {

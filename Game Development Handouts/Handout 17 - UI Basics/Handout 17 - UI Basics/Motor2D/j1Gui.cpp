@@ -6,6 +6,7 @@
 #include "j1Fonts.h"
 #include "j1Input.h"
 #include "j1Gui.h"
+#include "j1Scene.h"
 
 j1Gui::j1Gui() : j1Module()
 {
@@ -33,6 +34,7 @@ bool j1Gui::Start()
 	atlas = App->tex->Load(atlas_file_name.GetString());
 
 	ui_debug = false;
+	escape = true;
 
 	return true;
 }
@@ -68,18 +70,21 @@ bool j1Gui::PreUpdate()
 			break;
 
 		case UI_Element::BUTTON:
+			
+			//CheckFunctionality(element_iterator->data->elementCallback, element_iterator->data->ui_event);
 
-			if (element_iterator->data->ui_event == UI_Event::CLICKED)
-			{
-				if (ui_debug == false)
-				{
-					ui_debug = true;
-				}
-				else
-				{
-					ui_debug = false;
-				}
-			}
+			//if (element_iterator->data->ui_event == UI_Event::CLICKED)
+			//{
+			//	/*if (ui_debug == false)
+			//	{
+			//		ui_debug = true;
+			//	}
+			//	else
+			//	{
+			//		ui_debug = false;
+			//	}*/
+			//}
+
 			break;
 		}
 	}
@@ -90,6 +95,8 @@ bool j1Gui::PreUpdate()
 // Called after all Updates
 bool j1Gui::PostUpdate()
 {	
+	//escape = true;
+	
 	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 	{
 		switch (element_iterator->data->element)
@@ -124,7 +131,7 @@ bool j1Gui::PostUpdate()
 
 	Debug_UI();
 
-	return true;
+	return escape;
 }
 
 // Called before quitting
@@ -157,7 +164,7 @@ UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* idle, SDL_R
 	switch (element)
 	{
 	case UI_Element::IMAGE:
-		elem = new UI_Image(element, x, y, *idle);					//In *rect the "*" is used to access rect pointer's data members.
+		//elem = new UI_Image(element, x, y, *idle);					//In *rect the "*" is used to access rect pointer's data members.
 		break;
 
 	case UI_Element::TEXT:
@@ -183,11 +190,11 @@ UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* idle, SDL_R
 	return elem;
 }
 
-UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI* parent)
+UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI_Image* imgCallback, UI* parent)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Image(element, x, y, rect, parent);
+	elem = new UI_Image(element, x, y, rect, imgCallback, parent);
 
 	if (elem != nullptr)
 	{
@@ -197,12 +204,12 @@ UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI* pare
 	return elem;
 }
 
-UI* j1Gui::CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI* parent, p2SString* string, p2SString* hoverString,
+UI* j1Gui::CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI_Text* textCallback, UI* parent, p2SString* string, p2SString* hoverString,
 						p2SString* focusString, p2SString* leftClickString, p2SString* rightClickString)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Text(element, x, y, hitbox, font, fontColour, parent, string, hoverString, focusString, leftClickString, rightClickString);
+	elem = new UI_Text(element, x, y, hitbox, font, fontColour, textCallback, parent, string, hoverString, focusString, leftClickString, rightClickString);
 
 	if (elem != nullptr)
 	{
@@ -212,11 +219,11 @@ UI* j1Gui::CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Fo
 	return elem;
 }
 
-UI* j1Gui::CreateButton(UI_Element element, int x, int y, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked, UI* parent)
+UI* j1Gui::CreateButton(UI_Element element, int x, int y, UI_Button* buttonCallback, UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Button(element, x, y, idle, hover, clicked, parent);
+	elem = new UI_Button(element, x, y, buttonCallback, parent, idle, hover, clicked);
 
 	if (elem != nullptr)
 	{
@@ -226,6 +233,52 @@ UI* j1Gui::CreateButton(UI_Element element, int x, int y, SDL_Rect* idle, SDL_Re
 	return elem;
 }
 
+//--------------------------------- INPUT PROCESSING ---------------------------------
+void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
+{
+	if (element == App->scene->button/*debug_Button*/ && ui_event == UI_Event::CLICKED)		//If the pointer received is the UI_Button* button pointer of Scene.h and event = clicked. 
+	{
+		if (App->gui->ui_debug == false)
+		{
+			App->gui->ui_debug = true;
+		}
+		else
+		{
+			App->gui->ui_debug = false;
+		}
+		//return;
+	}
+
+	if (element == App->scene->escButton/*escape_Button*/ && ui_event == UI_Event::CLICKED)	//If the pointer received is the UI_Button* escbutton pointer of Scene.h and event = clicked.
+	{
+		escape = false;
+		//return;
+	}
+}
+
+void j1Gui::CheckFunctionality(UI_Callback callback, UI_Event ui_event)
+{
+	switch (callback)
+	{
+	case UI_Callback::NONE:
+		break;
+
+	case UI_Callback::UI_DEBUG_BUTTON:
+		if (ui_event == UI_Event::CLICKED)
+		{
+			if (ui_debug == false)
+			{
+				ui_debug = true;
+			}
+			else
+			{
+				ui_debug = false;
+			}
+		}
+		
+		break;
+	}
+}
 
 //----------------------------------- FOCUS METHOD -----------------------------------
 void j1Gui::PassFocus()
