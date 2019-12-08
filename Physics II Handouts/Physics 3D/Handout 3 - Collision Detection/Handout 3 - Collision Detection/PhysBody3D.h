@@ -25,12 +25,14 @@ public:
 	void SetPos(float x, float y, float z);
 
 private:
-	btRigidBody* body;
 	//TODO 1: Store all "new" created values
+	btRigidBody*			body;
+	btCollisionShape*		colShape;			//Pointer of a PhysBody's collision shape.
+	btDefaultMotionState*	motionState;		//Pointer of a PhysBody's motion state.
 
 public:
 	Primitive* parentPrimitive;
-	p2DynArray<Module*> collision_listeners;
+	p2DynArray<Module*> collision_listeners;	//Any module can register as a listener.
 };
 
 #endif // __PhysBody3D_H__

@@ -30,7 +30,9 @@ public:
 	Color color;
 	mat4x4 transform;
 	bool axis,wire;
+	
 	//TODO 4: Add a PhysBody to the primitive
+	PhysBody3D  physBody;		//Not a pointer because it will be deleted when the physBody is deleted.
 
 protected:
 	virtual void InnerRender() const;

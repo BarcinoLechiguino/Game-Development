@@ -75,14 +75,12 @@ bool ModulePhysics3D::Start()
 		// TODO 6: Create a big rectangle as ground
 		// Big rectangle as ground
 		mass = 0.0f;							//An object with a mass of value 0 will be static.
-
-		btVector3 ground(200, 1, 200);
+		ground = { 200, 1, 200 };
 
 		motionState = new btDefaultMotionState();
 		collisionShape = new btBoxShape(ground);
 
 		btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState, collisionShape);
-
 		rigidBody = new btRigidBody(constructionInfo);
 
 		world->addRigidBody(rigidBody);
@@ -128,17 +126,17 @@ update_status ModulePhysics3D::Update(float dt)
 			motionState = new btDefaultMotionState(transform);
 			collisionShape = new btSphereShape(radius);
 
-			btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState, collisionShape);
-			
-			rigidBody = new btRigidBody(constructionInfo);
+			btVector3 localInertia(0, 0, 0);
+			collisionShape->calculateLocalInertia(mass, localInertia);
 
-			//rigidBody->applyImpulse(btVector3(10, 2, 10), transform.getOrigin());		//Applies an impulse to the created sphere in the given direction (vector).
+			btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, motionState, collisionShape, localInertia);
+			rigidBody = new btRigidBody(constructionInfo);
 
 			//mass*500 ensures that the force applied corresponds with the mass so the same force impulse is appreciated.
 			rigidBody->applyForce(btVector3(mass*500, 0, 0), transform.getOrigin());		//Applies a force to the created sphere in the given direction (vector).
-
 			//rigidBody->getLocalInertia();
 
+			//rigidBody->applyImpulse(btVector3(10, 2, 10), transform.getOrigin());		//Applies an impulse to the created sphere in the given direction (vector).
 			//rigidBody->applyTorqueImpulse(btVector3(1000, 2, 10));
 
 			world->addRigidBody(rigidBody);

@@ -36,6 +36,7 @@ private:
 
 	float mass;
 	float radius;
+	btVector3 ground;
 
 	bool debug;
 	DebugDrawer* debug_draw;

@@ -79,9 +79,33 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 	// - Get world dispatcher
 	// - Iterate all manifolds
 	// - Check we have more than 0 contacts
-	// - If we have contacts, get both PhysBody3D from userpointers
+	// - If we have contacts, get both PhysBody3D's from userpointers
 	// - Make sure both PhysBodies exist!
 	// - Call "OnCollision" function on all listeners from both bodies
+
+	for (int i = 0; i < world->getDispatcher()->getNumManifolds(); i++)							//Loop that iterates all manifolds present in the world. .getNumManifolds() returns the total amount of manifolds currently in the world.
+	{
+		btPersistentManifold* manifold = world->getDispatcher()->getManifoldByIndexInternal(i);	//Gets a manifold by its internal index number. The index given to the .getManifoldByIndexInternal() will be the index of the loop.
+
+		if (manifold->getNumContacts() != 0)													//Gets the amount of contacts the manifold currently being iterated has. If there are more then 0 contacts.
+		{
+			PhysBody3D* PB1 = (PhysBody3D*)manifold->getBody0()->getUserPointer();				//Gets the body's pointer of the Body0 that the manifold has detected to have had a contact.
+			PhysBody3D* PB2 = (PhysBody3D*)manifold->getBody1()->getUserPointer();				//Gets the body's pointer of the Body1 that the manifold has detected to have had a contact.
+
+			if (PB1 != nullptr && PB2 != nullptr)												//If both PhysBody3D* pointers exist.
+			{
+				for (int n = 0; n < PB1->collision_listeners.Count(); n++)						//Loop that iterates all listeners of PB1 (colliding body).
+				{
+					PB1->collision_listeners[n]->OnCollision(PB1, PB2);							//Calls the OnCollision() method for the collision_listener currently being iterated.
+				}
+
+				for (int n = 0; n < PB2->collision_listeners.Count(); n++)						//Loop that iterates all listeners of PB1 (colliding body).
+				{
+					PB2->collision_listeners[n]->OnCollision(PB2, PB1);							//Calls the OnCollision() method for the collision_listener currently being iterated.
+				}
+			}
+		}
+	}
 
 	return UPDATE_CONTINUE;
 }
@@ -158,3 +182,8 @@ int	 DebugDrawer::getDebugMode() const
 {
 	return mode;
 }
+
+//void OnCollision(PhysBody3D* PB1, PhysBody3D* PB2)
+//{
+//
+//}

@@ -49,8 +49,12 @@ update_status ModuleSceneIntro::Update(float dt)
 		if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 		{
 			//TODO 3: Create a "new" sphere, and add it to the "primitives" DynArray
+			Primitive* sphere = new Sphere(1.0f, 1.0f);		//Creates a new sphere with the Primitive* pointer.
+			
+			primitives.PushBack(sphere);
 
 			//TODO 9: Push ModuleSceneIntro to the sphere collision listeners
+			sphere->physBody.collision_listeners.PushBack(this);
 		}
 	}
 
@@ -76,3 +80,13 @@ update_status ModuleSceneIntro::PostUpdate(float dt)
 }
 
 //TODO 9: And change the color of the colliding bodies, so we can visualize it working!
+void ModuleSceneIntro::OnCollision(PhysBody3D* PB1, PhysBody3D* PB2)
+{
+	/*Color color = { 255, 0, 0 };
+	
+	PB1->parentPrimitive->color = color;
+	PB2->parentPrimitive->color = color;*/
+
+	PB1->parentPrimitive->color.Set(255, 0, 0, 1.0f);
+	PB2->parentPrimitive->color.Set(0, 0, 255, 1.0f);
+}

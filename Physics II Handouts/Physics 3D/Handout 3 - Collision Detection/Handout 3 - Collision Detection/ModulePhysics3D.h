@@ -49,6 +49,8 @@ public:
 	void setDebugMode(int debugMode);
 	int	 getDebugMode() const;
 
+	//void OnCollision(PhysBody3D* PB1, PhysBody3D* PB2);
+
 	DebugDrawModes mode;
 	Line line;
 	Primitive point;
