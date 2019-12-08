@@ -27,19 +27,64 @@ bool ModuleSceneIntro::Start()
 
 	float XPos = 0.f;
 	float Size = StartingSize;
+
+	Sphere* previousSphere = nullptr;		//Buffer where the previously iterated sphere will be kept.
+
 	for (int n = 0; n < SnakeLength; n++)
 	{
 		Sphere* s = new Sphere(Size);
 		primitives.PushBack(s);
 		s->SetPos(XPos, 10.f, 2.5f);
 
+		//int sphereMidPosX = Size + (BallDistance / 2);			//Position in X of the center between 2 spheres in this setup.
+		btVector3 center = { Size + (BallDistance / 2), 0, 0 };		//Center vector between 2 spheres.
+
 		//TODO 2: Link all the spheres with your P2P constraints
+		if (primitives.Count() > 1 && previousSphere != nullptr)		//If there are more than 2 primitives in the primitives list and previousSphere is not NULL.
+		{
+			//App->physics->AddConstraintP2P(*s, *previousSphere, center, -center);
+			App->physics->AddConstraintP2P(*s, *previousSphere, 
+				btVector3(Size + (BallDistance / 2), 0, 0), btVector3(-(Size + (BallDistance / 2)), 0, 0));
+		}
+
+		previousSphere = s;					//The new sphere is set in the buffer.
 
 		XPos += Size + Size + SizeIncrement + BallDistance;
 		Size += SizeIncrement;
 	}
 
 	//TODO 4: Link some other spheres with your Hinge constraint
+	//Variables for the hinge constraint spheres. The first letter of each variable's name is in lower case.
+	//const float startingSize = 0.5f;
+	//const float sizeIncrement = 0.2f;
+	//const float ballDistance = 0.3f;
+
+	//float xPos = 0.f;
+	//float size = startingSize;
+
+	//Sphere* previousHinge = nullptr;
+	//for (int n = 0; n < SnakeLength; n++)
+	//{
+	//	Sphere* hinge_S = new Sphere(size);
+	//	primitives.PushBack(hinge_S);
+	//	hinge_S->SetPos(xPos, 10.f, 10.0f);
+
+	//	//btScalar centerDist = size + size + sizeIncrement + ballDistance;
+	//	btScalar centerDist = size + size + sizeIncrement + ballDistance;
+	//	btVector3 center = {size + size + sizeIncrement + ballDistance, 0, 0 };		//Center vector between 2 spheres.
+
+	//	//TODO 2: Link all the spheres with your P2P constraints
+	//	if (primitives.Count() > 8 && previousHinge != nullptr)			//If there are more than 2 primitives in the primitives list and previousSphere is not NULL.
+	//	{
+	//		App->physics->AddConstraintHinge(*hinge_S, *previousHinge, btVector3(centerDist, 0, 0), 
+	//			btVector3(-centerDist, 0, 0), btVector3(0, 0, 0), btVector3(-1, 0, 0));
+	//	}
+
+	//	previousHinge = hinge_S;					//The new sphere is set in the buffer.
+
+	//	xPos += size + size + sizeIncrement + ballDistance;
+	//	size += sizeIncrement;
+	//}
 
 	return ret;
 }
@@ -71,7 +116,6 @@ void ModuleSceneIntro::HandleDebugInput()
 	{
 		//TODO: NEW CODE
 		//A snippet of new code that may be useful for you. Nothing to do here really
-
 
 		//Get a vector indicating the direction from the camera viewpoint to the "mouse"
 		const vec2 mousePos(((float)App->input->GetMouseX() / (float)App->window->Width()) * 2.f - 1.f,

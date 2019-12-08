@@ -32,17 +32,22 @@ public:
 
 	//TODO 1: Implement the code to add a Point to Point constraint ( btPoint2PointConstraint )
 	//void AddConstraintP2P(const Primitive& bodyA, const Primitive& bodyB, ...);
+	
+	//A P2P constraint takes the center between the centers of the 2 bodies as the pivot.
+	void AddConstraintP2P(const Primitive& bodyA, const Primitive& bodyB, const btVector3& pivotInA, const btVector3& pivotInB);
 
 	//TODO 3: Implement the code to add a Hinge constraint ( btHingeConstraint )
 	//void AddConstraintHinge(const Primitive & bodyA, const Primitive & bodyB, ...);
+	void AddConstraintHinge(const Primitive& bodyA, const Primitive& bodyB, const btVector3& pivotInA, const btVector3& pivotInB, const btVector3& axisInA, const btVector3& axisInB);
 
 private:
-	btDefaultCollisionConfiguration*	collision_conf;
-	btCollisionDispatcher*				dispatcher;
-	btBroadphaseInterface*				broad_phase;
-	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld*			world;
-	DebugDrawer*						debug_draw;
+	btDefaultCollisionConfiguration*		collision_conf;
+	btCollisionDispatcher*					dispatcher;
+	btBroadphaseInterface*					broad_phase;
+	btSequentialImpulseConstraintSolver*	solver;
+	btDiscreteDynamicsWorld*				world;
+	btTypedConstraint*						constraint;			//Constraint pointer that will be used to create new constraints.
+	DebugDrawer*							debug_draw;
 };
 
 class DebugDrawer : public btIDebugDraw
