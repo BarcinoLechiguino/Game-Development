@@ -90,16 +90,16 @@ bool Application::Init()
 	//	it++;												//Iterator->next
 	//}
 
-	std::function<bool(int, int)> FunctionPtr = AFunction;				//<function type/what it returns (arguments)> Name
-	FunctionPtr(1, 2);													//Accesses AFunction.
+	//std::function<bool(int, int)> FunctionPtr = AFunction;				//<function type/what it returns (arguments)> Name
+	//FunctionPtr(1, 2);													//Accesses AFunction.
 
-	std::function<update_status()> UpdatePtr = [this]() { return this->Update(); }; //Set as the pointer to the Update() function of Application.
+	//std::function<update_status()> UpdatePtr = [this]() { return this->Update(); }; //Set as the pointer to the Update() function of Application.
 
 
-	std::shared_ptr<Module> ModulePtr = std::make_shared<Module>();		//A share_pointer automatically deletes and keeps an object alive. Module will have a counter of how many shared_pointer points to it.
-	std::weak_ptr<Module> WeakPtr = ModulePtr;							//Weak pointer allows to create a pointer towards an object that can be destroyed while this smart pointer points to it.
+	//std::shared_ptr<Module> ModulePtr = std::make_shared<Module>();		//A share_pointer automatically deletes and keeps an object alive. Module will have a counter of how many shared_pointer points to it.
+	//std::weak_ptr<Module> WeakPtr = ModulePtr;							//Weak pointer allows to create a pointer towards an object that can be destroyed while this smart pointer points to it.
 
-	ModulePtr2 = ModulePtr;												//Second smart_pointer.
+	//ModulePtr2 = ModulePtr;												//Second smart_pointer.
 
 	// After all Init calls we call Start() in all modules
 	LOG("Application Start --------------");

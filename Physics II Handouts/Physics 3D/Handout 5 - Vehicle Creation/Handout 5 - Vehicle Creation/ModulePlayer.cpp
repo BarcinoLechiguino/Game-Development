@@ -21,7 +21,7 @@ bool ModulePlayer::Start()
 	VehicleInfo car;
 
 	// Car properties ----------------------------------------
-	car.chassis_size.Set(20, 2, 4);			//._______________.
+	car.chassis_size.Set(2, 2, 4);			//._______________.
 	car.chassis_offset.Set(0, 1.5, 0);
 	car.mass = 500.0f;						//FV
 	car.suspensionStiffness = 15.88f;
@@ -96,7 +96,9 @@ bool ModulePlayer::Start()
 	car.wheels[3].steering = false;
 
 	vehicle = App->physics->AddVehicle(car);
+	vehicle2 = App->physics->AddVehicle(car);
 	vehicle->SetPos(0, 12, 10);
+	vehicle2->SetPos(0, 12, 15);
 	
 	return true;
 }
@@ -135,6 +137,9 @@ update_status ModulePlayer::Update(float dt)
 	{
 		brake = BRAKE_POWER;
 	}
+
+	//Player 2 Inputs
+	//
 
 	vehicle->ApplyEngineForce(acceleration);
 	vehicle->Turn(turn);
