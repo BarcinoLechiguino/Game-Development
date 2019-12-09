@@ -77,7 +77,7 @@ bool ModuleSceneIntro::Start()
 		if (previousHinge != nullptr)			//If there are more than 2 primitives in the primitives list and previousSphere is not NULL.
 		{
 			App->physics->AddConstraintHinge(*hinge_S, *previousHinge, btVector3(centerDist, 0, 0), 
-				btVector3(-centerDist, 0, 0), btVector3(0, 1, 0), btVector3(0, -1, 0));
+				btVector3(-centerDist, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
 		}
 
 		previousHinge = hinge_S;					//The new sphere is set in the buffer.

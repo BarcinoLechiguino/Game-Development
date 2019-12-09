@@ -13,6 +13,7 @@
 #include "ModulePhysics3D.h"
 
 #include <vector>
+#include <memory>
 
 class Application
 {
@@ -48,5 +49,6 @@ private:
 	void PrepareUpdate();
 	void FinishUpdate();
 
-	std::vector<Module*> modules;
+	std::vector<Module*> modules;			//Module array.
+	std::shared_ptr<Module> ModulePtr2;		//Shared_ptr
 };

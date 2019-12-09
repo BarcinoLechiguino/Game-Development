@@ -1,8 +1,9 @@
 #include "Application.h"
 
-#include <functional>			//
+#include <functional>			//function pointers
 #include <vector>				//Vector 
 #include <algorithm>			//for_each()
+#include <memory>				//Smart pointers
 
 Application::Application() : debug(false), renderPrimitives(true), dt(0.16f)
 {
@@ -42,6 +43,8 @@ Application::~Application()
 		item = item->prev;
 	}
 }
+
+bool AFunction(int a, int b) { return true; }
 
 bool Application::Init()
 {
@@ -86,6 +89,17 @@ bool Application::Init()
 	//	(*it)->Init();										//
 	//	it++;												//Iterator->next
 	//}
+
+	std::function<bool(int, int)> FunctionPtr = AFunction;				//<function type/what it returns (arguments)> Name
+	FunctionPtr(1, 2);													//Accesses AFunction.
+
+	std::function<update_status()> UpdatePtr = [this]() { return this->Update(); }; //Set as the pointer to the Update() function of Application.
+
+
+	std::shared_ptr<Module> ModulePtr = std::make_shared<Module>();		//A share_pointer automatically deletes and keeps an object alive. Module will have a counter of how many shared_pointer points to it.
+	std::weak_ptr<Module> WeakPtr = ModulePtr;							//Weak pointer allows to create a pointer towards an object that can be destroyed while this smart pointer points to it.
+
+	ModulePtr2 = ModulePtr;												//Second smart_pointer.
 
 	// After all Init calls we call Start() in all modules
 	LOG("Application Start --------------");
