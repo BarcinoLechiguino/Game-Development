@@ -39,19 +39,19 @@ private:
 
 	bool debug;
 
-	btDefaultCollisionConfiguration*	collision_conf;
-	btCollisionDispatcher*				dispatcher;
-	btBroadphaseInterface*				broad_phase;
-	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld*			world;
-	btDefaultVehicleRaycaster*			vehicle_raycaster;
-	DebugDrawer*						debug_draw;
+	btDefaultCollisionConfiguration*		collision_conf;
+	btCollisionDispatcher*					dispatcher;
+	btBroadphaseInterface*					broad_phase;
+	btSequentialImpulseConstraintSolver*	solver;
+	btDiscreteDynamicsWorld*				world;
+	btDefaultVehicleRaycaster*				vehicle_raycaster;
+	DebugDrawer*							debug_draw;
 
-	p2List<btCollisionShape*> shapes;
-	p2List<PhysBody3D*> bodies;
-	p2List<btDefaultMotionState*> motions;
-	p2List<btTypedConstraint*> constraints;
-	p2List<PhysVehicle3D*> vehicles;
+	p2List<btCollisionShape*>				shapes;
+	p2List<PhysBody3D*>						bodies;
+	p2List<btDefaultMotionState*>			motions;
+	p2List<btTypedConstraint*>				constraints;
+	p2List<PhysVehicle3D*>					vehicles;
 };
 
 class DebugDrawer : public btIDebugDraw
