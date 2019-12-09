@@ -46,8 +46,10 @@ private:
 	btBroadphaseInterface*					broad_phase;
 	btSequentialImpulseConstraintSolver*	solver;
 	btDiscreteDynamicsWorld*				world;
-	btTypedConstraint*						constraint;			//Constraint pointer that will be used to create new constraints.
+	//btTypedConstraint*						constraint;			//Constraint pointer that will be used to create new constraints.
 	DebugDrawer*							debug_draw;
+
+	p2List<btTypedConstraint*>				constraint_list;
 };
 
 class DebugDrawer : public btIDebugDraw

@@ -68,6 +68,8 @@ public:
 	iPoint GetMousePos() /*const*/;		//Gets the mouse's position.
 	bool CheckMousePos();				//Checks the position of the mouse.
 
+	bool IsFocused() const;				//Centralize common functionalities.
+
 	void OnEventCall(UI* element, UI_Event ui_event);
 
 	void BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect);

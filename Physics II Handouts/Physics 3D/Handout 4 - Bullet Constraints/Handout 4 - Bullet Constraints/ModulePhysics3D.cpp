@@ -16,7 +16,7 @@
 	#pragma comment (lib, "Bullet/libx86/LinearMath.lib")
 #endif
 
-ModulePhysics3D::ModulePhysics3D(bool start_enabled) : Module(start_enabled), world(nullptr), constraint(nullptr)
+ModulePhysics3D::ModulePhysics3D(bool start_enabled) : Module(start_enabled), world(nullptr)/*, constraint(nullptr)*/
 {
 	collision_conf = new btDefaultCollisionConfiguration();
 	dispatcher = new btCollisionDispatcher(collision_conf);
@@ -33,6 +33,13 @@ ModulePhysics3D::~ModulePhysics3D()
 	delete broad_phase;
 	delete dispatcher;
 	delete collision_conf;
+
+	p2List_item<btTypedConstraint*>* it = constraint_list.getFirst();		//Each constraint is a new so it needs to be deleted.
+
+	for (p2List_item<btTypedConstraint*>* it = constraint_list.getFirst(); it != NULL; it = it->next)
+	{
+		delete it->data;
+	}
 }
 
 // Render not available yet----------------------------------
@@ -135,10 +142,10 @@ bool ModulePhysics3D::CleanUp()
 		world->removeCollisionObject(obj);
 	}
 
-	if (constraint != nullptr)
+	/*if (constraint != nullptr)
 	{
 		delete constraint;
-	}
+	}*/
 
 	delete world;
 
@@ -179,14 +186,20 @@ void ModulePhysics3D::RemoveBodyFromWorld(btRigidBody * body)
 void ModulePhysics3D::AddConstraintP2P(const Primitive& bodyA, const Primitive& bodyB, const btVector3& pivotInA, const btVector3& pivotInB)
 {
 	//To be able to use a P2P constraint with primitives (or PhysBodies), the btRigidBody of the Primitive/PhysBody needs to be passed.
-	constraint = new btPoint2PointConstraint(*bodyA.body.GetBody(), *bodyB.body.GetBody(), pivotInA, pivotInB);
+	btTypedConstraint* constraint = new btPoint2PointConstraint(*bodyA.body.GetBody(), *bodyB.body.GetBody(), pivotInA, pivotInB);
+	
+	constraint_list.add(constraint);
+	
 	world->addConstraint(constraint, false);	//addConstraint receives as arguments a constraint (btTypedConstraint and its subclasses) and a bool that determines whether or not the constrained bodies will collide between them. 
 }
 
 void ModulePhysics3D::AddConstraintHinge(const Primitive& bodyA, const Primitive& bodyB, const btVector3& pivotInA, const btVector3& pivotInB, const btVector3& axisInA, const btVector3& axisInB)
 {
-	constraint = new btHingeConstraint(*bodyA.body.GetBody(), *bodyB.body.GetBody(), pivotInA, pivotInB, axisInA, axisInB);
-	world->addConstraint(constraint, false);
+	btTypedConstraint* constraintH = new btHingeConstraint(*bodyA.body.GetBody(), *bodyB.body.GetBody(), pivotInA, pivotInB, axisInA, axisInB);
+	
+	constraint_list.add(constraintH);
+	
+	world->addConstraint(constraintH, false);
 }
 
 // =============================================

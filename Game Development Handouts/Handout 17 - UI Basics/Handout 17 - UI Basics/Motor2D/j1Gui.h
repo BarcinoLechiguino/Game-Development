@@ -50,7 +50,7 @@ public:
 	UI* CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI_Image* imgCallback, UI* parent = nullptr);
 	UI* CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI_Text* textCallback, UI* parent = nullptr, p2SString* string = nullptr,
 					p2SString* hoverString = nullptr, p2SString* focusString = nullptr, p2SString* leftClickString = nullptr, p2SString* rightClickString = nullptr);
-	UI* CreateButton(UI_Element element, int x, int y, UI_Button* buttonCallback, UI* parent = nullptr, SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
+	UI* CreateButton(UI_Element element, int x, int y, /*UI_Button* buttonCallback,*/ UI* parent = nullptr, SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
 
 	//j1Gui* elementCallback;
 	UI* elementCallback;
@@ -67,6 +67,7 @@ public:
 	UI_Button*	debug_Button;
 	UI_Button*	escape_Button;
 	//UI* debug_Button;
+	UI*			focusedElement;		//Change to list item
 
 	bool escape;
 

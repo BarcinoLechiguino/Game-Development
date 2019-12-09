@@ -44,7 +44,7 @@ bool ModuleSceneIntro::Start()
 		{
 			//App->physics->AddConstraintP2P(*s, *previousSphere, center, -center);
 			App->physics->AddConstraintP2P(*s, *previousSphere, 
-				btVector3(Size + (BallDistance / 2), 0, 0), btVector3(-(Size + (BallDistance / 2)), 0, 0));
+				btVector3(Size + (BallDistance / 2), 0, 0), btVector3(-(Size /*- SizeIncrement*/ + (BallDistance / 2)), 0, 0));
 		}
 
 		previousSphere = s;					//The new sphere is set in the buffer.
@@ -55,36 +55,36 @@ bool ModuleSceneIntro::Start()
 
 	//TODO 4: Link some other spheres with your Hinge constraint
 	//Variables for the hinge constraint spheres. The first letter of each variable's name is in lower case.
-	//const float startingSize = 0.5f;
-	//const float sizeIncrement = 0.2f;
-	//const float ballDistance = 0.3f;
+	const float startingSize = 0.5f;
+	const float sizeIncrement = 0.2f;
+	const float ballDistance = 0.3f;
 
-	//float xPos = 0.f;
-	//float size = startingSize;
+	float xPos = 0.f;
+	float size = startingSize;
 
-	//Sphere* previousHinge = nullptr;
-	//for (int n = 0; n < SnakeLength; n++)
-	//{
-	//	Sphere* hinge_S = new Sphere(size);
-	//	primitives.PushBack(hinge_S);
-	//	hinge_S->SetPos(xPos, 10.f, 10.0f);
+	Sphere* previousHinge = nullptr;
+	for (int n = 0; n < SnakeLength; n++)
+	{
+		Sphere* hinge_S = new Sphere(size);
+		primitives.PushBack(hinge_S);
+		hinge_S->SetPos(xPos, 10.f, 10.0f);
 
-	//	//btScalar centerDist = size + size + sizeIncrement + ballDistance;
-	//	btScalar centerDist = size + size + sizeIncrement + ballDistance;
-	//	btVector3 center = {size + size + sizeIncrement + ballDistance, 0, 0 };		//Center vector between 2 spheres.
+		//btScalar centerDist = size + size + sizeIncrement + ballDistance;
+		btScalar centerDist = size + size + sizeIncrement + ballDistance;
+		btVector3 center = {size + size + sizeIncrement + ballDistance, 0, 0 };		//Center vector between 2 spheres.
 
-	//	//TODO 2: Link all the spheres with your P2P constraints
-	//	if (primitives.Count() > 8 && previousHinge != nullptr)			//If there are more than 2 primitives in the primitives list and previousSphere is not NULL.
-	//	{
-	//		App->physics->AddConstraintHinge(*hinge_S, *previousHinge, btVector3(centerDist, 0, 0), 
-	//			btVector3(-centerDist, 0, 0), btVector3(0, 0, 0), btVector3(-1, 0, 0));
-	//	}
+		//TODO 2: Link all the spheres with your P2P constraints
+		if (previousHinge != nullptr)			//If there are more than 2 primitives in the primitives list and previousSphere is not NULL.
+		{
+			App->physics->AddConstraintHinge(*hinge_S, *previousHinge, btVector3(centerDist, 0, 0), 
+				btVector3(-centerDist, 0, 0), btVector3(0, 1, 0), btVector3(0, -1, 0));
+		}
 
-	//	previousHinge = hinge_S;					//The new sphere is set in the buffer.
+		previousHinge = hinge_S;					//The new sphere is set in the buffer.
 
-	//	xPos += size + size + sizeIncrement + ballDistance;
-	//	size += sizeIncrement;
-	//}
+		xPos += size + size + sizeIncrement + ballDistance;
+		size += sizeIncrement;
+	}
 
 	return ret;
 }

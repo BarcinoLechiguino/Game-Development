@@ -3,7 +3,7 @@
 #include "j1Gui.h"
 #include "UI_Button.h"
 
-UI_Button::UI_Button(UI_Element element, int x, int y, UI_Button* elementCallback, UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked) : UI(element, x, y, *idle, parent)
+UI_Button::UI_Button(UI_Element element, int x, int y,/* UI_Button* elementCallback,*/ UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked) : UI(element, x, y, *idle, parent)
 {
 	tex = App->gui->GetAtlas();
 
@@ -23,7 +23,7 @@ UI_Button::UI_Button(UI_Element element, int x, int y, UI_Button* elementCallbac
 		this->clicked = *clicked;
 	}
 
-	buttonCallback = elementCallback;		//Sets the button element's callback to the one passed as argument
+	//buttonCallback = elementCallback;		//Sets the button element's callback to the one passed as argument
 
 	interactible = true;
 
@@ -56,7 +56,7 @@ void UI_Button::CheckInput()
 		LOG("The Button Has focus");
 	}
 
-	if (hovered == true || focused == true)						//If the mouse is on the button.
+	if (hovered == true || /*focused == true*/ IsFocused() == true)						//If the mouse is on the button.
 	{
 		ui_event = UI_Event::HOVER;
 		currentRect = hover;									//Button Hover sprite.
@@ -68,5 +68,5 @@ void UI_Button::CheckInput()
 		currentRect = clicked;									//Button Hover sprite.
 	}
 
-	App->gui->OnEventCall(buttonCallback, ui_event);
+	App->gui->OnEventCall(this /*buttonCallback*/, ui_event);
 }

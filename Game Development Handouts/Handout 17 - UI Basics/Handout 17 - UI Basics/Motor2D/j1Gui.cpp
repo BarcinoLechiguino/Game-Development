@@ -219,11 +219,11 @@ UI* j1Gui::CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Fo
 	return elem;
 }
 
-UI* j1Gui::CreateButton(UI_Element element, int x, int y, UI_Button* buttonCallback, UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked)
+UI* j1Gui::CreateButton(UI_Element element, int x, int y, /*UI_Button* buttonCallback,*/ UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Button(element, x, y, buttonCallback, parent, idle, hover, clicked);
+	elem = new UI_Button(element, x, y,/* buttonCallback,*/ parent, idle, hover, clicked);
 
 	if (elem != nullptr)
 	{
@@ -246,13 +246,11 @@ void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
 		{
 			App->gui->ui_debug = false;
 		}
-		//return;
 	}
 
 	if (element == App->scene->escButton/*escape_Button*/ && ui_event == UI_Event::CLICKED)	//If the pointer received is the UI_Button* escbutton pointer of Scene.h and event = clicked.
 	{
 		escape = false;
-		//return;
 	}
 }
 
@@ -284,6 +282,8 @@ void j1Gui::CheckFunctionality(UI_Callback callback, UI_Event ui_event)
 void j1Gui::PassFocus()
 {
 	p2List_item<UI*>* element_iterator = elements.start;
+
+	focusedElement = element_iterator->data;
 
 	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 	{

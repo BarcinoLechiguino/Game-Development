@@ -1,5 +1,9 @@
 #include "Application.h"
 
+#include <functional>			//
+#include <vector>				//Vector 
+#include <algorithm>			//for_each()
+
 Application::Application() : debug(false), renderPrimitives(true), dt(0.16f)
 {
 	window = new ModuleWindow();
@@ -31,7 +35,7 @@ Application::Application() : debug(false), renderPrimitives(true), dt(0.16f)
 Application::~Application()
 {
 	p2List_item<Module*>* item = list_modules.getLast();
-
+	
 	while(item != NULL)
 	{
 		delete item->data;
@@ -53,6 +57,35 @@ bool Application::Init()
 		ret = item->data->Init();
 		item = item->next;
 	}
+	
+	//for (Module* it : modules)
+	//{
+	//	it->Init();
+	//}
+
+	//std::for_each(modules.begin(), modules.end(),			//for_each() method. Inits all modules from begin to end.
+	//	[](Module* m) 
+	//{
+	//	m->Init();
+	//});
+
+	////Lambda [](){}
+	////[](Module* m) {ANumber += 1; m->Init(); };			//[this/&...]
+	//[this](Module* m) {this->CleanUp(); m->Init(); };		//[this/&...] what it is capturing (variables that it will store), () Arguments of the function, {} Function method.
+	//
+	//std::vector<Module*>::iterator it = modules.begin();	//Iterator call
+	//modules.rbegin;											//Last element.
+	//modules.begin;											//First element.
+	//
+	//auto ANumber = 1u;										//Auto is set to unsigned integer.
+	//auto BNumber = 1.f;										//Auto is set to float.
+	//auto CNumber = 1.0;										//Auto is set to double.
+	//
+	//while(it != modules.end() && ret == true)				//Iterating the modules in a vector.
+	//{
+	//	(*it)->Init();										//
+	//	it++;												//Iterator->next
+	//}
 
 	// After all Init calls we call Start() in all modules
 	LOG("Application Start --------------");
@@ -130,6 +163,7 @@ bool Application::CleanUp()
 void Application::AddModule(Module* mod)
 {
 	list_modules.add(mod);
+	//modules.push_back(mod);			//modules pushback to vector.
 }
 
 Application* App = nullptr;

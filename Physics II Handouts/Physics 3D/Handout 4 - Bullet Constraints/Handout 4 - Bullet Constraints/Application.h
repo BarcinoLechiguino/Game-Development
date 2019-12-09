@@ -12,6 +12,8 @@
 #include "ModuleCamera3D.h"
 #include "ModulePhysics3D.h"
 
+#include <vector>
+
 class Application
 {
 public:
@@ -45,4 +47,6 @@ private:
 	void AddModule(Module* mod);
 	void PrepareUpdate();
 	void FinishUpdate();
+
+	std::vector<Module*> modules;
 };

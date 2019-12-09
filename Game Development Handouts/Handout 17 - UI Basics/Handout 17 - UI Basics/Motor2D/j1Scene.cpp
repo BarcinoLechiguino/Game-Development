@@ -70,8 +70,8 @@ bool j1Scene::Start()
 	//escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, App->gui->escape_Button, NULL, &idle, &hover, &clicked);
 	//escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, escButton, NULL, &idle, &hover, &clicked);
 
-	App->gui->CreateButton(UI_Element::BUTTON, 350, 205, button, NULL, &idle, &hover, &clicked);
-	App->gui->CreateButton(UI_Element::BUTTON, 350, 280, escButton, NULL, &idle, &hover, &clicked);
+	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, NULL, &idle, &hover, &clicked);
+	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, NULL, &idle, &hover, &clicked);
 
 	//App->gui->CreateButton(UI_Element::BUTTON, 200, 205, &idle, &hover, &clicked, NULL);
 

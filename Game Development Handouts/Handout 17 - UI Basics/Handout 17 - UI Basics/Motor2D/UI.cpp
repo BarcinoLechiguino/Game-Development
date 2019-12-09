@@ -72,6 +72,11 @@ bool UI::CheckMousePos()
 		&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
 }
 
+bool UI::IsFocused() const
+{
+	return App->gui->focusedElement == this;
+}
+
 //void UI::OnEventCall(UI* element, UI_Event ui_event)
 //{
 //	if (element == App->scene->button && ui_event == UI_Event::CLICKED)
