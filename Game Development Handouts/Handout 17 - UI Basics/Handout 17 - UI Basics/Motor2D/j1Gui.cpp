@@ -254,61 +254,54 @@ void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
 	}
 }
 
-void j1Gui::CheckFunctionality(UI_Callback callback, UI_Event ui_event)
-{
-	switch (callback)
-	{
-	case UI_Callback::NONE:
-		break;
-
-	case UI_Callback::UI_DEBUG_BUTTON:
-		if (ui_event == UI_Event::CLICKED)
-		{
-			if (ui_debug == false)
-			{
-				ui_debug = true;
-			}
-			else
-			{
-				ui_debug = false;
-			}
-		}
-		
-		break;
-	}
-}
+//void j1Gui::CheckFunctionality(UI_Callback callback, UI_Event ui_event)
+//{
+//	switch (callback)
+//	{
+//	case UI_Callback::NONE:
+//		break;
+//
+//	case UI_Callback::UI_DEBUG_BUTTON:
+//		if (ui_event == UI_Event::CLICKED)
+//		{
+//			if (ui_debug == false)
+//			{
+//				ui_debug = true;
+//			}
+//			else
+//			{
+//				ui_debug = false;
+//			}
+//		}
+//		
+//		break;
+//	}
+//}
 
 //----------------------------------- FOCUS METHOD -----------------------------------
 void j1Gui::PassFocus()
 {
 	p2List_item<UI*>* element_iterator = elements.start;
 
-	focusedElement = element_iterator->data;
+	if (focusedElement == nullptr)
+	{
+		focusedElement = element_iterator->data;
+		return;
+	}
 
 	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
-	{
-		if (element_iterator->data->interactible == true)
+	{	
+		if (focusedElement == element_iterator->data && element_iterator->next != NULL)
 		{
-			if (element_iterator->data->focused == false/* && element_iterator->data->hadFocus == false*/)
-			{
-				element_iterator->data->focused = true;
-				//element_iterator->data->hadFocus = true;		//Had focus marks that a UI Element has alerady had focus, so it cannot have  focus until the next cycle.
-				break;
-			}
-			else
-			{
-				element_iterator->data->focused = false;
-				//element_iterator->data->hadFocus = false;
-				//break;
-			}
-
-			/*if (element_iterator->data->hadFocus == true && element_iterator->next->data->hadFocus == true)
-			{
-				element_iterator->data->hadFocus = false;
-				element_iterator->next->data->hadFocus = false;
-			}*/
+			focusedElement = element_iterator->next->data;
+			break;
 		}
-		
+		/*else
+		{
+			element_iterator = elements.start;
+			focusedElement = element_iterator->data;
+			break;
+		}*/
 	}
 }
 

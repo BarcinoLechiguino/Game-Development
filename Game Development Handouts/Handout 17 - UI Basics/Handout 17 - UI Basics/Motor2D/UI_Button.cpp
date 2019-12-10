@@ -32,7 +32,7 @@ UI_Button::UI_Button(UI_Element element, int x, int y,/* UI_Button* elementCallb
 
 bool UI_Button::Draw()
 {
-	CheckInput();
+	CheckInput();							//Calling "Update" and Draw at the same time. 
 	
 	BlitElement(tex, GetPosition().x, GetPosition().y, &currentRect);
 

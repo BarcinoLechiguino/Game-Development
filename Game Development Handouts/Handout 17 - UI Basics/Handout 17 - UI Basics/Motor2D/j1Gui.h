@@ -56,7 +56,7 @@ public:
 	UI* elementCallback;
 
 	void OnEventCall(UI* element, UI_Event ui_event);					//This function is called whenever an new event happens, it receives the pointer of the element that caused the event and the kind of event it is.
-	void CheckFunctionality(UI_Callback callback, UI_Event ui_event);
+	//void CheckFunctionality(UI_Callback callback, UI_Event ui_event);
 	void PassFocus();
 	void Debug_UI();
 	bool ui_debug;

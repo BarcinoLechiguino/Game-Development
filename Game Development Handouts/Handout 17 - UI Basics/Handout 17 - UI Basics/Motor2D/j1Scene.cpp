@@ -64,12 +64,6 @@ bool j1Scene::Start()
 	SDL_Rect hover		= { 0,113,229,69 };
 	SDL_Rect clicked	= { 411,169,229,69 };
 
-	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, App->gui->debug_Button, NULL, &idle, &hover, &clicked);
-	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, button, NULL, &idle, &hover, &clicked);
-
-	//escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, App->gui->escape_Button, NULL, &idle, &hover, &clicked);
-	//escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, escButton, NULL, &idle, &hover, &clicked);
-
 	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, NULL, &idle, &hover, &clicked);
 	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, NULL, &idle, &hover, &clicked);
 
