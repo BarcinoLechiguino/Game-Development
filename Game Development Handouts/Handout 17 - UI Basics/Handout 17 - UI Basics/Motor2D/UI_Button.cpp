@@ -69,4 +69,5 @@ void UI_Button::CheckInput()
 	}
 
 	App->gui->OnEventCall(this /*buttonCallback*/, ui_event);
+	//listener->OnEventCall(this /*buttonCallback*/, ui_event);
 }
