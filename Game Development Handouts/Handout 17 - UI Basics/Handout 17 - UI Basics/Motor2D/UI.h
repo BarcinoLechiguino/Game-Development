@@ -65,7 +65,7 @@ public:
 	UI_Element	element;				//Enum that defines which kind of element a UI element is.
 
 	//UI*			callback;				//Callback pointer of a UI_Element, mainly used for buttons.
-	j1Module*	callback;				//Callback to j1Module, maybe need to make a virtual event detection function.
+	j1Module*	listener;				//Callback to j1Module, maybe need to make a virtual event detection function.
 	UI*			parent;					//Keeps track of the dependencies between UI elements.
 
 private:
@@ -74,7 +74,7 @@ private:
 	SDL_Rect	rect;					//Rectangle that represents the UI element in the world. Used for textures.
 	SDL_Rect	hitbox;					//Rectangle that represents the UI element's hitbox. Used for interactions.
 
-	j1Module*	listener;				//Whenever an event is triggered, this calls the right module for the event.
+	//j1Module*	listener;				//Whenever an event is triggered, this calls the right module for the event.
 };
 
 #endif // !__UI_IMAGE_H__
