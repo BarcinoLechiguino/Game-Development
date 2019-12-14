@@ -298,7 +298,7 @@ void j1Gui::PassFocus()
 		}
 		/*else
 		{
-			element_iterator = elements.start;
+			element_iterator = elements.start;						//Save the first focuseable element and go back to it.
 			focusedElement = element_iterator->data;
 			break;
 		}*/
