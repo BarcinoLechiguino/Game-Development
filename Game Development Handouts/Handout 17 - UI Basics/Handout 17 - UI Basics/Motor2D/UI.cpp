@@ -77,6 +77,11 @@ bool UI::IsFocused() const
 	return App->gui->focusedElement == this;
 }
 
+//bool UI::IsFocused() const
+//{
+//	return App->gui->focusedElement->data == this;
+//}
+
 //void UI::OnEventCall(UI* element, UI_Event ui_event)
 //{
 //	if (element == App->scene->button && ui_event == UI_Event::CLICKED)
