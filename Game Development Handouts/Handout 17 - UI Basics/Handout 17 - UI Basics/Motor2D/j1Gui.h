@@ -67,7 +67,8 @@ public:
 	UI_Button*	debug_Button;
 	UI_Button*	escape_Button;
 	//UI* debug_Button;
-	UI*			focusedElement;		//Change to list item
+	UI*			focusedElement;				//Change to list item
+	//p2List_item<UI*>*	focusedElement;		//Change to list item
 
 	bool escape;
 

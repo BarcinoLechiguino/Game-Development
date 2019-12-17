@@ -70,20 +70,7 @@ bool j1Gui::PreUpdate()
 			break;
 
 		case UI_Element::BUTTON:
-			
-			//CheckFunctionality(element_iterator->data->elementCallback, element_iterator->data->ui_event);
 
-			//if (element_iterator->data->ui_event == UI_Event::CLICKED)
-			//{
-			//	/*if (ui_debug == false)
-			//	{
-			//		ui_debug = true;
-			//	}
-			//	else
-			//	{
-			//		ui_debug = false;
-			//	}*/
-			//}
 
 			break;
 		}
@@ -114,10 +101,6 @@ bool j1Gui::PostUpdate()
 			{
 				element_iterator->data->Draw();
 			}
-			/*else
-			{
-
-			}*/
 
 			break;
 
@@ -254,48 +237,44 @@ void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
 	}
 }
 
-//void j1Gui::CheckFunctionality(UI_Callback callback, UI_Event ui_event)
-//{
-//	switch (callback)
-//	{
-//	case UI_Callback::NONE:
-//		break;
-//
-//	case UI_Callback::UI_DEBUG_BUTTON:
-//		if (ui_event == UI_Event::CLICKED)
-//		{
-//			if (ui_debug == false)
-//			{
-//				ui_debug = true;
-//			}
-//			else
-//			{
-//				ui_debug = false;
-//			}
-//		}
-//		
-//		break;
-//	}
-//}
-
 //----------------------------------- FOCUS METHOD -----------------------------------
 void j1Gui::PassFocus()
 {
 	p2List_item<UI*>* element_iterator = elements.start;
+	
+	p2List_item<UI*>* first_element = elements.start;
+	p2List_item<UI*>* first_interactible_element = elements.start;
+
+	for (first_element; first_element; first_element = first_element->next)
+	{
+		if (first_element->data->interactible = true)
+		{
+			first_interactible_element = first_element;
+		}
+	}
 
 	if (focusedElement == nullptr)
 	{
 		focusedElement = element_iterator->data;
+		//focusedElement = element_iterator;
 		return;
 	}
 
 	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 	{	
+		//if (focusedElement == element_iterator && element_iterator->next != NULL)
 		if (focusedElement == element_iterator->data && element_iterator->next != NULL)
 		{
 			focusedElement = element_iterator->next->data;
+			//focusedElement = element_iterator->next;
 			break;
 		}
+		//else
+		//{
+		//	//focusedElement = first_interactible_element->data;
+		//	//element_iterator = elements.start;
+		//	//break;
+		//}
 		/*else
 		{
 			element_iterator = elements.start;						//Save the first focuseable element and go back to it.
