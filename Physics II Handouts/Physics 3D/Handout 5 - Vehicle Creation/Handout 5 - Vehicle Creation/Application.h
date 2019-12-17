@@ -45,4 +45,9 @@ private:
 	void AddModule(Module* mod);
 	void PrepareUpdate();
 	void FinishUpdate();
+
+	// -----------------------------------------------------
+	std::vector<Module*> modules;			//Module array.
+	std::shared_ptr<Module> ModulePtr2;		//Shared_ptr
+	// -----------------------------------------------------
 };

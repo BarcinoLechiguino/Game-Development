@@ -99,6 +99,11 @@ bool ModulePlayer::Start()
 	vehicle2 = App->physics->AddVehicle(car);
 	vehicle->SetPos(0, 12, 10);
 	vehicle2->SetPos(0, 12, 15);
+
+	/*vehicle2->ApplyEngineForce(acceleration);						//Hive Mind Version.
+	vehicle2->Turn(turn);
+	vehicle2->Brake(brake);
+	vehicle2->Render();*/
 	
 	return true;
 }
