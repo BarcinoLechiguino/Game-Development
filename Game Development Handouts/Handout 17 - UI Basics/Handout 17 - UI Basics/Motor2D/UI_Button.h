@@ -9,11 +9,12 @@ public:
 
 	//elementCallback is the pointer to the button itself (loginButton, escapeButton...) and it is needed to have multiple different pointers for each kind of button. 
 	//Callback is an enum used to define the functionality of a button.
-	UI_Button(UI_Element element, int x, int y, /* UI_Button* elementCallback,*/ UI* parent = nullptr, SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
+	UI_Button(UI_Element element, int x, int y, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr,
+			SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
 
 	bool Draw();
 
-	void CheckInput();
+	void CheckInput();				//If any UI element can be interactible, then this function needs to be declared at UI as virtual void.
 
 private:
 	SDL_Texture*	tex;

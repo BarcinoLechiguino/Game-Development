@@ -42,6 +42,8 @@ public:
 public:
 	bool escape;
 	
+	UI_Image* interactibleBanner;
+	UI_Text* interactibleText;
 	UI_Button* button;
 	UI_Button* escButton;
 

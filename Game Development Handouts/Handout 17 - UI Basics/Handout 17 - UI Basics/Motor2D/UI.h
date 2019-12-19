@@ -43,28 +43,44 @@ public:
 
 public:
 	void SetPosition(iPoint position);	//Sets the position of a UI_Element
-	iPoint	GetPosition() const;		//Gets the position of a UI_Element
+	iPoint GetPosition() const;			//Gets the position of a UI_Element
+	
 	void SetRect(SDL_Rect rect);		//Sets the data members of a UI_Element's rect.
 	SDL_Rect GetRect() const;			//Gets the data members of a UI_Element's rect.
+	
 	void SetHitbox(SDL_Rect hitbox);	//Sets the data members of a UI_Element's hitbox.
 	SDL_Rect GetHitbox() const;			//Gets the data members of a UI_Element's hitbox.
+
+	iPoint GetScreenPos() const;		//Gets the position of a UI Element with the Screen as point of reference.
+	SDL_Rect GetScreenRect() const;		//Gets the data members of the Screen's rect.?
+
+	iPoint GetLocalPos() const;			//Gets the position of a UI Element with it's Parent as point of reference.
+	void SetLocalPos(iPoint localPos);	//Sets the position of a UI Element with it's Parent as point of reference.
+
+	SDL_Rect GetLocalRect() const;		//Get the data members of the UI Element's Parent's rect.
 
 	iPoint GetMousePos() /*const*/;		//Gets the mouse's position.
 	bool CheckMousePos();				//Checks the position of the mouse.
 
 	bool IsFocused() const;				//Centralize common functionalities.
 
+	
+	virtual void CheckInput();
+
+	
 	void OnEventCall(UI* element, UI_Event ui_event);
 
 	void BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect);
 
-	bool		interactible;			//Keeps track of whether a UI Element is interactible or not.
+public:
+	bool		isVisible;				//Keep track of whether or not a UI Element is visible or not. Can be overlapped with isInteractible.
+	bool		isInteractible;			//Keeps track of whether a UI Element is interactible or not.
+	bool		isDraggable;			//Keeps track of whether a UI Element is draggable or not.
 	bool		focused;				//Keeps track of whether a UI Element has focus or not.
-	bool		hadFocus;
 	UI_Event	ui_event;				//Defines which events will the UI_Elements send when interacted with.
 	UI_Element	element;				//Enum that defines which kind of element a UI element is.
 
-	//UI*			callback;				//Callback pointer of a UI_Element, mainly used for buttons.
+	//UI*			callback;			//Callback pointer of a UI_Element, mainly used for buttons.
 	j1Module*	listener;				//Callback to j1Module, maybe need to make a virtual event detection function.
 	UI*			parent;					//Keeps track of the dependencies between UI elements.
 

@@ -47,16 +47,22 @@ bool j1Scene::Start()
 
 	// TODO 3: Create the banner (rect {485, 829, 328, 103}) as a UI element
 	SDL_Rect rect{ 485, 829, 328, 103 };
+	SDL_Rect winRect{ 0, 512, 483, 512 };
 
-	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect, banner);
+	//interactibleBanner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, true, false, NULL);
+	interactibleBanner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, false, false, NULL);		//OnCallEvent Overlap
+	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect, false, false, NULL);
 
 	// TODO 4: Create the text "Hello World" as a UI element
 	SDL_Rect textHitbox{ 432, 75, 65, 20};
+	SDL_Rect interactibleTextHitbox{ 432, 75, 134, 20};
 	p2SString bufferString = "Hello World";
+	p2SString interactibleString = "This string is interactible.";
 	_TTF_Font* font = App->font->Load("fonts/open_sans/OpenSans-SemiboldItalic.ttf");
 	SDL_Color fontRgb = { 255, 255, 255, 255 };
 
-	text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 432, 75, textHitbox, font, fontRgb, text, NULL, &bufferString);
+	interactibleText = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 280, 75, interactibleTextHitbox, font, fontRgb, true, false, NULL, &interactibleString);
+	text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 432, 75, textHitbox, font, fontRgb, false, false, NULL, &bufferString);
 
 	
 	//Creating a button:
@@ -64,10 +70,18 @@ bool j1Scene::Start()
 	SDL_Rect hover		= { 0,113,229,69 };
 	SDL_Rect clicked	= { 411,169,229,69 };
 
-	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, NULL, &idle, &hover, &clicked);
-	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, NULL, &idle, &hover, &clicked);
+	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, true, false, NULL, &idle, &hover, &clicked);
+	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, true, false, NULL, &idle, &hover, &clicked);
 
-	//App->gui->CreateButton(UI_Element::BUTTON, 200, 205, &idle, &hover, &clicked, NULL);
+	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 100, 205, NULL,&idle, &hover, &clicked);					//Testing the focus.
+	
+	//text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 525, 75, textHitbox, font, fontRgb, text, NULL, &bufferString);		//Testing the focus.
+	
+	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 600, 205, NULL, &idle, &hover, &clicked);					//Testing the focus
+
+	//text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 350, 75, textHitbox, font, fontRgb, text, NULL, &bufferString);		//Testing the focus.
+
+	//escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 360, NULL, &idle, &hover, &clicked);				//Testing the focus.
 
 	return true;
 }

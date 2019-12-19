@@ -3,7 +3,8 @@
 #include "j1Gui.h"
 #include "UI_Button.h"
 
-UI_Button::UI_Button(UI_Element element, int x, int y,/* UI_Button* elementCallback,*/ UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked) : UI(element, x, y, *idle, parent)
+UI_Button::UI_Button(UI_Element element, int x, int y, bool isInteractible, bool isDraggable, UI* parent,
+				SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked) : UI(element, x, y, *idle, parent)
 {
 	tex = App->gui->GetAtlas();
 
@@ -23,16 +24,13 @@ UI_Button::UI_Button(UI_Element element, int x, int y,/* UI_Button* elementCallb
 		this->clicked = *clicked;
 	}
 
-	//buttonCallback = elementCallback;		//Sets the button element's callback to the one passed as argument
-
-	interactible = true;
-
-	//focused = false;
+	this->isInteractible = isInteractible;
+	this->isDraggable = isDraggable;
 }
 
 bool UI_Button::Draw()
 {
-	CheckInput();							//Calling "Update" and Draw at the same time. 
+	CheckInput();														//Calling "Update" and Draw at the same time. 
 	
 	BlitElement(tex, GetPosition().x, GetPosition().y, &currentRect);
 
@@ -45,10 +43,10 @@ void UI_Button::CheckInput()
 
 	bool hovered = CheckMousePos();
 
-	if (hovered == false)										//If the mouse is not on the button.
+	if (hovered == false)												//If the mouse is not on the button.
 	{
 		ui_event = UI_Event::IDLE;
-		currentRect = idle;										//Button Idle sprite.
+		currentRect = idle;												//Button Idle sprite.
 	}
 
 	if (focused == true)
@@ -56,18 +54,18 @@ void UI_Button::CheckInput()
 		LOG("The Button Has focus");
 	}
 
-	if (hovered == true || /*focused == true*/ IsFocused() == true)						//If the mouse is on the button.
+	if (hovered == true || /*focused == true*/ IsFocused() == true)		//If the mouse is on the button.
 	{
 		ui_event = UI_Event::HOVER;
-		currentRect = hover;									//Button Hover sprite.
+		currentRect = hover;											//Button Hover sprite.
 	}
 
-	if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN) //If the mouse is on the button and the left mouse button is pressed.
+	if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)		//If the mouse is on the button and the left mouse button is pressed.
 	{
 		ui_event = UI_Event::CLICKED;
-		currentRect = clicked;									//Button Hover sprite.
+		currentRect = clicked;											//Button Hover sprite.
 	}
-
-	App->gui->OnEventCall(this /*buttonCallback*/, ui_event);
-	//listener->OnEventCall(this /*buttonCallback*/, ui_event);
+	
+	App->gui->OnEventCall(this, ui_event);								//This UI element's pointer and ui_event are passed as arguments to the OnEventCall() function.
+	//listener->OnEventCall(this, ui_event);							//At some point set j1Gui (or UI) as the listener for this EventCall.
 }

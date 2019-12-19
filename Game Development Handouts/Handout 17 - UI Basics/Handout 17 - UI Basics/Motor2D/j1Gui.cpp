@@ -47,33 +47,18 @@ bool j1Gui::PreUpdate()
 		PassFocus();
 	}
 
-	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
+	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)
 	{
-		switch (element_iterator->data->element)
+		if (focusedElement != nullptr && focusedElement->isInteractible)
 		{
-		case UI_Element::IMAGE:
-			break;
-
-		case UI_Element::TEXT:
-			if (element_iterator->data->ui_event == UI_Event::CLICKED)
-			{
-				if (ui_debug == false)
-				{
-					ui_debug = true;
-				}
-				else
-				{
-					ui_debug = false;
-				}
-			}
-			
-			break;
-
-		case UI_Element::BUTTON:
-
-
-			break;
+			focusedElement->ui_event = UI_Event::CLICKED;
+			OnEventCall(focusedElement, focusedElement->ui_event);
 		}
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_DOWN)
+	{
+
 	}
 	
 	return true;
@@ -97,10 +82,7 @@ bool j1Gui::PostUpdate()
 			break;
 
 		case UI_Element::BUTTON:
-			if (element_iterator->data->parent == NULL)
-			{
-				element_iterator->data->Draw();
-			}
+			element_iterator->data->Draw();
 
 			break;
 
@@ -140,30 +122,11 @@ bool j1Gui::CleanUp()
 }
 
 //----------------------------------- UI ELEMENT CREATION METHODS -----------------------------------
-UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked, p2SString* string)
+UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, bool isInteractible, bool isDraggable, UI* parent)
 {
 	UI* elem = nullptr;
 
-	switch (element)
-	{
-	case UI_Element::IMAGE:
-		//elem = new UI_Image(element, x, y, *idle);					//In *rect the "*" is used to access rect pointer's data members.
-		break;
-
-	case UI_Element::TEXT:
-		//elem = new UI_Text(element, x, y, *idle, string);
-		break;
-
-	case UI_Element::BUTTON:
-		//elem = new UI_Button(element, x, y, *idle, *hover, *clicked);
-		break;
-
-	case UI_Element::SCROLLBAR:
-		break;
-
-	case UI_Element::INPUTBOX:
-		break;
-	}
+	elem = new UI_Image(element, x, y, rect, isInteractible, isDraggable, parent);
 
 	if (elem != nullptr)
 	{
@@ -173,11 +136,12 @@ UI* j1Gui::CreateElement(UI_Element element, int x, int y, SDL_Rect* idle, SDL_R
 	return elem;
 }
 
-UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI_Image* imgCallback, UI* parent)
+UI* j1Gui::CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isInteractible, bool isDraggable, UI* parent, p2SString* string,
+					p2SString* hoverString, p2SString* focusString, p2SString* leftClickString, p2SString* rightClickString)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Image(element, x, y, rect, imgCallback, parent);
+	elem = new UI_Text(element, x, y, hitbox, font, fontColour, isInteractible, isDraggable, parent, string, hoverString, focusString, leftClickString, rightClickString);
 
 	if (elem != nullptr)
 	{
@@ -187,26 +151,11 @@ UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, UI_Image
 	return elem;
 }
 
-UI* j1Gui::CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, UI_Text* textCallback, UI* parent, p2SString* string, p2SString* hoverString,
-						p2SString* focusString, p2SString* leftClickString, p2SString* rightClickString)
+UI* j1Gui::CreateButton(UI_Element element, int x, int y, bool isInteractible, bool isDraggable, UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Text(element, x, y, hitbox, font, fontColour, textCallback, parent, string, hoverString, focusString, leftClickString, rightClickString);
-
-	if (elem != nullptr)
-	{
-		elements.add(elem);
-	}
-
-	return elem;
-}
-
-UI* j1Gui::CreateButton(UI_Element element, int x, int y, /*UI_Button* buttonCallback,*/ UI* parent, SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked)
-{
-	UI* elem = nullptr;
-
-	elem = new UI_Button(element, x, y,/* buttonCallback,*/ parent, idle, hover, clicked);
+	elem = new UI_Button(element, x, y, isInteractible, isDraggable, parent, idle, hover, clicked);
 
 	if (elem != nullptr)
 	{
@@ -219,70 +168,95 @@ UI* j1Gui::CreateButton(UI_Element element, int x, int y, /*UI_Button* buttonCal
 //--------------------------------- INPUT PROCESSING ---------------------------------
 void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
 {
-	if (element == App->scene->button/*debug_Button*/ && ui_event == UI_Event::CLICKED)		//If the pointer received is the UI_Button* button pointer of Scene.h and event = clicked. 
+	if (element == App->scene->button && ui_event == UI_Event::CLICKED)		//If the pointer received is the UI_Button* button pointer of Scene.h and event = clicked. 
 	{
-		if (App->gui->ui_debug == false)
-		{
-			App->gui->ui_debug = true;
-		}
-		else
-		{
-			App->gui->ui_debug = false;
-		}
+		App->gui->ui_debug = !App->gui->ui_debug;							//Enables / Disables UI Debug Mode.
+		//return;
 	}
 
-	if (element == App->scene->escButton/*escape_Button*/ && ui_event == UI_Event::CLICKED)	//If the pointer received is the UI_Button* escbutton pointer of Scene.h and event = clicked.
+	if (element == App->scene->escButton && ui_event == UI_Event::CLICKED)	//If the pointer received is the UI_Button* escbutton pointer of Scene.h and event = clicked.
 	{
 		escape = false;
+	}
+
+	if (element == App->scene->interactibleBanner && ui_event == UI_Event::CLICKED)
+	{
+		App->gui->ui_debug = !App->gui->ui_debug;
+	}
+
+	if (element == App->scene->interactibleText && ui_event == UI_Event::CLICKED)
+	{
+		App->gui->ui_debug = !App->gui->ui_debug;
 	}
 }
 
 //----------------------------------- FOCUS METHOD -----------------------------------
 void j1Gui::PassFocus()
 {
-	p2List_item<UI*>* element_iterator = elements.start;
-	
-	p2List_item<UI*>* first_element = elements.start;
-	p2List_item<UI*>* first_interactible_element = elements.start;
-
-	for (first_element; first_element; first_element = first_element->next)
+	if (iteratedElement == nullptr)
 	{
-		if (first_element->data->interactible = true)
-		{
-			first_interactible_element = first_element;
-		}
+		iteratedElement = elements.start;
 	}
-
+	
 	if (focusedElement == nullptr)
 	{
-		focusedElement = element_iterator->data;
-		//focusedElement = element_iterator;
-		return;
+		for (iteratedElement; iteratedElement != NULL; iteratedElement = iteratedElement->next)		//Loop that is used to find the first interactible element of the elments list.
+		{
+			if (iteratedElement->data->isInteractible && ElementCanBeFocused(iteratedElement->data))												//If the element being iterated is interactible.
+			{
+				focusedElement = iteratedElement->data;												//UI* focusedElement is set with the UI* of the element being iterated.
+				break;																				//The loop is stopped.
+			}
+		}
+
+		return;																						//Stops the function here so the focus remains in the first interactible element.
 	}
 
-	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
-	{	
-		//if (focusedElement == element_iterator && element_iterator->next != NULL)
-		if (focusedElement == element_iterator->data && element_iterator->next != NULL)
+	for (iteratedElement; iteratedElement != NULL; iteratedElement = iteratedElement->next)			//Loop that is used to find the next interactible element of the elments list.
+	{
+		if (iteratedElement->next != NULL)															//If the next element of the list is not NULL.
 		{
-			focusedElement = element_iterator->next->data;
-			//focusedElement = element_iterator->next;
-			break;
+			if (iteratedElement->next->data->isInteractible && ElementCanBeFocused(iteratedElement->next->data))											//If the next element of the list is interactible.
+			{
+				focusedElement = iteratedElement->next->data;										//UI* focusedElement is set with the UI* of the element next to the element being iterated. 
+				iteratedElement = iteratedElement->next;											//The element being iterated is set to the next element in the list.
+				break;																				//The loop is stopped so the focus remains in the interactible element that now has the focus.
+			}
 		}
-		//else
-		//{
-		//	//focusedElement = first_interactible_element->data;
-		//	//element_iterator = elements.start;
-		//	//break;
-		//}
-		/*else
+		else																						//If the next element of the list is NULL.
 		{
-			element_iterator = elements.start;						//Save the first focuseable element and go back to it.
-			focusedElement = element_iterator->data;
-			break;
-		}*/
+			iteratedElement = nullptr;																//The list_item is set to nullptr.
+			focusedElement = nullptr;																//The UI* focused element is set to nullptr, which efectively disables the focus.
+			break;																					//The loop is stopped so no element regains the focus.
+		}
 	}
 }
+
+bool j1Gui::ElementCanBeFocused(UI* focusElement)
+{
+	bool ret = false;
+
+	if (focusElement->element == UI_Element::BUTTON || focusElement->element == UI_Element::SCROLLBAR)
+	{
+		ret = true;
+	}
+
+	return ret;
+}
+
+// --------------------------- SHOW & HIDE UI ELEMENTS METHODS --------------------------
+void j1Gui::ShowElement(UI* parentElement)
+{
+	// Set the parent element's isVisible/isInteractible to true.
+	// Do the same for any element that has the parent Element as a parent.
+}
+
+void j1Gui::HideElement(UI* parentElement)
+{
+	// Set the parent element's isVisible/isInteractible to false.
+	// Do the ame for any element that has the parent element as a parent.
+}
+
 
 //----------------------------------- UI DEBUG METHOD -----------------------------------
 void j1Gui::Debug_UI()
