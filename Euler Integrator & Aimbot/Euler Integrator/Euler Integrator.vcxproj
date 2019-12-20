@@ -115,7 +115,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EulerIntegrator.cpp" />
+    <ClCompile Include="EulerIntegratorAndAimBot.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AimBot.h" />
+    <ClInclude Include="EulerIntegrator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
