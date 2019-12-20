@@ -42,11 +42,12 @@ public:
 public:
 	bool escape;
 	
-	UI_Image* interactibleBanner;
+	UI_Image* window;
 	UI_Text* interactibleText;
+	UI_Text* buttonLabel;
 	UI_Button* button;
 	UI_Button* escButton;
-
+	UI_Button* draggableButton;
 
 private:
 	SDL_Texture* debug_tex;

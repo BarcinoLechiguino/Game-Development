@@ -4,6 +4,8 @@
 #include "UI.h"
 #include "UI_Text.h"
 
+//UI_Text can be interactible and draggable. Can potentially have all events.
+//This element can receive up to 5 different strings (one for each possible event).
 UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isInteractible, bool isDraggable, UI* parent, p2SString* string,
 			p2SString* hoverString, p2SString* focusString, p2SString* leftClickString, p2SString* rightClickString): UI(UI_Element::TEXT, x, y, hitbox, parent),
 			idleTex(nullptr), hoverTex(nullptr), focusTex(nullptr), leftClickTex(nullptr), rightClickTex(nullptr)
@@ -38,7 +40,22 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 	this->isInteractible = isInteractible;
 	this->isDraggable = isDraggable;
 
-	//textCallback = elementCallback;
+	if (this->isInteractible)
+	{
+		listener = App->gui;
+	}
+
+	if (parent != NULL)
+	{
+		//int localPosX = parent->GetPosition().x - this->GetPosition().x;
+		//int localPosY = parent->GetPosition().y - this->GetPosition().y;
+		//
+		////iPoint localPos = { localPosX, localPosY };
+
+		iPoint localPos = { x, y };
+
+		SetLocalPos(localPos);
+	}
 }
 
 bool UI_Text::Draw()
@@ -74,7 +91,12 @@ void UI_Text::CheckInput()
 			}
 		}
 
-		if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)			//If the mouse is on the button and the left mouse button is pressed.
+		if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)
+		{
+			prevMousePos = GetMousePos();
+		}
+		
+		if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the text and the left mouse button is being pressed.
 		{
 			ui_event = UI_Event::CLICKED;
 
@@ -82,6 +104,30 @@ void UI_Text::CheckInput()
 			{
 				currentTex = leftClickTex;															//Blit the left click text.
 			}
+
+			if (isDraggable)
+			{
+				DragElement();
+				hasBeenDragged = true;
+				prevMousePos = GetMousePos();
+			}
+		}
+
+		if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)			//If the mouse is on the text and the left mouse button is released.
+		{
+			if (!isDraggable)
+			{
+				ui_event = UI_Event::UNCLICKED;
+			}
+			else
+			{
+				if (!hasBeenDragged)
+				{
+					ui_event = UI_Event::UNCLICKED;
+				}
+			}
+
+			//currentRect = clicked;											//Button Hover sprite.
 		}
 
 		if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_DOWN)	//If the mouse is on the button and the right mouse button is pressed.

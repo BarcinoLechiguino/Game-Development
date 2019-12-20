@@ -49,8 +49,7 @@ bool j1Scene::Start()
 	SDL_Rect rect{ 485, 829, 328, 103 };
 	SDL_Rect winRect{ 0, 512, 483, 512 };
 
-	//interactibleBanner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, true, false, NULL);
-	interactibleBanner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, false, false, NULL);		//OnCallEvent Overlap
+	window = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, false, true, NULL);		//OnCallEvent Overlap
 	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect, false, false, NULL);
 
 	// TODO 4: Create the text "Hello World" as a UI element
@@ -66,12 +65,19 @@ bool j1Scene::Start()
 
 	
 	//Creating a button:
-	SDL_Rect idle		= { 642,169,229,69 };
-	SDL_Rect hover		= { 0,113,229,69 };
-	SDL_Rect clicked	= { 411,169,229,69 };
+	SDL_Rect buttonHitbox	= { 642,169,229,69 };
+	SDL_Rect idle			= { 642,169,229,69 };
+	SDL_Rect hover			= { 0,113,229,69 };
+	SDL_Rect clicked		= { 411,169,229,69 };
+
+	SDL_Rect buttonLabelHitbox{ 432, 75, 45, 18 };
+	p2SString buttonString = "BUTTON";
 
 	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, true, false, NULL, &idle, &hover, &clicked);
 	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, true, false, NULL, &idle, &hover, &clicked);
+	
+	draggableButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 355, true, true, window, &idle, &hover, &clicked);
+	buttonLabel = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 442, 380, buttonLabelHitbox, font, fontRgb, true, true, draggableButton, &buttonString);
 
 	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 100, 205, NULL,&idle, &hover, &clicked);					//Testing the focus.
 	

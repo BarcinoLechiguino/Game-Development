@@ -51,7 +51,7 @@ bool j1Gui::PreUpdate()
 	{
 		if (focusedElement != nullptr && focusedElement->isInteractible)
 		{
-			focusedElement->ui_event = UI_Event::CLICKED;
+			focusedElement->ui_event = UI_Event::UNCLICKED;
 			OnEventCall(focusedElement, focusedElement->ui_event);
 		}
 	}
@@ -122,11 +122,11 @@ bool j1Gui::CleanUp()
 }
 
 //----------------------------------- UI ELEMENT CREATION METHODS -----------------------------------
-UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect rect, bool isInteractible, bool isDraggable, UI* parent)
+UI* j1Gui::CreateImage(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible, bool isDraggable, UI* parent)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Image(element, x, y, rect, isInteractible, isDraggable, parent);
+	elem = new UI_Image(element, x, y, hitbox, isInteractible, isDraggable, parent);
 
 	if (elem != nullptr)
 	{
@@ -165,32 +165,45 @@ UI* j1Gui::CreateButton(UI_Element element, int x, int y, bool isInteractible, b
 	return elem;
 }
 
-//--------------------------------- INPUT PROCESSING ---------------------------------
-void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
+UI* j1Gui::CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible, bool isDraggable, UI* parent)
 {
-	if (element == App->scene->button && ui_event == UI_Event::CLICKED)		//If the pointer received is the UI_Button* button pointer of Scene.h and event = clicked. 
+	UI* elem = nullptr;
+
+	elem = new UI_Window(element, x, y, hitbox, isInteractible, isDraggable, parent);
+
+	if (elem != nullptr)
 	{
-		App->gui->ui_debug = !App->gui->ui_debug;							//Enables / Disables UI Debug Mode.
-		//return;
+		elements.add(elem);
 	}
 
-	if (element == App->scene->escButton && ui_event == UI_Event::CLICKED)	//If the pointer received is the UI_Button* escbutton pointer of Scene.h and event = clicked.
+	return elem;
+}
+
+//--------------------------------- INPUT PROCESSING METHODS ---------------------------------
+void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
+{
+	if (element == App->scene->button && ui_event == UI_Event::UNCLICKED)		//If the pointer received is the UI_Button* button pointer of Scene.h and event = clicked. 
+	{
+		App->gui->ui_debug = !App->gui->ui_debug;							//Enables / Disables UI Debug Mode.
+	}
+
+	if (element == App->scene->escButton && ui_event == UI_Event::UNCLICKED)	//If the pointer received is the UI_Button* escbutton pointer of Scene.h and event = clicked.
 	{
 		escape = false;
 	}
 
-	if (element == App->scene->interactibleBanner && ui_event == UI_Event::CLICKED)
+	if (element == App->scene->draggableButton && ui_event == UI_Event::UNCLICKED)
 	{
 		App->gui->ui_debug = !App->gui->ui_debug;
 	}
 
-	if (element == App->scene->interactibleText && ui_event == UI_Event::CLICKED)
+	if (element == App->scene->interactibleText && ui_event == UI_Event::UNCLICKED)
 	{
 		App->gui->ui_debug = !App->gui->ui_debug;
 	}
 }
 
-//----------------------------------- FOCUS METHOD -----------------------------------
+//----------------------------------- FOCUS MANAGEMENT METHODS -----------------------------------
 void j1Gui::PassFocus()
 {
 	if (iteratedElement == nullptr)

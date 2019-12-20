@@ -5,8 +5,6 @@
 #include "j1Fonts.h"
 #include "UI.h"
 
-//class j1Fonts;
-
 class UI_Text : public UI
 {
 public:
@@ -24,12 +22,10 @@ private:
 	SDL_Color		font_colour;		//Colour of the font.
 	SDL_Texture*	idleTex;			//Texture for the idle state of the text.
 	SDL_Texture*	hoverTex;			//Texture for the hover state of the text.
-	SDL_Texture*	focusTex;			//Texture for the focused state fo the text.
+	SDL_Texture*	focusTex;			//Texture for the focused state of the text.
 	SDL_Texture*	leftClickTex;		//Texture for the left-Clicked state of the text.
 	SDL_Texture*	rightClickTex;		//Texture for the right-Clicked state of the text.
 	SDL_Texture*	currentTex;			//Current texture to be blitted. Depends on the input the UI Text element receives.
-
-	//UI_Text*		textCallback;		//Pointer of the text, if we want to assign a function to a specific button, the pointer needs to be compared
 };
 
 #endif // !__UI_TEXT_H__

@@ -17,6 +17,7 @@ UI::UI(UI_Element element, int x, int y, SDL_Rect rect, UI* parent) :
 	//hitbox = {GetPosition().x, GetPosition().y, GetRect().w, GetRect().h };
 	hitbox = {position.x, position.y, this->rect.w, this->rect.h };
 	focused = false;
+	//listener = App->gui;
 }
 
 UI::~UI()
@@ -59,6 +60,42 @@ SDL_Rect UI::GetHitbox() const
 	return hitbox;						//Returns the hitbox of a UI element.
 }
 
+//iPoint UI::GetScreenPos() const
+//{
+//	return position;
+//}
+//
+//SDL_Rect UI::GetScreenRect() const
+//{
+//	return rect;
+//}
+
+iPoint UI::GetLocalPos() const
+{
+	return localPosition;
+}
+
+void UI::SetLocalPos(iPoint localPosition)
+{
+	/*int localPosX = this->parent->GetPosition().x - this->GetPosition().x;			//Useful to make this function  argumentless.
+	int localPosY = this->parent->GetPosition().y - this->GetPosition().y;*/
+
+	int localPosX = this->parent->position.x - localPosition.x;
+	int localPosY = this->parent->position.y - localPosition.y;
+
+	iPoint localPos = { localPosX, localPosY };
+	
+	this->localPosition = localPos;
+}
+
+SDL_Rect UI::GetLocalRect() const
+{
+	if (parent != NULL)
+	{
+		return parent->rect;
+	}
+}
+
 iPoint UI::GetMousePos() /*const*/
 {
 	App->input->GetMousePosition(mousePos.x, mousePos.y);
@@ -72,30 +109,37 @@ bool UI::CheckMousePos()
 		&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
 }
 
+iPoint UI::GetMouseMotion() /*const*/
+{
+	App->input->GetMouseMotion(mouseMotion.x, mouseMotion.y);
+
+	return mouseMotion;
+}
+
 bool UI::IsFocused() const
 {
 	return App->gui->focusedElement == this;
 }
 
-//bool UI::IsFocused() const
-//{
-//	return App->gui->focusedElement->data == this;
-//}
+void UI::DragElement()
+{
+	// --- Updating the UI Element's position when it is being dragged.
+	iPoint currentPos = position;
+	iPoint fastMouseMotion = { GetMouseMotion().x * 2, GetMouseMotion().y * 2 };
+	iPoint draggingPos = position + GetMouseMotion();
 
-//void UI::OnEventCall(UI* element, UI_Event ui_event)
-//{
-//	if (element == App->scene->button && ui_event == UI_Event::CLICKED)
-//	{
-//		if (App->gui->ui_debug == false)
-//		{
-//			App->gui->ui_debug = true;
-//		}
-//		else
-//		{
-//			App->gui->ui_debug = false;
-//		}
-//	}
-//}
+	if (prevMousePos != GetMousePos())
+	{
+		currentPos += GetMousePos() - prevMousePos;			//Check this, mouse is not at a fixed point, the UI Element moves too slow.
+
+		this->SetPosition(/*draggingPos*/ currentPos);
+	}
+
+	// --- Updating the UI Element's hitbox's rect when it is being dragged.
+	SDL_Rect newPosRect = { position.x, position.y, rect.w, rect.h };
+
+	this->SetHitbox(newPosRect);
+}
 
 void UI::CheckInput()
 {

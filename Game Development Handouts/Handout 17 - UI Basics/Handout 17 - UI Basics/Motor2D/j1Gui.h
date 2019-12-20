@@ -8,6 +8,7 @@
 #include "UI_Image.h"
 #include "UI_Text.h"
 #include "UI_Button.h"
+#include "UI_Window.h"
 
 //class UI;
 
@@ -53,30 +54,28 @@ public:
 
 	UI* CreateButton(UI_Element element, int x, int y, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr, SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
 
-	//j1Gui* elementCallback;
-	//UI* elementCallback;												//REVISE THIS
+	UI* CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
+
 
 	void OnEventCall(UI* element, UI_Event ui_event);					//This function is called whenever an new event happens, it receives the pointer of the element that caused the event and the kind of event it is.
 	void PassFocus();													//Method that passes the focus from an interactible and able to focused element to another with the same conditions.
-	bool ElementCanBeFocused(UI* focusElement);							//
+	bool ElementCanBeFocused(UI* focusElement);							//If an element fulfills all requirements (is a button or a scrollbar), then this method returns true. Used to filter which UI elements can or cannot have focus.
 	void ShowElement(UI* parentElement);
 	void HideElement(UI* parentElement);
 	void Debug_UI();													//Shows on screen the different rects that compose the UI Display.
 	bool ui_debug;
 
 
-	UI*					focusedElement;				//Change to list item
-	//p2List_item<UI*>*	focusElement;				//Change to list item
+	UI*					focusedElement;					//Change to list item
 	p2List_item<UI*>*	iteratedElement;
 
-	bool escape;
+	bool escape;										//When this bool is true the game is exited.
 
 private:
+	SDL_Texture* atlas;									//Texture of the atlas (UI Spritesheet)
+	p2SString atlas_file_name;							//Name of the atlas in the xml file.
 
-	SDL_Texture* atlas;
-	p2SString atlas_file_name;
-
-	p2List<UI*> elements;		//List where all the UI elements in a scene will be stored at.
+	p2List<UI*> elements;								//List where all the UI elements in a scene will be stored at.
 };
 
 #endif // __j1GUI_H__
