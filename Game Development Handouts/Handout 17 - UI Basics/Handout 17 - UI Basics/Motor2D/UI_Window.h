@@ -6,7 +6,7 @@
 class UI_Window : public UI
 {
 public:
-	UI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
+	UI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isVisible = true, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
 
 	bool Draw();
 

@@ -3,7 +3,7 @@
 #include "UI.h"
 #include "UI_Window.h"
 
-UI_Window::UI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible, bool isDraggable, UI* parent) : UI(element, x, y, hitbox, parent) 
+UI_Window::UI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isVisible, bool isInteractible, bool isDraggable, UI* parent) : UI(element, x, y, hitbox, parent) 
 {
 	tex = App->gui->GetAtlas();
 

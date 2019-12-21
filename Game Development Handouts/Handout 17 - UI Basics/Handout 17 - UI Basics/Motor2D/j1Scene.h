@@ -11,6 +11,7 @@ class UI;
 class UI_Image;
 class UI_Text;
 class UI_Button;
+class UI_InputBox;
 
 class j1Scene : public j1Module
 {
@@ -42,22 +43,21 @@ public:
 public:
 	bool escape;
 	
-	UI_Image* window;
-	UI_Text* interactibleText;
-	UI_Text* buttonLabel;
-	UI_Button* button;
-	UI_Button* escButton;
-	UI_Button* draggableButton;
-	UI_Button* draggableButton2;
+	UI_Image*		window;
+	UI_Text*		interactibleText;
+	UI_Text*		buttonLabel;
+	UI_Button*		button;
+	UI_Button*		escButton;
+	UI_Button*		draggableButton;
+	UI_Button*		draggableButton2;
+	UI_InputBox*	inputBox;
+	UI_Image*		background;
+	UI_Text *		inputText;
 
 private:
 	SDL_Texture* debug_tex;
 	UI_Image* banner;
 	UI_Text* text;
-	//UI_Button* button;
-	//UI_Button* escButton;
-
-	//j1Gui* elementCallback;
 
 	j1Module* listener;
 };

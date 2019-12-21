@@ -177,11 +177,25 @@ UI* j1Gui::CreateButton(UI_Element element, int x, int y, bool isVisible, bool i
 	return elem;
 }
 
-UI* j1Gui::CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible, bool isDraggable, UI* parent)
+UI* j1Gui::CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isVisible, bool isInteractible, bool isDraggable, UI* parent)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Window(element, x, y, hitbox, isInteractible, isDraggable, parent);
+	elem = new UI_Window(element, x, y, hitbox, isVisible, isInteractible, isDraggable, parent);
+
+	if (elem != nullptr)
+	{
+		elements.add(elem);
+	}
+
+	return elem;
+}
+
+UI* j1Gui::CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* string)
+{
+	UI* elem = nullptr;
+
+	elem = new UI_InputBox(element, x, y, hitbox, font, fontColour, isVisible, isInteractible, isDraggable, parent, string);
 
 	if (elem != nullptr)
 	{

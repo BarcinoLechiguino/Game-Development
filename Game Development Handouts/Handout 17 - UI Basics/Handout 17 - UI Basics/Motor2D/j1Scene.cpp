@@ -76,30 +76,15 @@ bool j1Scene::Start()
 	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, true, true, false, NULL, &idle, &hover, &clicked);
 	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, true, true, false, NULL, &idle, &hover, &clicked);
 	
-	draggableButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 355, true, true, true, window, &idle, &hover, &clicked);
-	buttonLabel = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 442, 380, buttonLabelHitbox, font, fontRgb, true, false, false, draggableButton, &buttonString);
+	draggableButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 425, true, true, true, window, &idle, &hover, &clicked);
+	buttonLabel = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 442, 450, buttonLabelHitbox, font, fontRgb, true, false, false, draggableButton, &buttonString);
 
-	draggableButton2 = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 425, true, true, true, window, &idle, &hover, &clicked);
+	//draggableButton2 = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 425, true, true, true, window, &idle, &hover, &clicked);
 
-	LOG("Screen Pos Drag Button: (%d, %d)", draggableButton->GetScreenPos().x, draggableButton->GetScreenPos().y);
-	LOG("Local Pos Drag Button: (%d, %d)", draggableButton->GetLocalPos().x, draggableButton->GetLocalPos().y);
-	LOG("Local Pos Drag Button 2: (%d, %d)", draggableButton2->GetLocalPos().x, draggableButton2->GetLocalPos().y);
+	//Creating a text box:
+	SDL_Rect inputBoxBackground = { 488, 569, 344, 61 };
 
-	//draggableButton->SetLocalPos(iPoint(-100, -100));
-
-	LOG("Screen Pos Drag Button: (%d, %d)", draggableButton->GetScreenPos().x, draggableButton->GetScreenPos().y);
-	LOG("Local Pos Drag Button : (%d, %d)", draggableButton->GetLocalPos().x, draggableButton->GetLocalPos().y);
-
-
-	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 100, 205, NULL,&idle, &hover, &clicked);					//Testing the focus.
-	
-	//text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 525, 75, textHitbox, font, fontRgb, text, NULL, &bufferString);		//Testing the focus.
-	
-	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 600, 205, NULL, &idle, &hover, &clicked);					//Testing the focus
-
-	//text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 350, 75, textHitbox, font, fontRgb, text, NULL, &bufferString);		//Testing the focus.
-
-	//escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 360, NULL, &idle, &hover, &clicked);				//Testing the focus.
+	inputBox = (UI_InputBox*)App->gui->CreateInputBox(UI_Element::INPUTBOX, 295, 355, inputBoxBackground, font, fontRgb, true, true, false, window, &bufferString);
 
 	return true;
 }

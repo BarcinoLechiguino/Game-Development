@@ -9,6 +9,7 @@
 #include "UI_Text.h"
 #include "UI_Button.h"
 #include "UI_Window.h"
+#include "UI_InputBox.h"
 
 //class UI;
 
@@ -55,7 +56,10 @@ public:
 	UI* CreateButton(UI_Element element, int x, int y, bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr,
 		SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
 
-	UI* CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
+	UI* CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isVisible = true, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
+
+	UI* CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible = true, bool isInteractible = true, bool isDraggable = false,
+		UI* parent = nullptr, p2SString* string = nullptr);
 
 
 	void OnEventCall(UI* element, UI_Event ui_event);					//This function is called whenever an new event happens, it receives the pointer of the element that caused the event and the kind of event it is.
