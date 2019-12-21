@@ -47,12 +47,13 @@ public:
 	
 	// TODO 2: Create the factory methods
 	// Gui creation functions
-	UI* CreateImage(UI_Element element, int x, int y, SDL_Rect rect, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
+	UI* CreateImage(UI_Element element, int x, int y, SDL_Rect rect, bool isVisible = false, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
 
-	UI* CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr,
-		p2SString* string = nullptr, p2SString* hoverString = nullptr, p2SString* focusString = nullptr, p2SString* leftClickString = nullptr, p2SString* rightClickString = nullptr);
+	UI* CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible = true, bool isInteractible = false, bool isDraggable = false,
+		UI* parent = nullptr, p2SString* string = nullptr, p2SString* hoverString = nullptr, p2SString* leftClickString = nullptr, p2SString* rightClickString = nullptr);
 
-	UI* CreateButton(UI_Element element, int x, int y, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr, SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
+	UI* CreateButton(UI_Element element, int x, int y, bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr,
+		SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
 
 	UI* CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
 
@@ -60,16 +61,23 @@ public:
 	void OnEventCall(UI* element, UI_Event ui_event);					//This function is called whenever an new event happens, it receives the pointer of the element that caused the event and the kind of event it is.
 	void PassFocus();													//Method that passes the focus from an interactible and able to focused element to another with the same conditions.
 	bool ElementCanBeFocused(UI* focusElement);							//If an element fulfills all requirements (is a button or a scrollbar), then this method returns true. Used to filter which UI elements can or cannot have focus.
-	void ShowElement(UI* parentElement);
-	void HideElement(UI* parentElement);
+	
+	UI* FirstElementUnderMouse();										//Returs the first element under the mouse.
+
+	bool ElementHasChilds(UI* parentElement);							//Returns true if the element passed as argument has at least one child.
+	void UpdateChilds(UI* parentElement);								//Updates all UI Elements that have the element passed as argument as a parent.
+	void SetElementsVisibility(UI* parentElement, bool state);			//Enables/Disables the isVisible bool of a UI Element and its childs according to the passed arguments.
+
 	void Debug_UI();													//Shows on screen the different rects that compose the UI Display.
-	bool ui_debug;
 
-
+public:
 	UI*					focusedElement;					//Change to list item
 	p2List_item<UI*>*	iteratedElement;
 
+	bool alreadyDragging/*AnElement*/;
+
 	bool escape;										//When this bool is true the game is exited.
+	bool ui_debug;										//When this bool is true, debug mode is activated.
 
 private:
 	SDL_Texture* atlas;									//Texture of the atlas (UI Spritesheet)

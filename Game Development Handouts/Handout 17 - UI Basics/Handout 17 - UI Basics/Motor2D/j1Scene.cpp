@@ -49,8 +49,8 @@ bool j1Scene::Start()
 	SDL_Rect rect{ 485, 829, 328, 103 };
 	SDL_Rect winRect{ 0, 512, 483, 512 };
 
-	window = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, false, true, NULL);		//OnCallEvent Overlap
-	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect, false, false, NULL);
+	window = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, true, false, true, NULL);		//OnCallEvent Overlap
+	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect, true, false, false, NULL);
 
 	// TODO 4: Create the text "Hello World" as a UI element
 	SDL_Rect textHitbox{ 432, 75, 65, 20};
@@ -60,8 +60,8 @@ bool j1Scene::Start()
 	_TTF_Font* font = App->font->Load("fonts/open_sans/OpenSans-SemiboldItalic.ttf");
 	SDL_Color fontRgb = { 255, 255, 255, 255 };
 
-	interactibleText = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 280, 75, interactibleTextHitbox, font, fontRgb, true, false, NULL, &interactibleString);
-	text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 432, 75, textHitbox, font, fontRgb, false, false, NULL, &bufferString);
+	interactibleText = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 280, 75, interactibleTextHitbox, font, fontRgb, true, true, false, NULL, &interactibleString);
+	text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 432, 75, textHitbox, font, fontRgb, true, false, false, window, &bufferString);
 
 	
 	//Creating a button:
@@ -73,11 +73,23 @@ bool j1Scene::Start()
 	SDL_Rect buttonLabelHitbox{ 432, 75, 45, 18 };
 	p2SString buttonString = "BUTTON";
 
-	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, true, false, NULL, &idle, &hover, &clicked);
-	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, true, false, NULL, &idle, &hover, &clicked);
+	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, true, true, false, NULL, &idle, &hover, &clicked);
+	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, true, true, false, NULL, &idle, &hover, &clicked);
 	
-	draggableButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 355, true, true, window, &idle, &hover, &clicked);
-	buttonLabel = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 442, 380, buttonLabelHitbox, font, fontRgb, true, true, draggableButton, &buttonString);
+	draggableButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 355, true, true, true, window, &idle, &hover, &clicked);
+	buttonLabel = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 442, 380, buttonLabelHitbox, font, fontRgb, true, false, false, draggableButton, &buttonString);
+
+	draggableButton2 = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 425, true, true, true, window, &idle, &hover, &clicked);
+
+	LOG("Screen Pos Drag Button: (%d, %d)", draggableButton->GetScreenPos().x, draggableButton->GetScreenPos().y);
+	LOG("Local Pos Drag Button: (%d, %d)", draggableButton->GetLocalPos().x, draggableButton->GetLocalPos().y);
+	LOG("Local Pos Drag Button 2: (%d, %d)", draggableButton2->GetLocalPos().x, draggableButton2->GetLocalPos().y);
+
+	//draggableButton->SetLocalPos(iPoint(-100, -100));
+
+	LOG("Screen Pos Drag Button: (%d, %d)", draggableButton->GetScreenPos().x, draggableButton->GetScreenPos().y);
+	LOG("Local Pos Drag Button : (%d, %d)", draggableButton->GetLocalPos().x, draggableButton->GetLocalPos().y);
+
 
 	//button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 100, 205, NULL,&idle, &hover, &clicked);					//Testing the focus.
 	

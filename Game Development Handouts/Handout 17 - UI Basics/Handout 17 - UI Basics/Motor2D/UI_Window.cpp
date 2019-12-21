@@ -15,7 +15,7 @@ bool UI_Window::Draw()
 {
 	CheckInput();
 
-	BlitElement(tex, GetPosition().x, GetPosition().y, &GetRect());		//GetPosition() is used as the position variable in the UI parent class will be initialized with the values of the UI_Image instance at constructor call
+	BlitElement(tex, GetScreenPos().x, GetScreenPos().y, &GetScreenRect());		//GetPosition() is used as the position variable in the UI parent class will be initialized with the values of the UI_Image instance at constructor call
 	
 	return true;
 }

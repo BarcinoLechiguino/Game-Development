@@ -5,7 +5,7 @@
 
 //UI_Button can be interactible (will almost always be) and draggable. Can potentially receive all events.
 //This element can receive up to 3 rects containing the coordinates of the sprites for each event (IDLE, HOVER & CLICKED).
-UI_Button::UI_Button(UI_Element element, int x, int y, bool isInteractible, bool isDraggable, UI* parent,
+UI_Button::UI_Button(UI_Element element, int x, int y, bool isVisible, bool isInteractible, bool isDraggable, UI* parent,
 				SDL_Rect* idle, SDL_Rect* hover, SDL_Rect* clicked) : UI(element, x, y, *idle, parent)
 {
 	tex = App->gui->GetAtlas();
@@ -26,95 +26,96 @@ UI_Button::UI_Button(UI_Element element, int x, int y, bool isInteractible, bool
 		this->clicked = *clicked;
 	}
 
+	// --- Setting this element's flags to the ones passed as argument.
+	this->isVisible = isVisible;
 	this->isInteractible = isInteractible;
 	this->isDraggable = isDraggable;
-	hasBeenDragged = false;
+	prevMousePos = iPoint(0, 0);
 
-	if (this->isInteractible)
+	if (this->isInteractible)												//If the button element is interactible.
 	{
-		listener = App->gui;
+		listener = App->gui;												//This button's listener is set to the App->gui module (For OnCallEvent()).
 	}
 
-	if (parent != NULL)
+	if (parent != NULL)														//If a parent is passed as argument.
 	{
-		//int localPosX = parent->GetPosition().x - this->GetPosition().x;
-		//int localPosY = parent->GetPosition().y - this->GetPosition().y;
-		//
-		////iPoint localPos = { localPosX, localPosY };
+		int localPosX = x - this->parent->GetScreenPos().x;					//Gets the local position of the Button element in the X Axis.
+		int localPosY = y - this->parent->GetScreenPos().y;					//Gets the local position of the Button element in the Y Axis.
+		
+		iPoint localPos = { localPosX,localPosY };							//Buffer iPoint to pass it as argument to SetLocalPos().
 
-		iPoint localPos = { x, y };
-
-		SetLocalPos(localPos);
+		SetLocalPos(localPos);												//Sets the local poisition of this Button element to the given localPos.
 	}
 }
 
 bool UI_Button::Draw()
 {
-	CheckInput();														//Calling "Update" and Draw at the same time. 
+	CheckInput();															//Calling "Update" and Draw at the same time. 
 
-	BlitElement(tex, GetPosition().x, GetPosition().y, &currentRect);
+	BlitElement(tex, GetScreenPos().x, GetScreenPos().y, &currentRect);
 
 	return true;
 }
 
+// --- This Method checks for any inputs that the UI_Text element might have received and "returns" an event.
 void UI_Button::CheckInput()
 {
-	hasBeenDragged = false;
-	
-	GetMousePos();
-	
-	bool hovered = CheckMousePos();
-
-	if (hovered == false)												//If the mouse is not on the button.
+	if (isVisible)																			//If the Button element is visible.
 	{
-		ui_event = UI_Event::IDLE;
-		currentRect = idle;												//Button Idle sprite.
-	}
+		GetMousePos();																		//Gets the mouse's position on the screen.
 
-	if (hovered == true || /*focused == true*/ IsFocused() == true)		//If the mouse is on the button.
-	{
-		ui_event = UI_Event::HOVER;
-		currentRect = hover;											//Button Hover sprite.
-	}
+		bool hovered = CheckMousePos();														//Sets a buffer with the bool returned from CheckMousePos(). Done for readability.
 
-	if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)
-	{
-		prevMousePos = GetMousePos();
-	}
-
-	if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the button and the left mouse button is pressed continuously.
-	{
-		ui_event = UI_Event::CLICKED;
-		currentRect = clicked;											//Button Clicked sprite is maintained.
-
-		//prevMousePos = GetMousePos();
-		
-		if (isDraggable)
+		// --- IDLE EVENT
+		if (!hovered)																		//If the mouse is not on the button.
 		{
-			DragElement();
-			hasBeenDragged = true;
-
-			prevMousePos = GetMousePos();
+			ui_event = UI_Event::IDLE;
+			currentRect = idle;																//Button Idle sprite.
 		}
-	}
-	
-	if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)		//If the mouse is on the button and the left mouse button is released.
-	{
-		if (!isDraggable)
+
+		// --- HOVER EVENT
+		if ((hovered && IsForemostElement()) || IsFocused())								//If the mouse is on the button.
 		{
-			ui_event = UI_Event::UNCLICKED;
+			ui_event = UI_Event::HOVER;														//Button Hover sprite.
+			currentRect = hover;
 		}
-		else
+
+		// --- CLICKED EVENT (Left Click)
+		if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)			//If the mouse is on the button and the left mouse button is clicked.
 		{
-			if (!hasBeenDragged)
+			prevMousePos = GetMousePos();													//Sets the previous mouse position.
+			initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.
+		}
+
+		if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the button and the left mouse button is pressed continuously.
+		{
+			if (IsForemostElement())														//If the UI Text element is the foremost element under the mouse. 
 			{
-				ui_event = UI_Event::UNCLICKED;
+				ui_event = UI_Event::CLICKED;
+				currentRect = clicked;														//Button Clicked sprite is maintained.
+
+				if (ElementCanBeDragged())													//If the UI Button element is draggable and is the foremost element under the mouse.
+				{
+					DragElement();															//The UI Button element is dragged.
+
+					CheckElementChilds();													//Checks if this UI Button has any childs and updates them in consequence.
+
+					prevMousePos = GetMousePos();											//Updates prevMousePos so it can be dragged again next frame.
+				}
 			}
 		}
 
-		//currentRect = clicked;											//Button Hover sprite.
+		// --- UNCLICKED EVENT (Left Click)
+		if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)	//If the mouse is on the button and the left mouse button is released.
+		{
+			if (IsForemostElement() && ElementRemainedInPlace())							//If the UI Text element is the foremost element under the mouse and has not been dragged. 
+			{
+				ui_event = UI_Event::UNCLICKED;
+			}
+			
+			//currentRect = clicked;														//Button Clicked sprite.
+		}
+
+		listener->OnEventCall(this, ui_event);												//This UI element's pointer and ui_event are passed as arguments to the OnEventCall() function.
 	}
-	
-	//App->gui->OnEventCall(this, ui_event);						//This UI element's pointer and ui_event are passed as arguments to the OnEventCall() function.
-	listener->OnEventCall(this, ui_event);							//At some point set j1Gui (or UI) as the listener for this EventCall.
 }

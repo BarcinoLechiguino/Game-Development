@@ -48,6 +48,7 @@ public:
 	UI_Button* button;
 	UI_Button* escButton;
 	UI_Button* draggableButton;
+	UI_Button* draggableButton2;
 
 private:
 	SDL_Texture* debug_tex;

@@ -9,7 +9,7 @@
 //class iPoint;			//If declared as a forward declaration instead of an include, 
 //class SDL_Rect;		//then iPoint and SDL_Rect need to be pointers.
 
-enum class UI_Element
+enum class UI_Element 
 {
 	IMAGE,
 	TEXT,
@@ -43,62 +43,66 @@ public:
 
 	virtual void CheckInput();
 
-public:
-	void SetPosition(iPoint position);		//Sets the position of a UI_Element
-	iPoint GetPosition() const;				//Gets the position of a UI_Element
-	
-	void SetRect(SDL_Rect rect);			//Sets the data members of a UI_Element's rect.
-	SDL_Rect GetRect() const;				//Gets the data members of a UI_Element's rect.
-	
-	void SetHitbox(SDL_Rect hitbox);		//Sets the data members of a UI_Element's hitbox.
-	SDL_Rect GetHitbox() const;				//Gets the data members of a UI_Element's hitbox.
-
-	//iPoint GetScreenPos() const;			//Gets the position of a UI Element with the Screen as point of reference.
-	//SDL_Rect GetScreenRect() const;			//Gets the data members of the Screen's rect.?
-
-	iPoint GetLocalPos() const;				//Gets the position of a UI Element with it's Parent as point of reference.
-	void SetLocalPos(iPoint localPosition);	//Sets the position of a UI Element with it's Parent as point of reference.
-
-	SDL_Rect GetLocalRect() const;			//Get the data members of the UI Element's Parent's rect.
-
-	iPoint GetMousePos() /*const*/;			//Gets the mouse's position.
-	bool CheckMousePos();					//Checks the position of the mouse.
-
-	iPoint GetMouseMotion() /*const*/;		//Gets the mouse's motion.
-
-	bool IsFocused() const;					//Centralize common functionalities.
-
-	void DragElement();
-
-	
-	void OnEventCall(UI* element, UI_Event ui_event);
-
 	void BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect);
 
 public:
-	bool		isVisible;					//Keep track of whether or not a UI Element is visible or not. Can be overlapped with isInteractible.
-	bool		isInteractible;				//Keeps track of whether a UI Element is interactible or not.
-	bool		isDraggable;				//Keeps track of whether a UI Element is draggable or not.
-	bool		hasBeenDragged;				//Keeps track of whether a UI Element has been dragged in an event check. Used to avoid clicking on the UI_Element after dragging it.
-	bool		focused;					//Keeps track of whether a UI Element has focus or not.
-	iPoint		prevMousePos;
+	void SetScreenPos(iPoint position);				//Sets the position of a UI_Element with the Screen as point of reference.
+	iPoint GetScreenPos() const;					//Gets the position of a UI_Element with the Screen as point of reference.
+	
+	void SetScreenRect(SDL_Rect rect);				//Sets the data members of a UI_Element's rect with the Screen as point of reference.
+	SDL_Rect GetScreenRect() const;					//Gets the data members of a UI_Element's rect with the Screen as point of reference.
+	
+	void SetHitbox(SDL_Rect hitbox);				//Sets the data members of a UI_Element's hitbox with the Screen as point of reference.
+	SDL_Rect GetHitbox() const;						//Gets the data members of a UI_Element's hitbox with the Screen as point of reference.
+	
+	void SetLocalPos(iPoint localPosition);			//Sets the position of a UI Element with it's Parent as point of reference.
+	iPoint GetLocalPos() const;						//Gets the position of a UI Element with it's Parent as point of reference.
 
-	UI_Event	ui_event;					//Defines which events will the UI_Elements send when interacted with.
-	UI_Element	element;					//Enum that defines which kind of element a UI element is.
+	void SetLocalRect(SDL_Rect localRect);			//Sets the rect of a UI Element with the parent element as point of reference.
+	SDL_Rect GetLocalRect() const;					//Gets the rect of a UI Element with the parent element as point of reference.
 
-	j1Module*	listener;					//Callback to j1Module, maybe need to make a virtual event detection function. Whenever an event is triggered, this calls the right module for the event.
-	UI*			parent;						//Keeps track of the dependencies between UI elements.
+	void SetLocalHitbox(SDL_Rect localHitbox);		//Sets the hitbox rect of a UI Element with the parent element as the point of reference.
+	SDL_Rect GetLocalHitbox();
+
+	iPoint GetMousePos() /*const*/;					//Gets the mouse's position.
+	bool CheckMousePos();							//Checks the position of the mouse.
+	iPoint GetMouseMotion() /*const*/;				//Gets the mouse's motion.
+
+	bool IsFocused() const;							//Centralize common functionalities.
+
+	bool IsForemostElement() const;					//Returns true if its the first element in inverse order of draw and has the mouse on it.
+	bool ElementCanBeDragged() const;				//Returns true if all dragging conditions are met.
+	bool ElementRemainedInPlace() const;			//If a UI Element was clicked but not dragged, this will return true.
+
+	void DragElement();								//Drags a draggable UI Element to the mouse's position.
+	void CheckElementChilds();						//Checks if a UI Element has childs and updates them in case the parent element had changed its position (dragged)
+
+public:
+	bool		isVisible;							//Keeps track of whether or not a UI Element is visible or not. Can be overlapped with isInteractible.
+	bool		isInteractible;						//Keeps track of whether a UI Element is interactible or not.
+	bool		isDraggable;						//Keeps track of whether a UI Element is draggable or not.
+	iPoint		prevMousePos;						//Keeps track of the previous position of the mouse in the screen before starting to drag anything.
+
+	UI_Event	ui_event;							//Defines which events will the UI_Elements send when interacted with.
+	UI_Element	element;							//Enum that defines which kind of element a UI element is.
+
+	j1Module*	listener;							//Callback to j1Module, maybe need to make a virtual event detection function. Whenever an event is triggered, this calls the right module for the event.
+	UI*			parent;								//Keeps track of the dependencies between UI elements.
+
+	iPoint		initialPosition;					//Keeps track of the initial position of a UI Element. Create Get/Set Methods?
 
 private:
-	iPoint		position;					//Position of the UI element in the world.
-	iPoint		localPosition;				//Position of the UI element relative to its parent's position in the world.
-	iPoint		initialPosition;			//Keeps track of the initial position of a UI Element.
+	iPoint		position;							//Position of the UI element in the world.
+	iPoint		localPosition;						//Position of the UI element relative to its parent's position in the world.
 
-	iPoint		mousePos;					//Position of the mouse.
-	iPoint		mouseMotion;				//Motion of the mouse. Used to move a dragged element around.
+	SDL_Rect	rect;								//Rectangle that represents the UI element in the world. Used for textures.
+	SDL_Rect	localRect;							//Rectangle coordinates and size of the UI Element taking the parent element as point of reference.
 
-	SDL_Rect	rect;						//Rectangle that represents the UI element in the world. Used for textures.
-	SDL_Rect	hitbox;						//Rectangle that represents the UI element's hitbox. Used for interactions.
+	SDL_Rect	hitbox;								//Rectangle that represents the UI element's hitbox. Used for interactions.
+	SDL_Rect	localHitbox;						//Data members of hitbox (position) according to the parent's world position.
+
+	iPoint		mousePos;							//Position of the mouse.
+	iPoint		mouseMotion;						//Motion of the mouse. Used to move a dragged element around.
 };
 
 #endif // !__UI_IMAGE_H__

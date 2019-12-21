@@ -16,7 +16,6 @@ UI::UI(UI_Element element, int x, int y, SDL_Rect rect, UI* parent) :
 {
 	//hitbox = {GetPosition().x, GetPosition().y, GetRect().w, GetRect().h };
 	hitbox = {position.x, position.y, this->rect.w, this->rect.h };
-	focused = false;
 	//listener = App->gui;
 }
 
@@ -30,72 +29,119 @@ bool UI::Draw()
 	return true;
 }
 
-void UI::SetPosition(iPoint position)
+void UI::CheckInput()
 {
-	this->position = position;			//this-> Allows to overload the position variable name as it declares that the "position" we are setting is the one declared in UI.h.
+	return;
 }
 
-iPoint UI::GetPosition() const
+void UI::BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect)
 {
-	return position;					//Returns the position of a UI element.
+	App->render->Blit(texture, x, y, rect, 0.0f);		//Setting the blit's speed argument to 0 will make the UI Element remain static in relation to the camera.
 }
 
-void UI::SetRect(SDL_Rect rect)
+// ----------------------------------------- SET/GET METHODS -----------------------------------------
+void UI::SetScreenPos(iPoint position)
 {
-	this->rect = rect;					//this-> Sets the pointer of a UI_Element so only that UI element's rect is changed. Moreover it allows to overload the rect variable name.
+	this->position = position;							//this-> Allows to overload the position variable name as it declares that the "position" we are setting is the one declared in UI.h.
 }
 
-SDL_Rect UI::GetRect() const
+iPoint UI::GetScreenPos() const
 {
-	return rect;						//Returns the rect of a UI element.
+	return position;									//Returns the position of a UI element.
+}
+
+void UI::SetScreenRect(SDL_Rect rect)
+{
+	this->rect = rect;									//this-> Sets the pointer of a UI_Element so only that UI element's rect is changed. Moreover it allows to overload the rect variable name.
+}
+
+SDL_Rect UI::GetScreenRect() const
+{
+	return rect;										//Returns the rect of a UI element.
 }
 
 void UI::SetHitbox(SDL_Rect hitbox)
 {
-	this->hitbox = hitbox;				//this-> Sets the pointer of a UI_Element so only that UI element's hitbox is changed. Moreover it allows to overload the hitbox variable name.
+	this->hitbox = hitbox;								//this-> Sets the pointer of a UI_Element so only that UI element's hitbox is changed. Moreover it allows to overload the hitbox variable name.
 }
 
 SDL_Rect UI::GetHitbox() const
 {
-	return hitbox;						//Returns the hitbox of a UI element.
+	return hitbox;										//Returns the hitbox of a UI element.
 }
 
-//iPoint UI::GetScreenPos() const
-//{
-//	return position;
-//}
-//
-//SDL_Rect UI::GetScreenRect() const
-//{
-//	return rect;
-//}
+void UI::SetLocalPos(iPoint localPosition)
+{
+	/*int localPosX = this->parent->position.x + localPosition.x;
+	int localPosY = this->parent->position.y + localPosition.y;	*/
+
+	//int localPosX = this->localPosition.x + (-localPosition.x);
+	//int localPosY = this->localPosition.y + (-localPosition.y);
+	////iPoint localPos = { localPosX, localPosY };
+
+	//iPoint offset = { localPosX, localPosY };
+
+	//if (this->localPosition > localPosition)
+	//	position -= offset;
+
+	//if (this->localPosition < localPosition)
+	//	position += offset;
+
+	//if (this->localPosition.x > localPosition.x && this->localPosition.y < localPosition.y)
+	//	position += iPoint(-offset.x, offset.y);
+
+	//if (this->localPosition.x < localPosition.x && this->localPosition.y > localPosition.y)
+	//	position += iPoint(offset.x, -offset.y);
+
+	//this->localPosition = localPosition;
+
+
+	//SDL_Rect newPos = { this->localPosition.x, this->localPosition.y, rect.w, rect.h };
+	//SetLocalRect(newPos);
+	//SetLocalHitbox(newPos);
+
+	this->localPosition = localPosition;
+}
 
 iPoint UI::GetLocalPos() const
 {
 	return localPosition;
 }
 
-void UI::SetLocalPos(iPoint localPosition)
+void UI::SetLocalRect(SDL_Rect localRect)
 {
-	/*int localPosX = this->parent->GetPosition().x - this->GetPosition().x;			//Useful to make this function  argumentless.
-	int localPosY = this->parent->GetPosition().y - this->GetPosition().y;*/
-
-	int localPosX = this->parent->position.x - localPosition.x;
-	int localPosY = this->parent->position.y - localPosition.y;
-
-	iPoint localPos = { localPosX, localPosY };
+	int localPosX = localRect.x - this->parent->rect.x;
+	int localPosY = localRect.y - this->parent->rect.y;
 	
-	this->localPosition = localPos;
+	SDL_Rect newLocalRect = { localPosX, localPosY, localRect.w, localRect.h };
+
+	this->localRect = newLocalRect;
+
+	//SetScreenRect(newLocalRect);
 }
 
 SDL_Rect UI::GetLocalRect() const
 {
 	if (parent != NULL)
 	{
-		return parent->rect;
+		//SDL_Rect localRect = { rect.x - parent->rect.x, rect.y - parent->rect.y, rect.w, rect.h };
+		//SDL_Rect localRect = { localPosition.x, localPosition.y, rect.w, rect.h };
+
+		return localRect;
 	}
 }
 
+void UI::SetLocalHitbox(SDL_Rect localHitbox)
+{
+	int localPosX = localRect.x - this->parent->rect.x;
+	int localPosY = localRect.y - this->parent->rect.y;
+	
+	SDL_Rect newLocalHitbox = { localPosX, localPosY, localHitbox.w, localHitbox.h };
+
+	this->localHitbox = newLocalHitbox;
+}
+
+// -------------------------------- UI ELEMENT INTERACTIONS --------------------------------
 iPoint UI::GetMousePos() /*const*/
 {
 	App->input->GetMousePosition(mousePos.x, mousePos.y);
@@ -105,8 +151,19 @@ iPoint UI::GetMousePos() /*const*/
 
 bool UI::CheckMousePos()
 {
-	return(mousePos.x > hitbox.x && mousePos.x < hitbox.x + hitbox.w 
+	return(mousePos.x > hitbox.x && mousePos.x < hitbox.x + hitbox.w
 		&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
+	
+	/*if (this->parent == NULL)
+	{
+		return(mousePos.x > hitbox.x && mousePos.x < hitbox.x + hitbox.w
+			&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
+	}
+	else
+	{
+		return(mousePos.x > parent->hitbox.x + localHitbox.x && mousePos.x < parent->hitbox.x + parent->hitbox.w
+			&& mousePos.y > parent->hitbox.y + localHitbox.y && mousePos.y < parent->hitbox.y + parent->hitbox.h);
+	}*/
 }
 
 iPoint UI::GetMouseMotion() /*const*/
@@ -116,37 +173,55 @@ iPoint UI::GetMouseMotion() /*const*/
 	return mouseMotion;
 }
 
+// --- This method checks whether the focused element is the same as the element that called the method.
 bool UI::IsFocused() const
 {
 	return App->gui->focusedElement == this;
 }
 
-void UI::DragElement()
+// --- This method checks whether the element that called the method is the foremost element under the mouse.
+bool UI::IsForemostElement() const
 {
+	return App->gui->FirstElementUnderMouse() == this;
+}
+
+// --- This method checks whether or not the element that called the method fulfills the conditions to be dragged.
+bool UI::ElementCanBeDragged() const
+{
+	return (isDraggable && App->gui->FirstElementUnderMouse() == this);
+}
+
+// --- This method checks whetheror not the element that called the method has been clicked but not dragged anywhere.
+bool UI::ElementRemainedInPlace() const
+{
+	return (GetScreenPos() == initialPosition);
+}
+
+// --- Drags an element around taking into account where the mouse was and where it currently is.
+void UI::DragElement()
+{	
 	// --- Updating the UI Element's position when it is being dragged.
-	iPoint currentPos = position;
-	iPoint fastMouseMotion = { GetMouseMotion().x * 2, GetMouseMotion().y * 2 };
-	iPoint draggingPos = position + GetMouseMotion();
+	iPoint origin(0, 0);												//This prevents sending undragged elements to undesired places when passing from dragging one element to another as prevMousePos in undragged elements is (0,0).
 
-	if (prevMousePos != GetMousePos())
+	if (prevMousePos != GetMousePos() && prevMousePos != origin)
 	{
-		currentPos += GetMousePos() - prevMousePos;			//Check this, mouse is not at a fixed point, the UI Element moves too slow.
-
-		this->SetPosition(/*draggingPos*/ currentPos);
+		position += GetMousePos() - prevMousePos;						//Check this, mouse is not at a fixed point, the UI Element moves too slow.
+		SetScreenPos(position);
 	}
 
-	// --- Updating the UI Element's hitbox's rect when it is being dragged.
+	// --- Updating the UI Element's hitbox rect when it is being dragged.
 	SDL_Rect newPosRect = { position.x, position.y, rect.w, rect.h };
 
 	this->SetHitbox(newPosRect);
+
+	//iPoint draggingPos = position + GetMouseMotion();
 }
 
-void UI::CheckInput()
+// --- This method Checks if a UI Element has childs and updates them in case the UI Element (parent) has been moved/dragged.
+void UI::CheckElementChilds()
 {
-	return;
-}
-
-void UI::BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect)
-{
-	App->render->Blit(texture, x, y, rect, 0.0f);		//Setting the blit's speed argument to 0 will make the UI Element remain static in relation to the camera.
+	if (App->gui->ElementHasChilds(this))
+	{
+		App->gui->UpdateChilds(this);
+	}
 }
