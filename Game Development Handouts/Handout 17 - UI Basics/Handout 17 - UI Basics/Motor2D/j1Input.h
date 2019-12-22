@@ -68,6 +68,9 @@ public:
 	void GetMousePosition(int &x, int &y);
 	void GetMouseMotion(int& x, int& y);
 
+	// Text Input
+	void TextInput();
+
 private:
 	bool		windowEvents[WE_COUNT];
 	j1KeyState*	keyboard;
@@ -76,6 +79,7 @@ private:
 	int			mouse_motion_y;
 	int			mouse_x;
 	int			mouse_y;
+	p2SString	input_text2;
 };
 
 #endif // __j1INPUT_H__

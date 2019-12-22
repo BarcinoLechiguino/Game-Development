@@ -50,7 +50,7 @@ bool j1Scene::Start()
 	SDL_Rect winRect{ 0, 512, 483, 512 };
 
 	window = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, true, false, true, NULL);		//OnCallEvent Overlap
-	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect, true, false, false, NULL);
+	banner = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 300, 100, rect, true, false, false, window);
 
 	// TODO 4: Create the text "Hello World" as a UI element
 	SDL_Rect textHitbox{ 432, 75, 65, 20};
@@ -73,8 +73,8 @@ bool j1Scene::Start()
 	SDL_Rect buttonLabelHitbox{ 432, 75, 45, 18 };
 	p2SString buttonString = "BUTTON";
 
-	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, true, true, false, NULL, &idle, &hover, &clicked);
-	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, true, true, false, NULL, &idle, &hover, &clicked);
+	button = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 205, true, true, false, window, &idle, &hover, &clicked);
+	escButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 280, true, true, false, window, &idle, &hover, &clicked);
 	
 	draggableButton = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 425, true, true, true, window, &idle, &hover, &clicked);
 	buttonLabel = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 442, 450, buttonLabelHitbox, font, fontRgb, true, false, false, draggableButton, &buttonString);
@@ -82,9 +82,19 @@ bool j1Scene::Start()
 	//draggableButton2 = (UI_Button*)App->gui->CreateButton(UI_Element::BUTTON, 350, 425, true, true, true, window, &idle, &hover, &clicked);
 
 	//Creating a text box:
-	SDL_Rect inputBoxBackground = { 488, 569, 344, 61 };
+	SDL_Rect inputBoxBg		= { 488, 569, 344, 61 };
+	SDL_Rect inputBoxTxt	= { 0, 0, 325, 30 };
+	SDL_Rect textCursor		= {0, 0, 3, 40};
 
-	inputBox = (UI_InputBox*)App->gui->CreateInputBox(UI_Element::INPUTBOX, 295, 355, inputBoxBackground, font, fontRgb, true, true, false, window, &bufferString);
+	SDL_Color fontColour	= { 255, 255, 255, 255 };
+	SDL_Color cursorColour	= { 255, 255, 255, 255 };
+
+	p2SString defaultTxt	= "Input Text Here";
+	_TTF_Font* inputFont	= App->font->Load("fonts/open_sans/OpenSans-SemiboldItalic.ttf", 30);
+	iPoint textOffset		= { 10, 9 };
+
+	inputBox = (UI_InputBox*)App->gui->CreateInputBox(UI_Element::INPUTBOX, 295, 355, inputBoxBg, inputFont, fontColour, textCursor, cursorColour, textOffset,
+													true, true, false, window, &defaultTxt);
 
 	return true;
 }

@@ -102,6 +102,11 @@ bool j1Gui::PostUpdate()
 			break;
 
 		case UI_Element::INPUTBOX:
+			if (element_iterator->data->isVisible)
+			{
+				element_iterator->data->Draw();
+			}
+			
 			break;
 		}
 	}
@@ -191,11 +196,12 @@ UI* j1Gui::CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bo
 	return elem;
 }
 
-UI* j1Gui::CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* string)
+UI* j1Gui::CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, SDL_Rect cursor, SDL_Color cursorColour, iPoint textOffset, 
+					bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* string)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_InputBox(element, x, y, hitbox, font, fontColour, isVisible, isInteractible, isDraggable, parent, string);
+	elem = new UI_InputBox(element, x, y, hitbox, font, fontColour, cursor, cursorColour, textOffset, isVisible, isInteractible, isDraggable, parent, string);
 
 	if (elem != nullptr)
 	{
@@ -230,7 +236,7 @@ void j1Gui::OnEventCall(UI* element, UI_Event ui_event)
 } 
 
 // --- Method to return the foremost element of the UI. (First in inverse order of draw)
-UI* j1Gui::FirstElementUnderMouse()
+UI* j1Gui::FirstElementUnderMouse() const
 {
 	UI* firstElement = nullptr;
 
@@ -292,7 +298,7 @@ void j1Gui::PassFocus()
 }
 
 // --- Method that returns true if the passed element is a BUTTON or a SCROLLBAR
-bool j1Gui::ElementCanBeFocused(UI* focusElement)
+bool j1Gui::ElementCanBeFocused(UI* focusElement) const
 {
 	bool ret = false;
 
@@ -310,7 +316,7 @@ bool j1Gui::ElementCanBeFocused(UI* focusElement)
 
 // --------------------------- PARENT/CHILD UI ELEMENTS METHODS --------------------------
 // --- 
-bool j1Gui::ElementHasChilds(UI* parentElement)
+bool j1Gui::ElementHasChilds(UI* parentElement) const
 {
 	bool ret = false;
 	

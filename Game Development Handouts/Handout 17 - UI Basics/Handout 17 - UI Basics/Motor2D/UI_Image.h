@@ -6,6 +6,7 @@
 class UI_Image : public UI
 {
 public:
+	UI_Image();
 	UI_Image(UI_Element element, int x, int y, SDL_Rect hitbox, bool isVisible = true, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
 
 	bool Draw();

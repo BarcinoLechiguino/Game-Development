@@ -6,6 +6,7 @@
 class UI_Button : public UI
 {
 public:
+	UI_Button();
 	UI_Button(UI_Element element, int x, int y, bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr,
 			SDL_Rect* idle = nullptr, SDL_Rect* hover = nullptr, SDL_Rect* clicked = nullptr);
 

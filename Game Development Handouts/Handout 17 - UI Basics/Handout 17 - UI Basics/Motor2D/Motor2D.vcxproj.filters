@@ -70,6 +70,9 @@
     <ClCompile Include="UI_InputBox.cpp">
       <Filter>Desenvolupament  ========\Modules\Gui</Filter>
     </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Desenvolupament  ========\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="j1Window.h">
@@ -158,6 +161,9 @@
     </ClInclude>
     <ClInclude Include="UI_InputBox.h">
       <Filter>Desenvolupament  ========\Modules\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Desenvolupament  ========\Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

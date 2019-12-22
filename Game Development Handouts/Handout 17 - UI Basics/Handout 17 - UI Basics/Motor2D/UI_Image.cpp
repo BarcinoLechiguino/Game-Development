@@ -33,6 +33,9 @@ UI_Image::UI_Image(UI_Element element, int x, int y, SDL_Rect hitbox, bool isVis
 	}
 }
 
+UI_Image::UI_Image() : UI()	//Default Constructor
+{}
+
 bool UI_Image::Draw()
 {
 	CheckInput();
@@ -60,12 +63,17 @@ void UI_Image::CheckInput()
 		{
 			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)				//If the mouse is on the image and the left mouse button is pressed.
 			{
-				prevMousePos = GetMousePos();														//Sets the initial position where the mouse was before starting to drag the element.
+				if (IsForemostElement())
+				{
+					prevMousePos = GetMousePos();													//Sets the initial position where the mouse was before starting to drag the element.
+					initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.
+					isDragTarget = true;															//Sets the element as the drag target.
+				}
 			}
 
 			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)			//If the mouse is on the image and the left mouse button is continuously pressed.
 			{
-				if (IsForemostElement())															//If it is the first element under the mouse (in inverse order of draw)
+				if (IsForemostElement());															//If it is the first element under the mouse (in inverse order of draw)
 				{
 					ui_event = UI_Event::CLICKED;
 					
@@ -77,6 +85,14 @@ void UI_Image::CheckInput()
 
 						prevMousePos = GetMousePos();												//prevMousePos is set with the new position where the mouse is after dragging for a frame.
 					}
+				}
+			}
+
+			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)
+			{
+				if (/*IsForemostElement() &&*/ isDragTarget)
+				{
+					isDragTarget = false;
 				}
 			}
 

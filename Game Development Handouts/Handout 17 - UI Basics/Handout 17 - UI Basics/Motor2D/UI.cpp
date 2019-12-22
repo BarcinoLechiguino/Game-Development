@@ -16,7 +16,11 @@ UI::UI(UI_Element element, int x, int y, SDL_Rect rect, UI* parent) :
 {
 	//hitbox = {GetPosition().x, GetPosition().y, GetRect().w, GetRect().h };
 	hitbox = {position.x, position.y, this->rect.w, this->rect.h };
-	//listener = App->gui;
+}
+
+UI::UI()		//Default Constructor
+{
+
 }
 
 UI::~UI()
@@ -188,7 +192,7 @@ bool UI::IsForemostElement() const
 // --- This method checks whether or not the element that called the method fulfills the conditions to be dragged.
 bool UI::ElementCanBeDragged() const
 {
-	return (isDraggable && App->gui->FirstElementUnderMouse() == this);
+	return (isDraggable && isDragTarget && App->gui->FirstElementUnderMouse() == this);
 }
 
 // --- This method checks whetheror not the element that called the method has been clicked but not dragged anywhere.

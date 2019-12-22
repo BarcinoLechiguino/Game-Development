@@ -48,6 +48,9 @@ UI_Button::UI_Button(UI_Element element, int x, int y, bool isVisible, bool isIn
 	}
 }
 
+UI_Button::UI_Button() : UI()
+{}
+
 bool UI_Button::Draw()
 {
 	CheckInput();															//Calling "Update" and Draw at the same time. 
@@ -83,8 +86,12 @@ void UI_Button::CheckInput()
 		// --- CLICKED EVENT (Left Click)
 		if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)			//If the mouse is on the button and the left mouse button is clicked.
 		{
-			prevMousePos = GetMousePos();													//Sets the previous mouse position.
-			initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.
+			if (IsForemostElement())
+			{
+				prevMousePos = GetMousePos();													//Sets the previous mouse position.
+				initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.	
+				isDragTarget = true;														//
+			}
 		}
 
 		if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the button and the left mouse button is pressed continuously.
@@ -111,6 +118,11 @@ void UI_Button::CheckInput()
 			if (IsForemostElement() && ElementRemainedInPlace())							//If the UI Text element is the foremost element under the mouse and has not been dragged. 
 			{
 				ui_event = UI_Event::UNCLICKED;
+			}
+
+			if (isDragTarget)
+			{
+				isDragTarget = false;
 			}
 			
 			//currentRect = clicked;														//Button Clicked sprite.

@@ -52,7 +52,8 @@ public:
 	UI_Button*		draggableButton2;
 	UI_InputBox*	inputBox;
 	UI_Image*		background;
-	UI_Text *		inputText;
+	UI_Text*		inputText;
+	UI_Image*		cursor;
 
 private:
 	SDL_Texture* debug_tex;

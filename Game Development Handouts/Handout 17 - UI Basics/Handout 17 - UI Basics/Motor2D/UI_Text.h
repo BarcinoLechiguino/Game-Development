@@ -8,13 +8,18 @@
 class UI_Text : public UI
 {
 public:
-
+	UI_Text();
 	UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible = true, bool isInteractible = false, bool isDraggable = false,
 		UI* parent = nullptr, p2SString* string = nullptr, p2SString* hoverString = nullptr, p2SString* leftClickString = nullptr, p2SString* rightClickString = nullptr);
 
 	bool Draw();
 
 	void CheckInput();
+
+	SDL_Texture* GetCurrentStringTex();
+	//void SetCurrentStringTex(SDL_Texture* newTex);
+	void SetCurrentStringTex(p2SString* string);
+	void DeleteCurrentStringTex();
 
 private:
 	p2SString*		string;				//String of the UI Text element
@@ -24,6 +29,9 @@ private:
 	SDL_Texture*	hoverTex;			//Texture for the hover state of the text.
 	SDL_Texture*	leftClickTex;		//Texture for the left-Clicked state of the text.
 	SDL_Texture*	rightClickTex;		//Texture for the right-Clicked state of the text.
+
+	SDL_Texture*	inputTextTex;		//Texture that is constantly being refreshed. If text is inputted, this texture will show the text input on screen.
+
 	SDL_Texture*	currentTex;			//Current texture to be blitted. Depends on the input the UI Text element receives.
 };
 

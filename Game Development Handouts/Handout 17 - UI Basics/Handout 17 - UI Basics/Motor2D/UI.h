@@ -34,8 +34,9 @@ enum class UI_Event
 class UI
 {
 public:
-
 	UI(UI_Element element, int x, int y, SDL_Rect rect, UI* parent = nullptr);
+
+	UI();
 
 	virtual ~UI();
 
@@ -82,6 +83,10 @@ public:
 	bool		isInteractible;						//Keeps track of whether a UI Element is interactible or not.
 	bool		isDraggable;						//Keeps track of whether a UI Element is draggable or not.
 	iPoint		prevMousePos;						//Keeps track of the previous position of the mouse in the screen before starting to drag anything.
+
+	//UI*		dragTarget;							//Keeps track of which element is being dragged to avoid dragging unwanted elements. Same as isDragTarget. Maybe move to j1Gui?
+	bool		isDragTarget;						//Keeps track whether or not an element susceptible to be dragged is the element wanted to be dragged. Set on KEY_DOWN / KEY_UP.
+													//Used to avoid dragging the window after moving the mouse outside an element while keeping the mouse button clicked (button to window...).
 
 	UI_Event	ui_event;							//Defines which events will the UI_Elements send when interacted with.
 	UI_Element	element;							//Enum that defines which kind of element a UI element is.

@@ -8,7 +8,7 @@
 //This element can receive up to 5 different strings (one for each possible event).
 UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* string,
 			p2SString* hoverString, p2SString* leftClickString, p2SString* rightClickString): UI(UI_Element::TEXT, x, y, hitbox, parent),
-			idleTex(nullptr), hoverTex(nullptr), leftClickTex(nullptr), rightClickTex(nullptr)
+			idleTex(nullptr), hoverTex(nullptr), leftClickTex(nullptr), rightClickTex(nullptr), inputTextTex (nullptr)
 {	
 	//Loading all strings. Print() generates a texture with the given string with the a font and a colour.
 	if (string != NULL)
@@ -31,6 +31,9 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 		rightClickTex = App->font->Print(rightClickString->GetString(), fontColour, font);	//Crates the texture for the right_clicked state.
 	}
 
+	this->font = font;
+	this->font_colour = fontColour;
+	
 	// --- Setting this element's flags to the ones passed as argument.
 	this->isVisible = isVisible;
 	this->isInteractible = isInteractible;
@@ -53,11 +56,17 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 	}
 }
 
+UI_Text::UI_Text() : UI ()		//Default Constructor
+{}
+
 bool UI_Text::Draw()
 {	
 	CheckInput();
 
-	BlitElement(currentTex, GetScreenPos().x, GetScreenPos().y, NULL);
+	if (currentTex != nullptr)
+	{
+		BlitElement(currentTex, GetScreenPos().x, GetScreenPos().y, NULL);
+	}
 
 	return true;
 }
@@ -67,21 +76,34 @@ void UI_Text::CheckInput()
 {	
 	if (isVisible)																					//If the Text element is visible.
 	{
+		//if (/*IsFocused()*/ ui_event == UI_Event::FOCUSED)
+		//{
+		//	return;
+		//}
+		
 		GetMousePos();																				//Gets the mouse's position on the screen.
 
 		bool hovered = CheckMousePos();																//Sets a buffer with the bool returned from CheckMousePos(). Done for readability.
 
 		// --- IDLE EVENT
-		if (!hovered)																				//If the mouse is not on the text.
+		if (!hovered && ui_event != UI_Event::FOCUSED)												//If the mouse is not on the text.
 		{
 			ui_event = UI_Event::IDLE;
-			currentTex = idleTex;																	//Blit the idle text.
+
+			if (inputTextTex == NULL)																//This sometimes crashes the Query_texture.
+			{
+				currentTex = idleTex;																//Blit the idle text.
+			}
+			else
+			{
+				currentTex = inputTextTex;
+			}
 		}
 
 		if (isInteractible)																			//If the Text element is interactible.
 		{
 			// --- HOVER EVENT
-			if ((hovered && IsForemostElement()) || IsFocused())									//If the mouse is on the text.
+			if ((hovered && IsForemostElement()) /*|| IsFocused()*/)								//If the mouse is on the text.
 			{
 				ui_event = UI_Event::HOVER;
 
@@ -94,8 +116,12 @@ void UI_Text::CheckInput()
 			// --- CLICKED EVENT (Left Click)
 			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)				//If the mouse is on the text and the left mouse button is pressed.
 			{
-				prevMousePos = GetMousePos();														//Sets the initial position where the mouse was before starting to drag the element.
-				initialPosition = GetScreenPos();													//Sets initialPosition with the current position at mouse KEY_DOWN.
+				if (IsForemostElement())
+				{
+					prevMousePos = GetMousePos();													//Sets the initial position where the mouse was before starting to drag the element.
+					initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.
+					isDragTarget = true;															//Sets the element as the drag target.
+				}
 			}
 
 			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)			//If the mouse is on the text and the left mouse button is being pressed.
@@ -128,6 +154,11 @@ void UI_Text::CheckInput()
 					ui_event = UI_Event::UNCLICKED;
 				}
 
+				if (isDragTarget)
+				{
+					isDragTarget = false;
+				}
+
 				//currentRect = clicked;															//Button Hover sprite.
 			}
 
@@ -149,4 +180,31 @@ void UI_Text::CheckInput()
 		}
 		
 	}
+}
+
+SDL_Texture* UI_Text::GetCurrentStringTex()
+{
+	return currentTex;
+}
+
+void UI_Text::SetCurrentStringTex(p2SString* string)
+{
+	if (inputTextTex == NULL)
+	{
+		inputTextTex = App->font->Print(string->GetString(), font_colour, font);
+	}
+	else
+	{
+		App->tex->UnLoad(inputTextTex);
+		inputTextTex = App->font->Print(string->GetString(), font_colour, font);
+	}
+
+	currentTex = inputTextTex;
+	//currentTex = App->font->Print(string->GetString(), font_colour, font);
+	//currentTex = newTex;
+}
+
+void UI_Text::DeleteCurrentStringTex()
+{
+	currentTex = NULL;
 }

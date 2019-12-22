@@ -3,8 +3,11 @@
 #include "j1App.h"
 #include "j1Input.h"
 #include "j1Window.h"
+#include "j1Gui.h"
+#include "j1Scene.h"
 #include "SDL/include/SDL.h"
 
+#define _CRT_SECURE_NO_WARNINGS
 #define MAX_KEYS 300
 
 j1Input::j1Input() : j1Module()
@@ -79,6 +82,8 @@ bool j1Input::PreUpdate()
 			mouse_buttons[i] = KEY_IDLE;
 	}
 
+	TextInput();															//Enable/Disable text input depending on whether a INPUTBOX UI Element has been focused.
+
 	while(SDL_PollEvent(&event) != 0)
 	{
 		switch(event.type)
@@ -105,6 +110,35 @@ bool j1Input::PreUpdate()
 					windowEvents[WE_SHOW] = true;
 					break;
 				}
+			break;
+
+			case SDL_TEXTINPUT:
+
+				input_text2 += event.text.text;
+				LOG("Input String %s", input_text2.GetString());
+
+				//for (int i = 0; i < MAX_KEYS; ++i)
+				//{
+				//	if (keys[i] == 1)
+				//	{
+				//		/*strcat_s(input_text, 1, event.text.text);
+				//		input_text = event.text.text;
+				//		LOG("Input String %s", input_text);
+				//		
+				//		if (keyboard[i] == KEY_DOWN)
+				//		{
+				//			input_text = event.text.text;
+				//			LOG("Input String %s", input_text);
+				//		}*/
+				//	}
+				//}
+
+				break;
+			
+			case SDL_TEXTEDITING:
+				//composition = event.edit.text;
+				//cursor = event.edit.text;
+				//selection_len = event.edit.length;
 			break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -155,4 +189,22 @@ void j1Input::GetMouseMotion(int& x, int& y)
 {
 	x = mouse_motion_x;
 	y = mouse_motion_y;
+}
+
+void j1Input::TextInput()
+{	
+	if (App->gui->focusedElement != nullptr)
+	{
+		if (App->gui->focusedElement->element == UI_Element::INPUTBOX)
+		{
+			SDL_StartTextInput();
+		}
+		else
+		{
+			SDL_StopTextInput();
+		}
+	}
+
+	App->gui->inputString = input_text2;
+	LOG("inputString %s", App->gui->inputString.GetString());
 }
