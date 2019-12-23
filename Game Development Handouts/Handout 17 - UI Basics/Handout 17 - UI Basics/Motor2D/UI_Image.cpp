@@ -48,47 +48,45 @@ bool UI_Image::Draw()
 // --- This Method checks for any inputs that the UI_Image element might have received and "returns" an event.
 void UI_Image::CheckInput()
 {
-	if (isVisible)																					//If the image element is visible
+	if (isVisible)																				//If the image element is visible
 	{
-		GetMousePos();																				//Gets the mouse's position on the screen.
+		GetMousePos();																			//Gets the mouse's position on the screen.
 
-		bool hovered = CheckMousePos();																//Sets a buffer with the bool returned from CheckMousePos(). Done for readability.
-
-		if (!hovered)																				//If the mouse is not on the image.
+		if (!IsHovered())																		//If the mouse is not on the image.
 		{
 			ui_event = UI_Event::IDLE;
 		}
 
-		if (isDraggable)																			//If the image element is draggable.
+		if (isDraggable)																		//If the image element is draggable.
 		{
-			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)				//If the mouse is on the image and the left mouse button is pressed.
+			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)		//If the mouse is on the image and the left mouse button is pressed.
 			{
 				if (IsForemostElement())
 				{
-					prevMousePos = GetMousePos();													//Sets the initial position where the mouse was before starting to drag the element.
-					initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.
-					isDragTarget = true;															//Sets the element as the drag target.
+					prevMousePos = GetMousePos();												//Sets the initial position where the mouse was before starting to drag the element.
+					initialPosition = GetScreenPos();											//Sets initialPosition with the current position at mouse KEY_DOWN.
+					isDragTarget = true;														//Sets the element as the drag target.
 				}
 			}
 
-			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)			//If the mouse is on the image and the left mouse button is continuously pressed.
+			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)	//If the mouse is on the image and the left mouse button is continuously pressed.
 			{
-				if (IsForemostElement());															//If it is the first element under the mouse (in inverse order of draw)
+				if (IsForemostElement());														//If it is the first element under the mouse (in inverse order of draw)
 				{
 					ui_event = UI_Event::CLICKED;
 					
-					if (ElementCanBeDragged())														//If the UI Image element is draggable and is the foremost element under the mouse.
+					if (ElementCanBeDragged())													//If the UI Image element is draggable and is the foremost element under the mouse.
 					{
-						DragElement();																//The element is dragged around.
+						DragElement();															//The element is dragged around.
 
-						CheckElementChilds();														//Checks if this image element has any childs and updates them in case the image element (parent) has had any change in position.
+						CheckElementChilds();													//Checks if this image element has any childs and updates them in case the image element (parent) has had any change in position.
 
-						prevMousePos = GetMousePos();												//prevMousePos is set with the new position where the mouse is after dragging for a frame.
+						prevMousePos = GetMousePos();											//prevMousePos is set with the new position where the mouse is after dragging for a frame.
 					}
 				}
 			}
 
-			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)
+			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)
 			{
 				if (/*IsForemostElement() &&*/ isDragTarget)
 				{
@@ -96,9 +94,9 @@ void UI_Image::CheckInput()
 				}
 			}
 
-			if (isInteractible)																		//If the image element is interactible.
+			if (isInteractible)																	//If the image element is interactible.
 			{
-				listener->OnEventCall(this, ui_event);												//The listener call the OnEventCall() method passing this UI_Image and it's event as arguments.
+				listener->OnEventCall(this, ui_event);											//The listener call the OnEventCall() method passing this UI_Image and it's event as arguments.
 			}
 		}
 	}

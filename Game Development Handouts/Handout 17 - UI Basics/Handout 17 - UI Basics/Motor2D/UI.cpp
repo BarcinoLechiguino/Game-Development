@@ -153,21 +153,10 @@ iPoint UI::GetMousePos() /*const*/
 	return mousePos;
 }
 
-bool UI::CheckMousePos()
+bool UI::CheckMousePos() const
 {
 	return(mousePos.x > hitbox.x && mousePos.x < hitbox.x + hitbox.w
 		&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
-	
-	/*if (this->parent == NULL)
-	{
-		return(mousePos.x > hitbox.x && mousePos.x < hitbox.x + hitbox.w
-			&& mousePos.y > hitbox.y && mousePos.y < hitbox.y + hitbox.h);
-	}
-	else
-	{
-		return(mousePos.x > parent->hitbox.x + localHitbox.x && mousePos.x < parent->hitbox.x + parent->hitbox.w
-			&& mousePos.y > parent->hitbox.y + localHitbox.y && mousePos.y < parent->hitbox.y + parent->hitbox.h);
-	}*/
 }
 
 iPoint UI::GetMouseMotion() /*const*/
@@ -175,6 +164,12 @@ iPoint UI::GetMouseMotion() /*const*/
 	App->input->GetMouseMotion(mouseMotion.x, mouseMotion.y);
 
 	return mouseMotion;
+}
+
+// --- This method checks whether a UI Element is being hovered (The mouse is inside it's hitbox).
+bool UI::IsHovered() const
+{
+	return CheckMousePos();
 }
 
 // --- This method checks whether the focused element is the same as the element that called the method.

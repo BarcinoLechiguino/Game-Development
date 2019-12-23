@@ -63,59 +63,57 @@ bool UI_Button::Draw()
 // --- This Method checks for any inputs that the UI_Text element might have received and "returns" an event.
 void UI_Button::CheckInput()
 {
-	if (isVisible)																			//If the Button element is visible.
+	if (isVisible)																				//If the Button element is visible.
 	{
-		GetMousePos();																		//Gets the mouse's position on the screen.
-
-		bool hovered = CheckMousePos();														//Sets a buffer with the bool returned from CheckMousePos(). Done for readability.
+		GetMousePos();																			//Gets the mouse's position on the screen.
 
 		// --- IDLE EVENT
-		if (!hovered)																		//If the mouse is not on the button.
+		if (!IsHovered())																		//If the mouse is not on the button.
 		{
 			ui_event = UI_Event::IDLE;
-			currentRect = idle;																//Button Idle sprite.
+			currentRect = idle;																	//Button Idle sprite.
 		}
 
 		// --- HOVER EVENT
-		if ((hovered && IsForemostElement()) || IsFocused())								//If the mouse is on the button.
+		if ((IsHovered() && IsForemostElement()) || IsFocused())								//If the mouse is on the button.
 		{
-			ui_event = UI_Event::HOVER;														//Button Hover sprite.
+			ui_event = UI_Event::HOVER;															//Button Hover sprite.
 			currentRect = hover;
 		}
 
 		// --- CLICKED EVENT (Left Click)
-		if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)			//If the mouse is on the button and the left mouse button is clicked.
+		if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)			//If the mouse is on the button and the left mouse button is clicked.
 		{
 			if (IsForemostElement())
 			{
 				prevMousePos = GetMousePos();													//Sets the previous mouse position.
 				initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.	
-				isDragTarget = true;														//
+				isDragTarget = true;															//
 			}
 		}
 
-		if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the button and the left mouse button is pressed continuously.
+		if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the button and the left mouse button is pressed continuously.
 		{
-			if (IsForemostElement())														//If the UI Text element is the foremost element under the mouse. 
+			if (IsForemostElement())															//If the UI Text element is the foremost element under the mouse. 
 			{
 				ui_event = UI_Event::CLICKED;
-				currentRect = clicked;														//Button Clicked sprite is maintained.
+				currentRect = clicked;															//Button Clicked sprite is maintained.
 
-				if (ElementCanBeDragged())													//If the UI Button element is draggable and is the foremost element under the mouse.
+				if (ElementCanBeDragged())														//If the UI Button element is draggable and is the foremost element under the mouse.
 				{
-					DragElement();															//The UI Button element is dragged.
+					DragElement();																//The UI Button element is dragged.
 
-					CheckElementChilds();													//Checks if this UI Button has any childs and updates them in consequence.
+					CheckElementChilds();														//Checks if this UI Button has any childs and updates them in consequence.
 
-					prevMousePos = GetMousePos();											//Updates prevMousePos so it can be dragged again next frame.
+					prevMousePos = GetMousePos();												//Updates prevMousePos so it can be dragged again next frame.
 				}
 			}
 		}
 
 		// --- UNCLICKED EVENT (Left Click)
-		if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)	//If the mouse is on the button and the left mouse button is released.
+		if (IsHovered() == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)	//If the mouse is on the button and the left mouse button is released.
 		{
-			if (IsForemostElement() && ElementRemainedInPlace())							//If the UI Text element is the foremost element under the mouse and has not been dragged. 
+			if (IsForemostElement() && ElementRemainedInPlace())								//If the UI Text element is the foremost element under the mouse and has not been dragged. 
 			{
 				ui_event = UI_Event::UNCLICKED;
 			}
@@ -125,9 +123,9 @@ void UI_Button::CheckInput()
 				isDragTarget = false;
 			}
 			
-			//currentRect = clicked;														//Button Clicked sprite.
+			//currentRect = clicked;															//Button Clicked sprite.
 		}
 
-		listener->OnEventCall(this, ui_event);												//This UI element's pointer and ui_event are passed as arguments to the OnEventCall() function.
+		listener->OnEventCall(this, ui_event);													//This UI element's pointer and ui_event are passed as arguments to the OnEventCall() function.
 	}
 }

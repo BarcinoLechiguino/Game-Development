@@ -10,6 +10,13 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 			p2SString* hoverString, p2SString* leftClickString, p2SString* rightClickString): UI(UI_Element::TEXT, x, y, hitbox, parent),
 			idleTex(nullptr), hoverTex(nullptr), leftClickTex(nullptr), rightClickTex(nullptr), inputTextTex (nullptr)
 {	
+	// --- Setting this element's flags to the ones passed as argument.
+	this->isVisible = isVisible;
+	this->isInteractible = isInteractible;
+	this->isDraggable = isDraggable;
+	prevMousePos = iPoint(0, 0);
+	// ---------------------------------------------------------------
+
 	//Loading all strings. Print() generates a texture with the given string with the a font and a colour.
 	if (string != NULL)
 	{
@@ -30,15 +37,7 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 	{
 		rightClickTex = App->font->Print(rightClickString->GetString(), fontColour, font);	//Crates the texture for the right_clicked state.
 	}
-
-	this->font = font;
-	this->font_colour = fontColour;
-	
-	// --- Setting this element's flags to the ones passed as argument.
-	this->isVisible = isVisible;
-	this->isInteractible = isInteractible;
-	this->isDraggable = isDraggable;
-	prevMousePos = iPoint(0, 0);
+	// ----------------------------------------------------------------------------------------------------
 
 	if (this->isInteractible)												//If the Image element is interactible.
 	{
@@ -54,6 +53,9 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 
 		SetLocalPos(localPos);												//Sets the local poisition of this Text Element to the given localPos.
 	}
+
+	this->font = font;
+	this->font_colour = fontColour;
 }
 
 UI_Text::UI_Text() : UI ()		//Default Constructor
@@ -74,25 +76,18 @@ bool UI_Text::Draw()
 // --- This Method checks for any inputs that the UI_Text element might have received and "returns" an event.
 void UI_Text::CheckInput()
 {	
-	if (isVisible)																					//If the Text element is visible.
-	{
-		//if (/*IsFocused()*/ ui_event == UI_Event::FOCUSED)
-		//{
-		//	return;
-		//}
-		
-		GetMousePos();																				//Gets the mouse's position on the screen.
-
-		bool hovered = CheckMousePos();																//Sets a buffer with the bool returned from CheckMousePos(). Done for readability.
+	if (isVisible)																						//If the Text element is visible.
+	{	
+		GetMousePos();																					//Gets the mouse's position on the screen.
 
 		// --- IDLE EVENT
-		if (!hovered && ui_event != UI_Event::FOCUSED)												//If the mouse is not on the text.
+		if (!IsHovered() && ui_event != UI_Event::FOCUSED)												//If the mouse is not on the text.
 		{
 			ui_event = UI_Event::IDLE;
 
-			if (inputTextTex == NULL)																//This sometimes crashes the Query_texture.
+			if (inputTextTex == NULL)																	//This sometimes crashes the Query_texture.
 			{
-				currentTex = idleTex;																//Blit the idle text.
+				currentTex = idleTex;																	//Blit the idle text.
 			}
 			else
 			{
@@ -100,56 +95,61 @@ void UI_Text::CheckInput()
 			}
 		}
 
-		if (isInteractible)																			//If the Text element is interactible.
+		/*if (ui_event == UI_Event::FOCUSED)
+		{
+			currentTex = inputTextTex;
+		}*/
+
+		if (isInteractible)																				//If the Text element is interactible.
 		{
 			// --- HOVER EVENT
-			if ((hovered && IsForemostElement()) /*|| IsFocused()*/)								//If the mouse is on the text.
+			if ((IsHovered() && IsForemostElement()) /*|| IsFocused()*/)								//If the mouse is on the text.
 			{
 				ui_event = UI_Event::HOVER;
 
 				if (hoverTex != NULL)
 				{
-					currentTex = hoverTex;															//Blit the hover text.
+					currentTex = hoverTex;																//Blit the hover text.
 				}
 			}
 
 			// --- CLICKED EVENT (Left Click)
-			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)				//If the mouse is on the text and the left mouse button is pressed.
+			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)				//If the mouse is on the text and the left mouse button is pressed.
 			{
 				if (IsForemostElement())
 				{
-					prevMousePos = GetMousePos();													//Sets the initial position where the mouse was before starting to drag the element.
-					initialPosition = GetScreenPos();												//Sets initialPosition with the current position at mouse KEY_DOWN.
-					isDragTarget = true;															//Sets the element as the drag target.
+					prevMousePos = GetMousePos();														//Sets the initial position where the mouse was before starting to drag the element.
+					initialPosition = GetScreenPos();													//Sets initialPosition with the current position at mouse KEY_DOWN.
+					isDragTarget = true;																//Sets the element as the drag target.
 				}
 			}
 
-			if (hovered && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)			//If the mouse is on the text and the left mouse button is being pressed.
+			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)			//If the mouse is on the text and the left mouse button is being pressed.
 			{
-				if (IsForemostElement())															//If the UI Text element is the foremost element under the mouse. 
+				if (IsForemostElement())																//If the UI Text element is the foremost element under the mouse. 
 				{
 					ui_event = UI_Event::CLICKED;
 
 					if (leftClickTex != NULL)
 					{
-						currentTex = leftClickTex;													//Blit the left click text.
+						currentTex = leftClickTex;														//Blit the left click text.
 					}
 
-					if (ElementCanBeDragged())														//If the UI Text element is draggable and is the foremost element under the mouse. 
+					if (ElementCanBeDragged())															//If the UI Text element is draggable and is the foremost element under the mouse. 
 					{
-						DragElement();																//The Text element is dragged.
+						DragElement();																	//The Text element is dragged.
+						
+						CheckElementChilds();															//Checks if this Text element has any childs and updates them in consequence.
 
-						CheckElementChilds();														//Checks if this Text element has any childs and updates them in consequence.
-
-						prevMousePos = GetMousePos();												//Updates prevMousePos so it can be dragged again next frame.
+						prevMousePos = GetMousePos();													//Updates prevMousePos so it can be dragged again next frame.
 					}
 				}
 			}
 
 			// --- UNCLICKED EVENT (Left Click)
-			if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)		//If the mouse is on the text and the left mouse button is released.
+			if (IsHovered() == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)		//If the mouse is on the text and the left mouse button is released.
 			{
-				if (IsForemostElement() && ElementRemainedInPlace())								//If the UI Text element is the foremost element under the mouse and has not been dragged. 
+				if (IsForemostElement() && ElementRemainedInPlace())									//If the UI Text element is the foremost element under the mouse and has not been dragged. 
 				{
 					ui_event = UI_Event::UNCLICKED;
 				}
@@ -159,24 +159,24 @@ void UI_Text::CheckInput()
 					isDragTarget = false;
 				}
 
-				//currentRect = clicked;															//Button Hover sprite.
+				//currentRect = clicked;																//Button Hover sprite.
 			}
 
 			// --- CLICKED EVENT (Right Click)
-			if (hovered == true && App->input->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_DOWN)	//If the mouse is on the button and the right mouse button is pressed.
+			if (IsHovered() == true && App->input->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_DOWN)	//If the mouse is on the button and the right mouse button is pressed.
 			{
-				if (IsForemostElement())															//If the UI Text element is the foremost element under the mouse. 
+				if (IsForemostElement())																//If the UI Text element is the foremost element under the mouse. 
 				{
 					ui_event = UI_Event::CLICKED;
 
 					if (rightClickTex != NULL)
 					{
-						currentTex = rightClickTex;													//Blit the right click text.
+						currentTex = rightClickTex;														//Blit the right click text.
 					}
 				}
 			}
 
-			listener->OnEventCall(this, ui_event);													//The listener call the OnEventCall() method passing this UI_Text and it's event as arguments.
+			listener->OnEventCall(this, ui_event);														//The listener call the OnEventCall() method passing this UI_Text and it's event as arguments.
 		}
 		
 	}
@@ -187,24 +187,53 @@ SDL_Texture* UI_Text::GetCurrentStringTex()
 	return currentTex;
 }
 
-void UI_Text::SetCurrentStringTex(p2SString* string)
+void UI_Text::DeleteCurrentStringTex()
+{
+	currentTex = NULL;
+}
+
+// ----------------------------------------- INPUT TEXT METHODS -----------------------------------------
+p2SString* UI_Text::GetPreviousInputString()
+{
+	return previousInputString;
+}
+
+void UI_Text::SetPreviousInputString(p2SString* newString)
+{
+	previousInputString = newString;
+}
+
+void UI_Text::SetInputStringTex(p2SString* newString)
 {
 	if (inputTextTex == NULL)
 	{
-		inputTextTex = App->font->Print(string->GetString(), font_colour, font);
+		inputTextTex = App->font->Print(newString->GetString(), font_colour, font);
+		previousInputString = newString;
 	}
 	else
 	{
 		App->tex->UnLoad(inputTextTex);
-		inputTextTex = App->font->Print(string->GetString(), font_colour, font);
+		inputTextTex = App->font->Print(newString->GetString(), font_colour, font);
+		previousInputString = newString;
 	}
 
 	currentTex = inputTextTex;
-	//currentTex = App->font->Print(string->GetString(), font_colour, font);
-	//currentTex = newTex;
 }
 
-void UI_Text::DeleteCurrentStringTex()
+// --- Input Text passed as char.
+void UI_Text::RefreshCharTextInput(const char* newString)
 {
-	currentTex = NULL;
+	if (inputTextTex == NULL)
+	{
+		inputTextTex = App->font->Print(newString, font_colour, font);
+		//previousInputString = newString;
+	}
+	else
+	{
+		App->tex->UnLoad(inputTextTex);
+		inputTextTex = App->font->Print(newString, font_colour, font);
+		//previousInputString = newString;
+	}
+
+	currentTex = inputTextTex;
 }

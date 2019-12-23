@@ -145,7 +145,8 @@ bool j1Render::Blit(SDL_Texture* texture, int x, int y, const SDL_Rect* section,
 	}
 	else
 	{
-		SDL_QueryTexture(texture, NULL, NULL, &rect.w, &rect.h);
+		if (texture != NULL)
+			SDL_QueryTexture(texture, NULL, NULL, &rect.w, &rect.h);
 	}
 
 	rect.w *= scale;

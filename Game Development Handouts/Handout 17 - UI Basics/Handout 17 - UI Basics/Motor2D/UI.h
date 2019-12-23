@@ -66,9 +66,10 @@ public:
 	SDL_Rect GetLocalHitbox();
 
 	iPoint GetMousePos() /*const*/;					//Gets the mouse's position.
-	bool CheckMousePos();							//Checks the position of the mouse.
 	iPoint GetMouseMotion() /*const*/;				//Gets the mouse's motion.
+	bool CheckMousePos() const;						//Checks the position of the mouse.
 
+	bool IsHovered() const;
 	bool IsFocused() const;							//Centralize common functionalities.
 
 	bool IsForemostElement() const;					//Returns true if its the first element in inverse order of draw and has the mouse on it.

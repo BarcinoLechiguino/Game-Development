@@ -70,6 +70,21 @@ public:
 
 	// Text Input
 	void TextInput();
+	void EditTextInputs();
+
+	p2SString* GetTextInput();
+	const char* GetInputText();
+	int InputTextLength();
+
+	void AddTextInput(const char* origin);
+	void AddTexts(char* destination, const char* origin);
+	
+	void ClearTextInput();
+	void DeleteTextInput();
+	void DeleteLetter(int positionIndex);
+	bool CutInputText(unsigned int begin, unsigned int end = 0);
+	
+	void Allocate(int required_memory);
 
 private:
 	bool		windowEvents[WE_COUNT];
@@ -79,7 +94,10 @@ private:
 	int			mouse_motion_y;
 	int			mouse_x;
 	int			mouse_y;
-	p2SString	input_text2;
+	p2SString	input_text;
+	int			text_size;
+	char*		char_InputString;
+	bool		textInputEnabled;
 };
 
 #endif // __j1INPUT_H__

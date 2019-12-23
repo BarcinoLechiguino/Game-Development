@@ -225,6 +225,11 @@ public:
 		return str;
 	}
 
+	//char* GetNonConstString() const	//this
+	//{
+	//	return str;
+	//}
+
 	unsigned int GetCapacity() const
 	{
 		return size;
@@ -328,6 +333,14 @@ public:
 		}
 
 		return ret;
+	}
+
+	void DeleteLast()
+	{
+		int size = Length();
+		char* tmp = "\0";
+		str[size - 1] = *tmp;
+		//delete[] tmp;
 	}
 
 	/**
