@@ -114,9 +114,8 @@ bool j1Input::PreUpdate()
 
 			case SDL_TEXTINPUT:
 
-				AddTextInput(/*input_text2,*/ event.text.text);
-				
-				input_text += event.text.text;
+				//AddTextInput(/*input_text2,*/ event.text.text);
+				CheckNewTextInput(event.text.text);
 				
 				//LOG("Input String %s", input_text.GetString());
 
@@ -216,14 +215,22 @@ void j1Input::TextInput()
 		textInputEnabled = false;
 	}
 
-	if (char_InputString == nullptr)
+	if (input_string == nullptr)
 	{
 		Allocate(1);
 		ClearTextInput();
+		cursorIndex = 0;
+		prevLength = 0;
 	}
 	
 	if (textInputEnabled)
 	{
+		if (prevLength != strlen(input_string))
+		{
+			prevLength = strlen(input_string);
+			cursorIndex = strlen(input_string);
+		}
+
 		EditTextInputs();
 	}
 
@@ -237,67 +244,90 @@ void j1Input::EditTextInputs()
 {
 	if (GetKey(SDL_SCANCODE_BACKSPACE) == KEY_DOWN)
 	{
-		//input_text.DeleteLast();
-
-		if (strlen(char_InputString) != 0)
+		if (strlen(input_string) != 0)
 		{
-			DeleteTextInput();
-		}
+			if (cursorIndex == strlen(input_string))
+			{
+				DeleteTextInput(strlen(input_string));
+				cursorIndex--;
+			}
+			else
+			{
+				if (cursorIndex != 0)
+				{
+					//char* tmp1 = GetCutText(cursorIndex - 1, cursorIndex - 1, true, false);
+					//LOG("tmp1 %s", tmp1);
+					
+					char* tmp = GetCutText(cursorIndex - 1, cursorIndex - 1, false, true);
+					LOG("tmp %s", tmp);
+
+					DeleteTextInput(cursorIndex);
+					AddTextInput(tmp);
+					cursorIndex--;
+
+					//delete[] tmp2;
+				}
+			}
+		}	
 	}
 
 	if (GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)
 	{
-		App->win->SetTitle(char_InputString);
+		App->win->SetTitle(input_string);
 		ClearTextInput();
 	}
 
 	if (GetKey(SDL_SCANCODE_DELETE) == KEY_DOWN)
 	{
-		//ClearTextInput();
+		cursorIndex = 0;
+		ClearTextInput();
 	}
 
 	if (GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)
 	{
+		cursorIndex = 0;
+		
 		//ClearTextInput();
 	}
 
 	if (GetKey(SDL_SCANCODE_END) == KEY_DOWN)
 	{
+		cursorIndex = strlen(input_string);
+		
 		//ClearTextInput();
 	}
 
 	// --- MOVING THE CURSOR AROUND
 	if (GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)
 	{
+		if (cursorIndex != 0)
+		{
+			cursorIndex--;
+		}
 
 	}
 
 	if (GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
 	{
+		if (cursorIndex != strlen(input_string))
+		{
+			cursorIndex++;
+		}
 
+		LOG("Cursor Index Going Right: %d", cursorIndex);
 	}
-
-	/*if (GetKey(SDL_SCANCODE_BACKSPACE) == KEY_DOWN)
-	{
-		CutInputText((strlen(char_InputText) / 2) - 1, (strlen(char_InputText) / 2));
-	}*/
-}
-
-p2SString* j1Input::GetTextInput()
-{
-	return &input_text;
 }
 
 const char* j1Input::GetInputText()
 {
-	return char_InputString;
+	return input_string;
 }
 
-int j1Input::InputTextLength()
+int j1Input::GetInputTextLength()
 {
-	if (char_InputString != NULL)
+	if (input_string != NULL)
 	{
-		return strlen(char_InputString);
+		return strlen(input_string);
 	}
 	else
 	{
@@ -305,48 +335,72 @@ int j1Input::InputTextLength()
 	}
 }
 
+int j1Input::GetCursorIndex()
+{
+	return cursorIndex;
+}
+
 // --------------------------------- TEXT EDITING METHODS ---------------------------------
+void j1Input::CheckNewTextInput(const char* newTextInput)
+{	
+	if (cursorIndex == strlen(input_string))
+	{
+		AddTextInput(newTextInput);
+	}
+	else
+	{
+		char* tmp1 = GetCutText(cursorIndex - 1, cursorIndex - 1, true, false);
+		const char* tmp2 = GetCutText(cursorIndex - 1, cursorIndex - 1, false, true);
+		LOG("tmp1 %s", tmp1);
+		LOG("tmp2 %s", tmp2);
+
+		char* timed = input_string + cursorIndex;
+
+		if (cursorIndex + 1 != strlen(input_string))
+		{
+			DeleteTextInput(cursorIndex + 1);
+			AddTextInput(newTextInput);
+
+			cursorIndex++;
+
+			//DeleteTextInput(cursorIndex + 1);
+			LOG("Cursor Index At Crash: %d", cursorIndex);
+			LOG("tmp2 after %s", tmp2);
+			LOG("tmp1 after %s", tmp1);
+			AddTextInput(timed);
+			//AddTextInput(tmp1);
+		}
+	}
+}
+
 void j1Input::AddTextInput(const char* origin)
 {	
 	if (origin != NULL)
 	{
-		text_size = strlen(char_InputString);
+		text_size = strlen(input_string);
 		unsigned int need_size = strlen(origin) + text_size + 1;
 
 		if (need_size > text_size)
 		{
-			char* tmp = char_InputString;
+			char* tmp = input_string;
 			Allocate(need_size);
-			strcpy_s(char_InputString, need_size, tmp);
-			delete[] tmp;
+			strcpy_s(input_string, need_size, tmp);
+			//delete[] tmp;
 		}
 
-		strcat_s(char_InputString, text_size, origin);
+		strcat_s(input_string, text_size, origin);
 	}
 }
 
-void j1Input::DeleteTextInput()
+void j1Input::DeleteTextInput(int positionIndex)
 {
-	text_size = strlen(char_InputString);
-	unsigned int need_size = text_size - 1;
-
-	char_InputString[text_size - 1] = '\0';
-
-	input_text.DeleteLast();
-}
-
-void j1Input::DeleteLetter(int positionIndex)
-{
-	
-	
-	/*int size = Length();
-	char* tmp = "\0";
-	str[size - 1] = *tmp;*/
+	int posIndex = positionIndex;
+	input_string[posIndex - 1] = '\0';
 }
 
 bool j1Input::CutInputText(unsigned int begin, unsigned int end)
 {
-	uint len = strlen(char_InputString);
+	uint len = strlen(input_string);
 
 	if (end >= len || end == 0)
 		end = len - 1;
@@ -354,23 +408,49 @@ bool j1Input::CutInputText(unsigned int begin, unsigned int end)
 	if (begin > len || end <= begin)
 		return false;
 
-	char* p1 = char_InputString + begin;
-	char* p2 = char_InputString + end + 1;
+	char* p1 = input_string + begin;
+	char* p2 = input_string + end + 1;
 
 	while (*p1++ = *p2++);
 
 	return true;
 }
 
+char* j1Input::GetCutText(unsigned int begin, unsigned int end, bool returnFirstPart, bool returnLastPart)
+{
+	uint len = strlen(input_string);
+
+	if (end >= len || end == 0)
+		end = len - 1;
+
+	if (begin > len || end </*=*/ begin)
+		return NULL;
+
+	char* p1 = input_string + begin;
+	char* p2 = input_string + end + 1;
+
+	if (returnFirstPart && !returnLastPart)
+	{
+		return p1;
+	}
+	
+	if (returnLastPart && !returnFirstPart)
+	{
+		return p2;
+	}
+
+	return NULL;
+}
+
 void j1Input::Allocate(int required_memory)
 {
 	text_size = required_memory;
-	char_InputString = new char[text_size];
+	input_string = new char[text_size];
 }
 
 void j1Input::ClearTextInput()
 {
-	char_InputString[0] = '\0';
+	input_string[0] = '\0';
 }
 
 //void j1Input::AddTexts(char* destination, const char* origin)

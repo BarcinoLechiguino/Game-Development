@@ -72,17 +72,19 @@ public:
 	void TextInput();
 	void EditTextInputs();
 
-	p2SString* GetTextInput();
+	//p2SString* GetTextInput();
 	const char* GetInputText();
-	int InputTextLength();
+	int GetInputTextLength();
+	int GetCursorIndex();
 
+	void CheckNewTextInput(const char* newTextInput);
 	void AddTextInput(const char* origin);
-	void AddTexts(char* destination, const char* origin);
+	//void AddTexts(char* destination, const char* origin);
 	
 	void ClearTextInput();
-	void DeleteTextInput();
-	void DeleteLetter(int positionIndex);
+	void DeleteTextInput(int positionIndex);
 	bool CutInputText(unsigned int begin, unsigned int end = 0);
+	char* GetCutText(unsigned int begin, unsigned int end = 0, bool returnFirstPart = false, bool returnLastPart = false);
 	
 	void Allocate(int required_memory);
 
@@ -94,10 +96,14 @@ private:
 	int			mouse_motion_y;
 	int			mouse_x;
 	int			mouse_y;
-	p2SString	input_text;
+	
+	char*		input_string;
+	char*		tmp2;
 	int			text_size;
-	char*		char_InputString;
 	bool		textInputEnabled;
+	int			prevLength;
+	int			cursorIndex;
+	int			cursorPos[500];
 };
 
 #endif // __j1INPUT_H__

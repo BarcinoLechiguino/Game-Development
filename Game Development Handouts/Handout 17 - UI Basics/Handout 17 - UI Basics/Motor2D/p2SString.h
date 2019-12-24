@@ -225,11 +225,6 @@ public:
 		return str;
 	}
 
-	//char* GetNonConstString() const	//this
-	//{
-	//	return str;
-	//}
-
 	unsigned int GetCapacity() const
 	{
 		return size;

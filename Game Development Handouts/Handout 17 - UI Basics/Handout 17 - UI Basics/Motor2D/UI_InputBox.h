@@ -26,10 +26,13 @@ public:
 	void CheckFocus();
 
 	void UpdateInputBoxElementsPos();
-	void SetInputBoxElementsVisibility();
+	void SetInputBoxVisibility();
 
 	void CheckCursorInputs();
 	void RefreshInputText();
+	void RefreshCursorPos();
+
+	int TextLength();
 
 private:
 	SDL_Texture*	tex;
@@ -46,9 +49,11 @@ private:
 	int				prevTextHeight;
 
 	int				prevLength;					//Amount of letters currently in the text.
-	int				cursorIndex;				//Each number of the cursorIndex corresponds with a letter. First letter: cursorIndex = 1...
+	//int				cursorIndex;			//Each number of the cursorIndex corresponds with a letter. First letter: cursorIndex = 1...
+	int				currentCursorIndex;			//Each number of the cursorIndex corresponds with a letter. First letter: cursorIndex = 1...
 	bool			freeCursor;					//Keeps track whether the cursor is at the text's last letter or if it is moving around.
 	int				cursorPositions[500];		//Array that will keep track of all the positions that the cursor has been in. Each postion correspond with a cursor index.
+	//p2DynArray<int*> cursorPos;
 	iPoint			textOffset;					//Difference in origin position between the background's and the text's.
 };
 
