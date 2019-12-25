@@ -16,6 +16,7 @@ public:
 
 	void CheckInput();
 
+public:
 	SDL_Texture* GetCurrentStringTex();
 	void DeleteCurrentStringTex();
 

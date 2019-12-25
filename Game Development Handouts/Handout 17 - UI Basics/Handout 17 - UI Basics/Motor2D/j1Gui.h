@@ -10,6 +10,7 @@
 #include "UI_Button.h"
 #include "UI_Window.h"
 #include "UI_InputBox.h"
+#include "UI_Scrollbar.h"
 
 //class UI;
 
@@ -60,6 +61,9 @@ public:
 
 	UI* CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, SDL_Rect cursor, SDL_Color cursorColour, iPoint textOffset,
 		float blinkFrequency = 0.0f, bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr, p2SString* defaultString = nullptr);
+
+	UI* CreateScrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SDL_Rect thumbSize, iPoint thumbOffset, SDL_Rect dragArea, float dragFactor,
+		bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr);
 
 
 	void OnEventCall(UI* element, UI_Event ui_event);					//This function is called whenever an new event happens, it receives the pointer of the element that caused the event and the kind of event it is.

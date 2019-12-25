@@ -99,6 +99,11 @@ bool j1Gui::PostUpdate()
 			break;
 
 		case UI_Element::SCROLLBAR:
+			if (element_iterator->data->isVisible)
+			{
+				element_iterator->data->Draw();
+			}
+
 			break;
 
 		case UI_Element::INPUTBOX:
@@ -202,6 +207,21 @@ UI* j1Gui::CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TT
 	UI* elem = nullptr;
 
 	elem = new UI_InputBox(element, x, y, hitbox, font, fontColour, cursor, cursorColour, textOffset, blinkFrequency, isVisible, isInteractible, isDraggable, parent, defaultString);
+
+	if (elem != nullptr)
+	{
+		elements.add(elem);
+	}
+
+	return elem;
+}
+
+UI* j1Gui::CreateScrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SDL_Rect thumbSize, iPoint thumbOffset, SDL_Rect dragArea, float dragFactor,
+					bool isVisible, bool isInteractible, bool isDraggable, UI* parent)
+{
+	UI* elem = nullptr;
+
+	elem = new UI_Scrollbar(element, x, y, hitbox, thumbSize, thumbOffset, dragArea, dragFactor, isVisible, isInteractible, isDraggable, parent);
 
 	if (elem != nullptr)
 	{
@@ -397,11 +417,11 @@ void j1Gui::Debug_UI()
 				break;
 
 			case UI_Element::SCROLLBAR:
-				App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 0, 0, 255, false, false);			//UI_Scrollbar will be ---.
+				App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 255, 0, 255, false, false);			//UI_Scrollbar will be YELLOW.
 				break;
 
 			case UI_Element::INPUTBOX:
-				App->render->DrawQuad(element_iterator->data->GetHitbox(), 0, 255, 0, 255, false, false);			//UI_Input Box will be ---.
+				App->render->DrawQuad(element_iterator->data->GetHitbox(), 0, 0, 255, 255, false, false);			//UI_Input Box will be BLUE.
 				break;
 			}	
 		}

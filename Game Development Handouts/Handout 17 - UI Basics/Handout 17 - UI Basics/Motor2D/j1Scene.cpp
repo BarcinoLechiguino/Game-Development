@@ -97,6 +97,15 @@ bool j1Scene::Start()
 	inputBox = (UI_InputBox*)App->gui->CreateInputBox(UI_Element::INPUTBOX, 295, 355, inputBoxBg, inputFont, fontColour, textCursor, cursorColour, textOffset,
 												blinkFrequency, true, true, false, window, &defaultTxt);
 
+	//Creating a Scrollbar:
+	SDL_Rect scrollbarBar		= { 973, 786, 11,  158 };
+	SDL_Rect scrollbarThumb		= { 1004, 431, 15, 26 };
+	iPoint thumbOffset			= { -2, 0 };
+	SDL_Rect dragArea			= { 0, 0, 11, 158 };
+	float dragFactor			= 1.0f;
+
+	scrollbar = (UI_Scrollbar*)App->gui->CreateScrollbar(UI_Element::SCROLLBAR, 650, 325, scrollbarBar, scrollbarThumb, thumbOffset, dragArea, dragFactor, true, true, false, window);
+
 	return true;
 }
 

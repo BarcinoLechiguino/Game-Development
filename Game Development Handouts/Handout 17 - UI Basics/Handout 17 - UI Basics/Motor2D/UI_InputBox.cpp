@@ -34,10 +34,8 @@ UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF
 	this->isVisible = isVisible;													//Sets the isVisible flag of the input box to the one passed as argument.
 	this->isInteractible = isInteractible;											//Sets the isInteractible flag of the input box to the one passed as argument.
 	this->isDraggable = isDraggable;												//Sets the isDraggable flag of the input box to the one passed as argument.
-
 	prevMousePos = iPoint(0, 0);													//Initializes prevMousePos for this UI Element. Safety measure to avoid weird dragging behaviour.
-
-	initialPosition = GetScreenPos();												//Records the initial position where the input box is at game start.
+	initialPosition = GetScreenPos();												//Records the initial position where the input box is at app execution start.
 
 	// --- Input Box Elements
 	background = UI_Image(UI_Element::IMAGE, x, y, hitbox, true, false, false, this);

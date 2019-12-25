@@ -12,6 +12,7 @@ class UI_Image;
 class UI_Text;
 class UI_Button;
 class UI_InputBox;
+class UI_Scrollbar;
 
 class j1Scene : public j1Module
 {
@@ -50,10 +51,10 @@ public:
 	UI_Button*		escButton;
 	UI_Button*		draggableButton;
 	UI_Button*		draggableButton2;
+
 	UI_InputBox*	inputBox;
-	UI_Image*		background;
-	UI_Text*		inputText;
-	UI_Image*		cursor;
+
+	UI_Scrollbar*	scrollbar;
 
 private:
 	SDL_Texture* debug_tex;

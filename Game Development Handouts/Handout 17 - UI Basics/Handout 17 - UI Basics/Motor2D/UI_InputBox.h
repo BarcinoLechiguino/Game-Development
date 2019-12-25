@@ -19,6 +19,7 @@ public:
 
 	void CheckInput();
 
+public:
 	void DrawInputBoxElements();
 	void DrawCursor();
 	

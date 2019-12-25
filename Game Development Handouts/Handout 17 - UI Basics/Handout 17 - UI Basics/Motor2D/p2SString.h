@@ -330,14 +330,6 @@ public:
 		return ret;
 	}
 
-	void DeleteLast()
-	{
-		int size = Length();
-		char* tmp = "\0";
-		str[size - 1] = *tmp;
-		//delete[] tmp;
-	}
-
 	/**
 	* Paste a substring into buffer
 	*/
