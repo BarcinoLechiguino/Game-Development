@@ -221,7 +221,7 @@ void UI_Text::SetInputStringTex(p2SString* newString)
 }
 
 // --- Input Text passed as char.
-void UI_Text::RefreshCharTextInput(const char* newString)
+void UI_Text::RefreshTextInput(const char* newString)
 {
 	if (inputTextTex == NULL)
 	{

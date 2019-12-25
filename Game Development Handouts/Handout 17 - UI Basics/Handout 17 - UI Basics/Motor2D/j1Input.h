@@ -61,6 +61,7 @@ public:
 		return mouse_buttons[id - 1];
 	}
 
+public:
 	// Check if a certain window event happened
 	bool GetWindowEvent(int code);
 
@@ -72,20 +73,21 @@ public:
 	void TextInput();
 	void EditTextInputs();
 
-	//p2SString* GetTextInput();
 	const char* GetInputText();
 	int GetInputTextLength();
 	int GetCursorIndex();
 
 	void CheckNewTextInput(const char* newTextInput);
 	void AddTextInput(const char* origin);
-	//void AddTexts(char* destination, const char* origin);
-	
+	void InsertTextInput(const char* origin);
+
+	bool CutInputText(unsigned int begin, unsigned int end = 0);
+	char* GetCutText(unsigned int begin, unsigned int end = -1, bool returnFirstPart = false, bool returnLastPart = false);
+
 	void ClearTextInput();
 	void DeleteTextInput(int positionIndex);
-	bool CutInputText(unsigned int begin, unsigned int end = 0);
-	char* GetCutText(unsigned int begin, unsigned int end = 0, bool returnFirstPart = false, bool returnLastPart = false);
 	
+private:
 	void Allocate(int required_memory);
 
 private:
@@ -98,12 +100,10 @@ private:
 	int			mouse_y;
 	
 	char*		input_string;
-	char*		tmp2;
 	int			text_size;
 	bool		textInputEnabled;
 	int			prevLength;
 	int			cursorIndex;
-	int			cursorPos[500];
 };
 
 #endif // __j1INPUT_H__

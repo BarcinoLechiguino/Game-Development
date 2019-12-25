@@ -24,7 +24,7 @@ public:
 	void SetPreviousInputString(p2SString* newString);
 	void SetInputStringTex(p2SString* newString);
 	
-	void RefreshCharTextInput(const char* newString);
+	void RefreshTextInput(const char* newString);
 
 private:
 	p2SString*		string;					//String of the UI Text element

@@ -153,14 +153,14 @@ void UI_InputBox::CheckInput()
 }
 
 // --- DRAW INPUT BOX ELEMENTS
-void UI_InputBox::DrawInputBoxElements()
+void UI_InputBox::DrawInputBoxElements()													// --------------------------------------------------------------------------
 {
 	background.Draw();
 	text.Draw();
 	DrawCursor();
 }
 
-void UI_InputBox::DrawCursor()
+void UI_InputBox::DrawCursor()																// --------------------------------------------------------------------------
 {
 	if (this->isVisible && IsFocused())
 	{
@@ -169,29 +169,51 @@ void UI_InputBox::DrawCursor()
 }
 // -----------------------------
 
+// --- GETTERS / SETTERS -------
+// --- This method returns the current input text length.
+int UI_InputBox::TextLength()																// --------------------------------------------------------------------------
+{
+	return App->input->GetInputTextLength();
+}
+
+int UI_InputBox::GetCurrentCursorIndex()													// --------------------------------------------------------------------------
+{
+	return App->input->GetCursorIndex();
+}
+// -----------------------------
+
 // --- INPUT BOX ELEMENTS STATE
-void UI_InputBox::CheckInputBoxState()
+void UI_InputBox::CheckInputBoxState()														// --------------------------------------------------------------------------
 {
 	UpdateInputBoxElementsPos();
 	CheckFocus();
 }
 
-void UI_InputBox::UpdateInputBoxElementsPos()
+void UI_InputBox::UpdateInputBoxElementsPos()												// --------------------------------------------------------------------------
 {
 	if (this->GetScreenPos() != this->initialPosition)
 	{
 		background.SetScreenPos(background.GetLocalPos() + GetScreenPos());
-		background.SetHitbox({ background.GetScreenPos().x, background.GetScreenPos().y , background.GetHitbox().w, background.GetHitbox().h });
+		background.SetHitbox({ background.GetScreenPos().x
+						, background.GetScreenPos().y
+						, background.GetHitbox().w
+						, background.GetHitbox().h });
 
 		text.SetScreenPos(text.GetLocalPos() + GetScreenPos());
-		text.SetHitbox({ text.GetScreenPos().x, text.GetScreenPos().y , text.GetHitbox().w, text.GetHitbox().h });
+		text.SetHitbox({   text.GetScreenPos().x
+						, text.GetScreenPos().y
+						, text.GetHitbox().w
+						, text.GetHitbox().h });
 
 		cursor.SetScreenPos({ cursor.GetLocalPos() + GetScreenPos() });
-		cursor.SetHitbox({ cursor.GetScreenPos().x, cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
+		cursor.SetHitbox({ cursor.GetScreenPos().x
+						, cursor.GetScreenPos().y
+						, cursor.GetHitbox().w
+						, cursor.GetHitbox().h });
 	}
 }
 
-void UI_InputBox::CheckFocus()
+void UI_InputBox::CheckFocus()																// --------------------------------------------------------------------------
 {
 	if (IsFocused() && isVisible)
 	{
@@ -209,151 +231,160 @@ void UI_InputBox::CheckFocus()
 	}
 }
 
-void UI_InputBox::CheckCursorInputs()
+void UI_InputBox::CheckCursorInputs()														// --------------------------------------------------------------------------
 {	
-	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)									// --------------------------------------------------------------------------
 	{
-		//int prevIndex = cursorIndex - 1;
-		int prevIndex = App->input->GetCursorIndex();
+		int prevIndex = GetCurrentCursorIndex();
 
-		if (cursorPositions[prevIndex] != NULL && prevIndex != 0)
+		if (cursorPositions[prevIndex] != NULL)
 		{
-			cursor.SetHitbox({ /*cursor.GetHitbox().x -*/ cursorPositions[prevIndex],
-				cursor.GetScreenPos().y,
-				cursor.GetHitbox().w,
-				cursor.GetHitbox().h });
+			SetCursorPosWithCursorIndex(prevIndex);
 
 			LOG("CursorIndex Going Left %d", prevIndex);
 			LOG("Cursor Position Going Left %d", cursorPositions[prevIndex]);
-
-			//cursorIndex = prevIndex;
 		}
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)			//See j1Input			// --------------------------------------------------------------------------
 	{
-		//int nextIndex = cursorIndex + 1;
-		int nextIndex = App->input->GetCursorIndex();																	//THIS CURSOR---INDEX
+		int nextIndex = GetCurrentCursorIndex();																	//THIS CURSOR---INDEX
 
 		if (cursorPositions[nextIndex] != NULL && nextIndex <= TextLength() + 1)
 		{
-			cursor.SetHitbox({ /*cursor.GetHitbox().x +*/ cursorPositions[nextIndex],
-				cursor.GetScreenPos().y,
-				cursor.GetHitbox().w,
-				cursor.GetHitbox().h });
+			SetCursorPosWithCursorIndex(nextIndex);
 
 			LOG("CursorIndex Going Right %d", nextIndex);
-			//cursorIndex = nextIndex;
 		}
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_DOWN)		//See j1Input			// --------------------------------------------------------------------------
 	{
-		currentCursorIndex = App->input->GetCursorIndex();
+		//currentIndex = GetCurrentCursorIndex();
 
-		if (currentCursorIndex == TextLength())							//Only reset the cursor if the cursor is at the end of the text.
-		{
-			App->font->CalcSize(App->input->GetInputText(), textWidth, textHeight, font);
-			cursor.SetHitbox({ cursor.GetScreenPos().x + textWidth, cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
-			
-			cursorPositions[currentCursorIndex] = cursor.GetHitbox().x;
-		}
-		else
-		{
-			cursor.SetHitbox({ cursorPositions[currentCursorIndex], cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
-		}
+		//if (GetCurrentCursorIndex() == TextLength())										//Only reset the cursor if the cursor is at the end of the text.
+		//{	
+		//	SetCursorPosWithTextWidth();
 
-		LOG("Cusor Index At IBx Delete: %d", currentCursorIndex);
+		//	cursorPositions[currentIndex] = cursor.GetHitbox().x;
+		//}
+		//else
+		//{
+		//	SetCursorPosWithCursorIndex(currentIndex);
+		//}
+
+		LOG("Cursor Index At IBx Delete: %d", currentIndex);
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_DELETE) == KEY_DOWN)				//If the delete key is pressed, all the text will be deleted (See j1Input) and the cursorPositions array will be emptied.
+	if (App->input->GetKey(SDL_SCANCODE_DELETE) == KEY_DOWN)	//See j1Input				// --------------------------------------------------------------------------
 	{
-		//int currentLength = TextLength();
-
-		currentCursorIndex = App->input->GetCursorIndex();
-		cursor.SetHitbox({ cursorPositions[currentCursorIndex], cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
+		currentIndex = GetCurrentCursorIndex();
+		SetCursorPosWithCursorIndex(currentIndex);
 		
-		for (int i = 0; i < prevLength; i++)								//Cleans Up all previously recorded positions.
+		for (int i = 0; i < prevLength; i++)												//Cleans Up all previously recorded positions in the cursorPositions[] array.
 		{
 			cursorPositions[i] = NULL;
 		}
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)								// --------------------------------------------------------------------------
 	{
+		currentIndex = GetCurrentCursorIndex();
+		SetCursorPosWithCursorIndex(currentIndex);
 
+		for (int i = 0; i < prevLength; i++)												//Cleans Up all previously recorded positions in the cursorPositions[] array..
+		{
+			cursorPositions[i] = NULL;
+		}
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)		//See j1Input
+	if (App->input->GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)		//See j1Input				// --------------------------------------------------------------------------
 	{
-		currentCursorIndex = App->input->GetCursorIndex();
-		cursor.SetHitbox({ cursorPositions[currentCursorIndex], cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
+		currentIndex = GetCurrentCursorIndex();
 
-		//cursorIndex = App->input->GetCursorIndex();
-		//cursor.SetHitbox({ cursorPositions[cursorIndex], cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
+		SetCursorPosWithCursorIndex(currentIndex);
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_END) == KEY_DOWN)		//See j1Input
+	if (App->input->GetKey(SDL_SCANCODE_END) == KEY_DOWN)		//See j1Input				// --------------------------------------------------------------------------
 	{
-		currentCursorIndex = App->input->GetCursorIndex();
+		currentIndex = GetCurrentCursorIndex();
 		
-		if (currentCursorIndex != 0)
-		{
-			cursor.SetHitbox({ cursorPositions[currentCursorIndex - 1], cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
-		}
-		else
-		{
-			cursor.SetHitbox({ cursorPositions[currentCursorIndex], cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
-		}
+		SetCursorPosWithCursorIndex(currentIndex);
 
 		//cursorIndex = TextLength();
-		//cursor.SetHitbox({ cursorPositions[cursorIndex], cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });
 
-		LOG("END CURSOR INDEX %d", App->input->GetCursorIndex());
+		LOG("END CURSOR INDEX %d", GetCurrentCursorIndex());
 	}
 }
 
-void UI_InputBox::RefreshInputText()
+void UI_InputBox::RefreshInputText()														// --------------------------------------------------------------------------
 {
-	text.DeleteCurrentStringTex();																							//Sets to NULL the text's currentTex.
-	text.RefreshCharTextInput(App->input->GetInputText());																	//Refreshes text's string and texture with the string received from the input.
+	text.DeleteCurrentStringTex();															//Sets to NULL the text's currentTex.
+	text.RefreshTextInput(App->input->GetInputText());										//Refreshes text's string and texture with the string received from the input.
 
-	if (prevLength != TextLength())																							//If there has been a change in the string (Addition, deletion). Takes into account the length of the string in characters and cursorIndex.
+	if (prevLength != TextLength())															//If there has been a change in the string (Addition, deletion). Takes into account the length of the string in characters and cursorIndex.
 	{
-		currentCursorIndex = App->input->GetCursorIndex();		
-		//cursorPositions[currentCursorIndex] = cursor.GetHitbox().x;															//Instead of storing the full text width, what is stored is the width that the addition/deletion has brought.
-		
-		if (prevLength <= TextLength())
-		{
-			prevTextWidth = textWidth;																							//Keeps record of the previous width of the text before there was an addition or deletion.
-			App->font->CalcSize(App->input->GetInputText(), textWidth, textHeight, font);										//CalcSize calculates the current width and height of the current string/text.
-			
-			cursor.SetHitbox({ cursor.GetScreenPos().x + textWidth, cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });		//Sets the cursor's hitbox's position addind the new textWidth to it.
-			//cursorPositions[currentCursorIndex] = cursor.GetHitbox().x;
-		}
-		
-		cursorPositions[currentCursorIndex] = cursor.GetHitbox().x;
+		RefreshCursorPos();
 
-		prevLength = TextLength();																		//As the text's length does not correspond with the cursor index, it is set to the new index.
+		prevLength = TextLength();															//As the text's length does not correspond with the cursor index, it is set to the new index.
 		LOG("Current Length %d", TextLength());
-
-		//cursorIndex++;
-		//cursorIndex = prevLength;
-
-		//cursorPositions[cursorIndex] = cursor.GetHitbox().x;																//Instead of storing the full text width, what is stored is the width that the addition/deletion has brought.
-		//cursorPositions[cursorIndex] = textWidth;																			//As the cursor index has changed, a new position is stored in the cursor position array. Should it go backwards (deletion) the prevous position at that index would be overwritten.
-		//cursorPositions[cursorIndex] = textWidth - prevTextWidth;															//Instead of storing the full text width, what is stored is the width that the addition/deletion has brought.
-		//cursorPositions[prevLength] = cursor.GetHitbox().x;																//Instead of storing the full text width, what is stored is the width that the addition/deletion has brought.
-
-		//cursor.SetScreenPos({ cursor.GetScreenPos().x + textWidth, cursor.GetScreenPos().y });							//Sets the cursor position adding to it the width of the text.
-		//cursor.SetHitbox({ cursor.GetScreenPos().x + textWidth, cursor.GetScreenPos().y, cursor.GetHitbox().w, cursor.GetHitbox().h });		//Sets the cursor's hitbox's position addind the new textWidth to it.
 	}
 }
 
-// --- This method returns the current input text length.
-int UI_InputBox::TextLength()
+void UI_InputBox::RefreshCursorPos()														// --------------------------------------------------------------------------
 {
-	return App->input->GetInputTextLength();
+	currentIndex = GetCurrentCursorIndex();													//Gets the current cursor index.
+
+	if (currentIndex == TextLength())														//If cursor is at the text's end.
+	{
+		SetCursorPosWithTextWidth(App->input->GetInputText());								//Sets the cursor position as the cursor's origin position + textWidth.
+	}
+	else
+	{
+		ResetCursorPositions(currentIndex);													//Re-sets the cursor positions taking into account the inserted/deleted input text.
+
+		SetCursorPosWithCursorIndex(currentIndex);											//If cursor is within the text, set the position according to the index.
+	}
+
+	cursorPositions[currentIndex] = cursor.GetHitbox().x;									//The current cursor hitbox's postion in the x axis is stored (cursor.pos().x + textWidth)
+}
+
+// --- Sets the cursor's position to the position stored in the cursorPositions array for the index passed as argument.
+void UI_InputBox::SetCursorPosWithCursorIndex(int index)									// --------------------------------------------------------------------------
+{
+	cursor.SetHitbox({ cursorPositions[index]												//Sets the cursor hitbox's  position to the one stored at the cursor's index in the positions array. 
+		, cursor.GetScreenPos().y
+		, cursor.GetHitbox().w
+		, cursor.GetHitbox().h });
+}
+
+// --- Sets the cursor's position to the cursor's origin position + textWidth.
+void UI_InputBox::SetCursorPosWithTextWidth(const char* string)								// --------------------------------------------------------------------------												
+{
+	App->font->CalcSize(string, textWidth, textHeight, font);								//CalcSize calculates the current width and height of the current string/text.
+	cursor.SetHitbox({ cursor.GetScreenPos().x + textWidth									//Sets the cursor's hitbox's position addind the new textWidth to it.
+		, cursor.GetScreenPos().y
+		, cursor.GetHitbox().w
+		, cursor.GetHitbox().h });
+}
+
+void UI_InputBox::ResetCursorPositions(int index)											// --------------------------------------------------------------------------
+{
+	const char* inputString = App->input->GetInputText();									//Gets the current input string.
+	char tmp[MAX_SIZE];																		//Buffer string that will be used to store different chunks of the string.
+	
+	for (int i = index; i <= TextLength(); i++)												//For i = index (cursor index), while index is less or equal to input_string length in characters.
+	{
+		for (int j = 0; j < i; j++)															//For j = 0, while j  is less than i.
+		{
+			tmp[j] = inputString[j];														//Stores in tmp the input string chunk before the current cursor's position.
+		}
+
+		tmp[i] = '\0';																		//Every element from [i] to the right (right of the cursor position) is deleted. Cleans the string.
+
+		SetCursorPosWithTextWidth(tmp);														//Sets the new cursor position for the given input_string chunk.
+		cursorPositions[i] = cursor.GetHitbox().x;											//Stores the new cursor position for index [i] in the positions array.
+	}
 }
 // ----------------------------------------------
 

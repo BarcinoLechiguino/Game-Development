@@ -114,7 +114,6 @@ bool j1Input::PreUpdate()
 
 			case SDL_TEXTINPUT:
 
-				//AddTextInput(/*input_text2,*/ event.text.text);
 				CheckNewTextInput(event.text.text);
 				
 				//LOG("Input String %s", input_text.GetString());
@@ -194,76 +193,62 @@ void j1Input::GetMouseMotion(int& x, int& y)
 }
 
 // ---------------------------- TEXT INPUT METHODS ----------------------------
-void j1Input::TextInput()
+void j1Input::TextInput()																// -----------------------------------------------------------------------------
 {	
 	if (App->gui->focusedElement != nullptr)
 	{
 		if (App->gui->focusedElement->element == UI_Element::INPUTBOX)
 		{
-			SDL_StartTextInput();											//If the focused element is of the INPUTBOX type, start text input.
+			SDL_StartTextInput();														//If the focused element is of the INPUTBOX type, start text input.
 			textInputEnabled = true;
 		}
 		else
 		{
-			SDL_StopTextInput();											//In case the focused element is not of the INPUTBOX type, stop text input.
+			SDL_StopTextInput();														//In case the focused element is not of the INPUTBOX type, stop text input.
 			textInputEnabled = false;
 		}
 	}
 	else
 	{
-		SDL_StopTextInput();												//In case the focused element is NULL. Used when right after focusing the inputbox, the focus changes to nullptr
+		SDL_StopTextInput();															//In case the focused element is NULL. Used when right after focusing the inputbox, the focus changes to nullptr
 		textInputEnabled = false;
 	}
 
-	if (input_string == nullptr)
+	if (input_string == nullptr)														// If input_string is NULL.
 	{
-		Allocate(1);
-		ClearTextInput();
-		cursorIndex = 0;
-		prevLength = 0;
+		Allocate(1);																	// Allocate memory for string of one character.
+		ClearTextInput();																// Delete everything in the string (Residual characters may remain in the string after allocation).
+		cursorIndex = 0;																// The cursor's index is initialized to 0.
+		prevLength = 0;																	// prevLength is initialized to 0.
 	}
 	
-	if (textInputEnabled)
+	if (textInputEnabled)																// If text input is enabled (SDL_StartTextInput() is activated).
 	{
-		if (prevLength != strlen(input_string))
-		{
-			prevLength = strlen(input_string);
-			cursorIndex = strlen(input_string);
-		}
-
-		EditTextInputs();
+		EditTextInputs();																// Calls the edit text input method.
 	}
-
-	
-	// --- USING P2SSTRING.
-	//App->gui->inputString = input_text;
-	//LOG("inputString %s", App->gui->inputString.GetString());
 }
 
-void j1Input::EditTextInputs()
+void j1Input::EditTextInputs()															// -----------------------------------------------------------------------------													
 {
-	if (GetKey(SDL_SCANCODE_BACKSPACE) == KEY_DOWN)
+	if (GetKey(SDL_SCANCODE_BACKSPACE) == KEY_DOWN)										// -----------------------------------------------------------------------------
 	{
-		if (strlen(input_string) != 0)
+		if (strlen(input_string) != 0)													// If the length of input_string in characters is different than 0.
 		{
-			if (cursorIndex == strlen(input_string))
+			if (cursorIndex == strlen(input_string))									// If the cursor's index is the same as the length of input_string in characters.
 			{
-				DeleteTextInput(strlen(input_string));
-				cursorIndex--;
+				DeleteTextInput(strlen(input_string));									// Deletes the last character of input_string.
+				cursorIndex--;															// As there is now a character less, the cursor's index is reduced in 1.
 			}
 			else
 			{
-				if (cursorIndex != 0)
-				{
-					//char* tmp1 = GetCutText(cursorIndex - 1, cursorIndex - 1, true, false);
-					//LOG("tmp1 %s", tmp1);
+				if (cursorIndex != 0)													// If the cursor's index is different than 0.
+				{					
+					char* tmp = GetCutText(cursorIndex - 1, cursorIndex - 1, false, true);	// Stores the chunk of the string to the right of the cursor's position.
 					
-					char* tmp = GetCutText(cursorIndex - 1, cursorIndex - 1, false, true);
-					LOG("tmp %s", tmp);
-
-					DeleteTextInput(cursorIndex);
-					AddTextInput(tmp);
-					cursorIndex--;
+					DeleteTextInput(cursorIndex);										// Deletes the character to the left of the cursor. (Along with the chunk to the left of the cursor)
+					AddTextInput(tmp);													// The stored chunk is added back to input_string.
+					
+					cursorIndex--;														// As there is now a character less in input_string, the cursor's index is reduced in 1.
 
 					//delete[] tmp2;
 				}
@@ -271,203 +256,176 @@ void j1Input::EditTextInputs()
 		}	
 	}
 
-	if (GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)
+	if (GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)										// -----------------------------------------------------------------------------
 	{
-		App->win->SetTitle(input_string);
-		ClearTextInput();
+		App->win->SetTitle(input_string);												// Sets the title with the current string.
+		cursorIndex = 0;																// The cursor's index is set to 0 (Origin of the string).
+		ClearTextInput();																// Deletes the whole string.
 	}
 
-	if (GetKey(SDL_SCANCODE_DELETE) == KEY_DOWN)
+	if (GetKey(SDL_SCANCODE_DELETE) == KEY_DOWN)										// -----------------------------------------------------------------------------				
 	{
-		cursorIndex = 0;
-		ClearTextInput();
+		cursorIndex = 0;																// The cursor's index is set to 0 (Origin of the string).
+		ClearTextInput();																// Deletes the whole string.
 	}
 
-	if (GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)
+	if (GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)											// -----------------------------------------------------------------------------
 	{
-		cursorIndex = 0;
-		
-		//ClearTextInput();
+		cursorIndex = 0;																// The cursor's index is set to 0 (Origin of the string).
 	}
 
-	if (GetKey(SDL_SCANCODE_END) == KEY_DOWN)
+	if (GetKey(SDL_SCANCODE_END) == KEY_DOWN)											// -----------------------------------------------------------------------------
 	{
-		cursorIndex = strlen(input_string);
-		
-		//ClearTextInput();
+		cursorIndex = strlen(input_string);												// The cursor's index is set to the length of input_string in characters.
 	}
 
 	// --- MOVING THE CURSOR AROUND
-	if (GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)
+	if (GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)											// -----------------------------------------------------------------------------
 	{
-		if (cursorIndex != 0)
+		if (cursorIndex != 0)															// If the cursor's current index is different than 0 (Origin of the string).
 		{
-			cursorIndex--;
+			cursorIndex--;																// cursorIndex is decreased by 1, which at the input received in UI_InputBox will be used to re-set the visual cursor's position.
 		}
-
 	}
 
-	if (GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
+	if (GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)											// -----------------------------------------------------------------------------
 	{
-		if (cursorIndex != strlen(input_string))
+		if (cursorIndex != strlen(input_string))										// If the cursor's current index is different than the length of input_string in characters.
 		{
-			cursorIndex++;
+			cursorIndex++;																// cursorIndex is increased by 1, which at the input received in UI_InputBox will be used to re-set the visual cursor's position.
 		}
-
-		LOG("Cursor Index Going Right: %d", cursorIndex);
 	}
 }
 
-const char* j1Input::GetInputText()
+const char* j1Input::GetInputText()														// -----------------------------------------------------------------------------
 {
-	return input_string;
+	return input_string;																// Returns the current input_string.
 }
 
-int j1Input::GetInputTextLength()
+int j1Input::GetInputTextLength()														// -----------------------------------------------------------------------------
 {
-	if (input_string != NULL)
+	if (input_string != NULL)															// If input_string is not NULL
 	{
-		return strlen(input_string);
+		return strlen(input_string);													// Returns the current length of input_string in characters.
 	}
 	else
 	{
-		return 0;
+		return 0;																		// If input_string is NULL, then the retuned value will be 0.
 	}
 }
 
-int j1Input::GetCursorIndex()
+int j1Input::GetCursorIndex()															// -----------------------------------------------------------------------------
 {
-	return cursorIndex;
+	return cursorIndex;																	// Returns the current cursor index.
 }
 
 // --------------------------------- TEXT EDITING METHODS ---------------------------------
-void j1Input::CheckNewTextInput(const char* newTextInput)
+void j1Input::CheckNewTextInput(const char* newTextInput)								// -----------------------------------------------------------------------------
 {	
-	if (cursorIndex == strlen(input_string))
+	if (cursorIndex == strlen(input_string))											// If the cursor is at the end of the string.
 	{
-		AddTextInput(newTextInput);
+		AddTextInput(newTextInput);														// The incoming input text is added to the end of the string.
+		cursorIndex++;
 	}
 	else
 	{
-		char* tmp1 = GetCutText(cursorIndex - 1, cursorIndex - 1, true, false);
-		const char* tmp2 = GetCutText(cursorIndex - 1, cursorIndex - 1, false, true);
-		LOG("tmp1 %s", tmp1);
-		LOG("tmp2 %s", tmp2);
-
-		char* timed = input_string + cursorIndex;
-
-		if (cursorIndex + 1 != strlen(input_string))
-		{
-			DeleteTextInput(cursorIndex + 1);
-			AddTextInput(newTextInput);
-
-			cursorIndex++;
-
-			//DeleteTextInput(cursorIndex + 1);
-			LOG("Cursor Index At Crash: %d", cursorIndex);
-			LOG("tmp2 after %s", tmp2);
-			LOG("tmp1 after %s", tmp1);
-			AddTextInput(timed);
-			//AddTextInput(tmp1);
-		}
+		InsertTextInput(newTextInput);													// If the cursor is anywhere else in the string, the incoming input text is added at the cursor' position.
+		cursorIndex++;
 	}
 }
 
-void j1Input::AddTextInput(const char* origin)
+void j1Input::AddTextInput(const char* origin)											// -----------------------------------------------------------------------------
 {	
 	if (origin != NULL)
 	{
-		text_size = strlen(input_string);
-		unsigned int need_size = strlen(origin) + text_size + 1;
+		text_size = strlen(input_string);												//Calcuates the size of the current string/text.
+		unsigned int need_size = strlen(origin) + text_size + 1;						//The size needed to store both the current string and the incoming input text together is calculated.
 
-		if (need_size > text_size)
+		if (need_size > text_size)														//If the needed size is bigger than the current one.
 		{
-			char* tmp = input_string;
-			Allocate(need_size);
-			strcpy_s(input_string, need_size, tmp);
+			char* tmp = input_string;													//Buffer that stores the current input_string.
+			Allocate(need_size);														//The required size is allocated in memory.
+			strcpy_s(input_string, need_size, tmp);										//The input string is reallocated back from the buffer to the expanded string.
 			//delete[] tmp;
 		}
 
-		strcat_s(input_string, text_size, origin);
+		strcat_s(input_string, text_size, origin);										//The incoming input text is concatenated to the end of the input string.
 	}
 }
 
-void j1Input::DeleteTextInput(int positionIndex)
+void j1Input::InsertTextInput(const char* origin)										// -----------------------------------------------------------------------------
 {
-	int posIndex = positionIndex;
-	input_string[posIndex - 1] = '\0';
+	char tmp[MAX_SIZE] = { *GetCutText(cursorIndex, cursorIndex, false, true) };		//Gets the part of the string to the right of the cursor and stores it.
+
+	int i = (GetInputTextLength() - (GetInputTextLength() - cursorIndex));				//Set the position from where the string will be copied taking into account the cursor's position.
+	for (int j = 0; j < (GetInputTextLength() - cursorIndex); j++)						//From the previously set position until the end of the string each character will be stored in tmp.
+	{
+		tmp[j] = input_string[i];														//Stores input_string's character at index [i] and stores it in tmp's index [j]
+		i++;
+	}
+
+	DeleteTextInput(cursorIndex + 1);													//Deletes every character that is to the right of the cursor.
+	AddTextInput(origin);																//Adds the inputted text to the string.
+
+	AddTextInput(tmp);																	//Adds the previously stored tmp string to restore input_string, only that this time the inputted text passed as argument is in between.
 }
 
-bool j1Input::CutInputText(unsigned int begin, unsigned int end)
+bool j1Input::CutInputText(unsigned int begin, unsigned int end)						// -----------------------------------------------------------------------------
 {
-	uint len = strlen(input_string);
+	uint len = strlen(input_string);													//Stores the current length of input_string.
 
-	if (end >= len || end == 0)
-		end = len - 1;
+	if (end >= len || end == 0)															//If the end position index passed as argument is >= to the length of the string or end is == 0.
+		end = len - 1;																	//End will be re-set to length - 1.
 
-	if (begin > len || end <= begin)
-		return false;
+	if (begin > len || end <= begin)													//If the begin position index is larger than the length or end is less or equal to begin.
+		return false;																	//The method returns false as the aforementioned condition make it impossible to  "cut" the text.
 
-	char* p1 = input_string + begin;
-	char* p2 = input_string + end + 1;
+	char* p1 = input_string + begin;													//the temporal p1 string will be set with input_string + begin.
+	char* p2 = input_string + end + 1;													//the temporal p2 string will be set with input_string + end + 1.
 
-	while (*p1++ = *p2++);
+	while (*p1++ = *p2++);																//Passes p2's values to p1 as long as there are any elements left in p2's temporal string.
 
 	return true;
 }
 
-char* j1Input::GetCutText(unsigned int begin, unsigned int end, bool returnFirstPart, bool returnLastPart)
+char* j1Input::GetCutText(unsigned int begin, unsigned int end, bool returnFirstPart, bool returnLastPart)	// ----------------------------------------------------------
 {
-	uint len = strlen(input_string);
+	uint len = strlen(input_string);													//Stores the current length of input_string.
 
-	if (end >= len || end == 0)
-		end = len - 1;
+	if (end >= len || end == -1)														//If the end position index passed as argument is >= to the length of the string or end is -1.
+		end = len - 1;																	//End will be re-set to length - 1.
+	 
+	if (begin > len || end < begin)														//If the begin position index is larger than the length or end is less than begin.
+ 		return '\0';																	//The method returns '\0' as the aforementioned conditions make the function useless.
 
-	if (begin > len || end </*=*/ begin)
-		return NULL;
+	char* p1 = input_string + begin;													//the temporal p1 string will be set with input_string + begin.
+	char* p2 = input_string + end + 1;													//the temporal p2 string will be set with input_string + end + 1.
 
-	char* p1 = input_string + begin;
-	char* p2 = input_string + end + 1;
-
-	if (returnFirstPart && !returnLastPart)
+	if (returnFirstPart && !returnLastPart)												//If returnFirstPart is true and returnLastPart false.
 	{
-		return p1;
+		return p1;																		//The method returns p1.
 	}
 	
-	if (returnLastPart && !returnFirstPart)
+	if (returnLastPart && !returnFirstPart)												//If returnLastPart is true and returnFirstPart false.
 	{
-		return p2;
+		return p2;																		//The method returns p2.
 	}
 
-	return NULL;
+	return input_string;																//If no bool-relying condition is met, then the method returns input_string.
 }
 
-void j1Input::Allocate(int required_memory)
+void j1Input::DeleteTextInput(int positionIndex)										// -----------------------------------------------------------------------------
 {
-	text_size = required_memory;
-	input_string = new char[text_size];
+	input_string[positionIndex - 1] = '\0';												//Deletes the character to the left of the cursor (at the given index position).
 }
 
-void j1Input::ClearTextInput()
+void j1Input::ClearTextInput()															// -----------------------------------------------------------------------------
 {
-	input_string[0] = '\0';
+	input_string[0] = '\0';																//Deletes all characters of input_string.
 }
 
-//void j1Input::AddTexts(char* destination, const char* origin)
-//{
-//	if (origin != NULL)
-//	{
-//		int size = strlen(destination);
-//		unsigned int need_size = strlen(origin) + size + 1;
-//
-//		if (need_size > size)
-//		{
-//			char* tmp = destination;
-//			Allocate(need_size);
-//			strcpy_s(destination, need_size, tmp);
-//			//delete[] tmp;
-//		}
-//
-//		strcat_s(destination, size, origin);
-//	}
-//}
+void j1Input::Allocate(int required_memory)												// -----------------------------------------------------------------------------
+{
+	text_size = required_memory;														//Stores the required memory passed as argument.
+	input_string = new char[text_size];													//Declares a new char[] with the passed size and sets input_string with it.
+}

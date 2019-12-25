@@ -32,29 +32,28 @@ public:
 	void RefreshInputText();
 	void RefreshCursorPos();
 
-	int TextLength();
+	void SetCursorPosWithCursorIndex(int index);
+	void SetCursorPosWithTextWidth(const char* string);		//
+	void ResetCursorPositions(int index);					//If an inputted text is inserted in between 2 characters of the string, this method recalculates the cursor positions.
+
+	int TextLength();										//Gets the current text length.
+	int GetCurrentCursorIndex();							//Gets the current cursor index.
 
 private:
 	SDL_Texture*	tex;
-	UI_Image		background;					//Background element of the Input Box.
-	UI_Text			text;						//Text element of the Input Box.
-	UI_Image		cursor;						//Cursor element of the Input Box.
-	
-	SDL_Color		cursorColour;				//Colour of the cursor.
+	UI_Image		background;								//Background element of the Input Box.
+	UI_Text			text;									//Text element of the Input Box.
+	UI_Image		cursor;									//Cursor element of the Input Box.
 
-	_TTF_Font*		font;						//Loaded font.
-	int				textWidth;					//Current width of the text.
-	int				textHeight;					//Current height of the text.
-	int				prevTextWidth;
-	int				prevTextHeight;
+	_TTF_Font*		font;									//Loaded font.
+	int				textWidth;								//Current width of the text.
+	int				textHeight;								//Current height of the text.
+	iPoint			textOffset;								//Difference in origin position between the background's and the text's.
 
-	int				prevLength;					//Amount of letters currently in the text.
-	//int				cursorIndex;			//Each number of the cursorIndex corresponds with a letter. First letter: cursorIndex = 1...
-	int				currentCursorIndex;			//Each number of the cursorIndex corresponds with a letter. First letter: cursorIndex = 1...
-	bool			freeCursor;					//Keeps track whether the cursor is at the text's last letter or if it is moving around.
-	int				cursorPositions[500];		//Array that will keep track of all the positions that the cursor has been in. Each postion correspond with a cursor index.
-	//p2DynArray<int*> cursorPos;
-	iPoint			textOffset;					//Difference in origin position between the background's and the text's.
+	SDL_Color		cursorColour;							//Colour of the cursor.
+	int				prevLength;								//Amount of letters currently in the text.
+	int				currentIndex;							//Each number of the cursorIndex corresponds with a letter. First letter: cursorIndex = 1...
+	int				cursorPositions[MAX_SIZE];				//Array that will keep track of all the positions that the cursor has been in. Each postion correspond with a cursor index.
 };
 
 #endif // !__UI_INPUTBOX_H__
