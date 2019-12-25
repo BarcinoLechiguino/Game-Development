@@ -193,46 +193,16 @@ void UI_Text::DeleteCurrentStringTex()
 }
 
 // ----------------------------------------- INPUT TEXT METHODS -----------------------------------------
-p2SString* UI_Text::GetPreviousInputString()
-{
-	return previousInputString;
-}
-
-void UI_Text::SetPreviousInputString(p2SString* newString)
-{
-	previousInputString = newString;
-}
-
-void UI_Text::SetInputStringTex(p2SString* newString)
-{
-	if (inputTextTex == NULL)
-	{
-		inputTextTex = App->font->Print(newString->GetString(), font_colour, font);
-		previousInputString = newString;
-	}
-	else
-	{
-		App->tex->UnLoad(inputTextTex);
-		inputTextTex = App->font->Print(newString->GetString(), font_colour, font);
-		previousInputString = newString;
-	}
-
-	currentTex = inputTextTex;
-}
-
-// --- Input Text passed as char.
 void UI_Text::RefreshTextInput(const char* newString)
 {
 	if (inputTextTex == NULL)
 	{
 		inputTextTex = App->font->Print(newString, font_colour, font);
-		//previousInputString = newString;
 	}
 	else
 	{
 		App->tex->UnLoad(inputTextTex);
 		inputTextTex = App->font->Print(newString, font_colour, font);
-		//previousInputString = newString;
 	}
 
 	currentTex = inputTextTex;

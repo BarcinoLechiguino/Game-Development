@@ -195,23 +195,23 @@ void j1Input::GetMouseMotion(int& x, int& y)
 // ---------------------------- TEXT INPUT METHODS ----------------------------
 void j1Input::TextInput()																// -----------------------------------------------------------------------------
 {	
-	if (App->gui->focusedElement != nullptr)
+	if (App->gui->focusedElement != nullptr)											//If the focused element is not NULL.
 	{
-		if (App->gui->focusedElement->element == UI_Element::INPUTBOX)
+		if (App->gui->focusedElement->element == UI_Element::INPUTBOX && App->gui->focusedElement->isVisible)	//If the focused element is of the INPUTBOX type and is visible.
 		{
-			SDL_StartTextInput();														//If the focused element is of the INPUTBOX type, start text input.
-			textInputEnabled = true;
+			SDL_StartTextInput();														//Start to receive/record text input.
+			textInputEnabled = true;													//As text input has started to be received, textInputEnabled is set to true. Manages EditTextInput().
 		}
 		else
 		{
 			SDL_StopTextInput();														//In case the focused element is not of the INPUTBOX type, stop text input.
-			textInputEnabled = false;
+			textInputEnabled = false;													//As text input has stopped being received, textInputEnabled is set to true. Manages EditTextInput().
 		}
 	}
 	else
 	{
 		SDL_StopTextInput();															//In case the focused element is NULL. Used when right after focusing the inputbox, the focus changes to nullptr
-		textInputEnabled = false;
+		textInputEnabled = false;														//As text input has stopped being received, textInputEnabled is set to true. Manages EditTextInput().
 	}
 
 	if (input_string == nullptr)														// If input_string is NULL.

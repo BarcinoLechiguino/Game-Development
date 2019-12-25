@@ -88,13 +88,14 @@ bool j1Scene::Start()
 
 	SDL_Color fontColour	= { 255, 255, 255, 255 };
 	SDL_Color cursorColour	= { 255, 255, 255, 255 };
+	float blinkFrequency	= 0.5f;
 
 	p2SString defaultTxt	= "Input Text Here";
 	_TTF_Font* inputFont	= App->font->Load("fonts/open_sans/OpenSans-SemiboldItalic.ttf", 30);
 	iPoint textOffset		= { 10, 9 };
 
 	inputBox = (UI_InputBox*)App->gui->CreateInputBox(UI_Element::INPUTBOX, 295, 355, inputBoxBg, inputFont, fontColour, textCursor, cursorColour, textOffset,
-													true, true, false, window, &defaultTxt);
+												blinkFrequency, true, true, false, window, &defaultTxt);
 
 	return true;
 }

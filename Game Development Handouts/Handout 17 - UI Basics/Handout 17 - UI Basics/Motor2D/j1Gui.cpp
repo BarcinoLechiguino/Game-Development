@@ -197,11 +197,11 @@ UI* j1Gui::CreateUI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bo
 }
 
 UI* j1Gui::CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, SDL_Rect cursor, SDL_Color cursorColour, iPoint textOffset, 
-					bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* defaultString)
+					float blinkFrequency, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* defaultString)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_InputBox(element, x, y, hitbox, font, fontColour, cursor, cursorColour, textOffset, isVisible, isInteractible, isDraggable, parent, defaultString);
+	elem = new UI_InputBox(element, x, y, hitbox, font, fontColour, cursor, cursorColour, textOffset, blinkFrequency, isVisible, isInteractible, isDraggable, parent, defaultString);
 
 	if (elem != nullptr)
 	{

@@ -3,19 +3,18 @@
 #include "j1Input.h"
 #include "j1Render.h"
 #include "j1Gui.h"
-//#include "UI.h"
 #include "UI_Image.h"
 #include "UI_Text.h"
 #include "UI_InputBox.h"
 
-#include "p2DynArray.h"
-
+//UI_InputBox will always be interactible (although it can be set to not be), and can be draggable. Can potentially receive all events.
+//The element receives as arguments all the requiered elements to create a UI_Image (Background), a UI_Text (input text) and another UI_Image (cursor).
 UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, SDL_Rect cursorSize, SDL_Color cursorColour, iPoint textOffset,
-		bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* defaultString) : UI(element, x, y, hitbox, parent)
+		float blinkFrequency, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* defaultString) : UI(element, x, y, hitbox, parent)
 {
 	tex = App->gui->GetAtlas();
 	
-	if (/*this->isInteractible*/ isInteractible)							//If the Input Box element is interactible.
+	if (isInteractible)														//If the Input Box element is interactible.
 	{
 		listener = App->gui;												//This button's listener is set to the App->gui module (For OnCallEvent()).
 	}
@@ -46,15 +45,18 @@ UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF
 	cursor = UI_Image(UI_Element::IMAGE, x + textOffset.x, y + textOffset.y, cursorSize, false, false, false, this);
 	
 	// --- Text Variables
-	this->font = font;														//Sets the UI input box font to the one being passed as argument.
-	this->cursorColour = cursorColour;										//Sets the cursor colour to the cursor colour being passed as argument. (See DrawCursor())
-	this->textOffset = textOffset;											//Sets the text offset to the text offset being passed as arguments.
-	this->textWidth = 0;													//As the initial input text will be empty, text width is set to 0.
-	this->textHeight = 0;													//As the initial input text will be empty, text height is set to 0. 
+	this->font = font;																//Sets the UI input box font to the one being passed as argument.
+	this->cursorColour = cursorColour;												//Sets the cursor colour to the cursor colour being passed as argument. (See DrawCursor())
+	this->textOffset = textOffset;													//Sets the text offset to the text offset being passed as arguments.
+	this->textWidth = 0;															//As the initial input text will be empty, text width is set to 0.
+	this->textHeight = 0;															//As the initial input text will be empty, text height is set to 0. 
 	this->prevLength = 0;
-	//this->cursorIndex = 0;													//As the initial input text will be empty, cursorIndex is set to 0.
-	this->cursorPositions[/*cursorIndex*/ 0] = cursor.GetScreenPos().x;			//As the initial input text will be empty, the first cursor position (cursor index 0) will be the cursor's origin position.
 	
+	// ---  Cursor Variables
+	this->cursorPositions[GetCurrentCursorIndex()] = cursor.GetScreenPos().x;		//As there will be no initial text, the first cursor position (index 0) will be the cursor's origin position.
+	cursor.isVisible = false;
+	blinkTimer = 0.0f;
+	this->blinkFrequency = blinkFrequency;
 	// --------------------------------------------------------------------------------------
 }
 
@@ -155,16 +157,21 @@ void UI_InputBox::CheckInput()
 // --- DRAW INPUT BOX ELEMENTS
 void UI_InputBox::DrawInputBoxElements()													// --------------------------------------------------------------------------
 {
-	background.Draw();
-	text.Draw();
-	DrawCursor();
+	background.Draw();																		//Calls Background's Draw() method.
+	text.Draw();																			//Calls Text's Draw() method.
+	DrawCursor();																			//Calls the DrawCursor() method. If the conditions are met, the cursor will be drawn on screen.
 }
 
 void UI_InputBox::DrawCursor()																// --------------------------------------------------------------------------
 {
-	if (this->isVisible && IsFocused())
+	if (IsFocused() && this->isVisible && cursor.isVisible)									//If input box is focused, input box is visible and the cursor is visible.
 	{
-		App->render->DrawQuad(cursor.GetHitbox(), cursorColour.r, cursorColour.g, cursorColour.b, cursorColour.a, true, false);
+		App->render->DrawQuad(cursor.GetHitbox()											//Draws a quad on screen with the parameters of the cursor's hitbox and the colour passed as argument.
+			, cursorColour.r
+			, cursorColour.g
+			, cursorColour.b
+			, cursorColour.a
+			, true, false);
 	}
 }
 // -----------------------------
@@ -173,40 +180,40 @@ void UI_InputBox::DrawCursor()																// -------------------------------
 // --- This method returns the current input text length.
 int UI_InputBox::TextLength()																// --------------------------------------------------------------------------
 {
-	return App->input->GetInputTextLength();
+	return App->input->GetInputTextLength();												//Gets the current input text's length in characters.
 }
 
 int UI_InputBox::GetCurrentCursorIndex()													// --------------------------------------------------------------------------
 {
-	return App->input->GetCursorIndex();
+	return App->input->GetCursorIndex();													//Gets the current cursor's index.
 }
 // -----------------------------
 
 // --- INPUT BOX ELEMENTS STATE
 void UI_InputBox::CheckInputBoxState()														// --------------------------------------------------------------------------
 {
-	UpdateInputBoxElementsPos();
-	CheckFocus();
+	UpdateInputBoxElementsPos();															//Calls UpdateInputBoxE...() If input box has changed positions, all its elements will be actualized.
+	CheckFocus();																			//Calls CheckFocus(). If the input box has the focus and is visible, text input will be received and sent to Print().
 }
 
 void UI_InputBox::UpdateInputBoxElementsPos()												// --------------------------------------------------------------------------
 {
-	if (this->GetScreenPos() != this->initialPosition)
+	if (this->GetScreenPos() != this->initialPosition)										//If the input box has changed positions. (Dragged, updated as a child...)
 	{
-		background.SetScreenPos(background.GetLocalPos() + GetScreenPos());
-		background.SetHitbox({ background.GetScreenPos().x
+		background.SetScreenPos(background.GetLocalPos() + GetScreenPos());					//The Background element's position will be actualized to match the input box.
+		background.SetHitbox({ background.GetScreenPos().x									//The Background element's hitbox position will be actualized to match the input box.
 						, background.GetScreenPos().y
 						, background.GetHitbox().w
 						, background.GetHitbox().h });
 
-		text.SetScreenPos(text.GetLocalPos() + GetScreenPos());
-		text.SetHitbox({   text.GetScreenPos().x
+		text.SetScreenPos(text.GetLocalPos() + GetScreenPos());								//The Text element's position will be actualized to match the input box.
+		text.SetHitbox({   text.GetScreenPos().x											//The Text element's hitbox position will be actualized to match the input box.
 						, text.GetScreenPos().y
 						, text.GetHitbox().w
 						, text.GetHitbox().h });
 
-		cursor.SetScreenPos({ cursor.GetLocalPos() + GetScreenPos() });
-		cursor.SetHitbox({ cursor.GetScreenPos().x
+		cursor.SetScreenPos({ cursor.GetLocalPos() + GetScreenPos() });						//The Cursor element's position will be actualized to match the input box.
+		cursor.SetHitbox({ cursor.GetScreenPos().x											//The Cursor element's hitbox position will be actualized to match the input box.
 						, cursor.GetScreenPos().y
 						, cursor.GetHitbox().w
 						, cursor.GetHitbox().h });
@@ -215,19 +222,25 @@ void UI_InputBox::UpdateInputBoxElementsPos()												// --------------------
 
 void UI_InputBox::CheckFocus()																// --------------------------------------------------------------------------
 {
-	if (IsFocused() && isVisible)
+	if (IsFocused() && isVisible)															//If the input box has the focus and is visible.
 	{
-		text.ui_event = UI_Event::FOCUSED;
-		cursor.isVisible = true;
+		text.ui_event = UI_Event::FOCUSED;													//The text's ui_event will be set to FOCUSED.
+
+		blinkTimer += App->GetDT();															//Accumulates dt on blinkTimer.
+
+		if (blinkTimer >= blinkFrequency)													//If blink timer is larger or equal to blinkFrequency. blinkFrequency is the blink limit in seconds.
+		{
+			cursor.isVisible = !cursor.isVisible;											//Sets the cursor's isVisible bool to true. Shows the cursor on screen.
+			blinkTimer = 0.0f;																//Resets blinkTimer.
+		}
 		
-		CheckCursorInputs();
-		RefreshInputText();
+		CheckCursorInputs();																//Calls CheckCursorInputs(). Depending on the input the cursor's position on screen will change.
+		RefreshInputText();																	//Calls RefreshInputText(). Sends the received text input to the text element and prints it on screen.
 	}
 	else
 	{
-		text.ui_event = UI_Event::UNFOCUSED;
-		cursor.isVisible = false;
-		//text.SetCurrentStringTex();
+		text.ui_event = UI_Event::UNFOCUSED;												//If the input box is not focused or visible, it will lose focus. (ui_event set to UNFOCUSED)
+		cursor.isVisible = false;															//Sets the cursor's isVisible bool to false. (The cursor will no longer show on screen.
 	}
 }
 
@@ -235,26 +248,21 @@ void UI_InputBox::CheckCursorInputs()														// --------------------------
 {	
 	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)									// --------------------------------------------------------------------------
 	{
-		int prevIndex = GetCurrentCursorIndex();
+		int prevIndex = GetCurrentCursorIndex();											//Gets the current cursor index. Named prevIndex to improve readability.
 
-		if (cursorPositions[prevIndex] != NULL)
+		if (cursorPositions[prevIndex] != NULL)												//If the cursor position for the nextIndex is not NULL.
 		{
-			SetCursorPosWithCursorIndex(prevIndex);
-
-			LOG("CursorIndex Going Left %d", prevIndex);
-			LOG("Cursor Position Going Left %d", cursorPositions[prevIndex]);
+			SetCursorPosWithCursorIndex(prevIndex);											//Sets the cursor's position to the one stored in the cursorPostions[] array for the passed index.
 		}
 	}
 
 	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)			//See j1Input			// --------------------------------------------------------------------------
 	{
-		int nextIndex = GetCurrentCursorIndex();																	//THIS CURSOR---INDEX
+		int nextIndex = GetCurrentCursorIndex();											//Gets the current cursor index. Named nextIndex to improve readability.
 
-		if (cursorPositions[nextIndex] != NULL && nextIndex <= TextLength() + 1)
+		if (cursorPositions[nextIndex] != NULL)												//If the cursor position for the nextIndex is not NULL.
 		{
-			SetCursorPosWithCursorIndex(nextIndex);
-
-			LOG("CursorIndex Going Right %d", nextIndex);
+			SetCursorPosWithCursorIndex(nextIndex);											//Sets the cursor's position to the one stored in the cursorPostions[] array for the passed index.
 		}
 	}
 
@@ -272,14 +280,12 @@ void UI_InputBox::CheckCursorInputs()														// --------------------------
 		//{
 		//	SetCursorPosWithCursorIndex(currentIndex);
 		//}
-
-		LOG("Cursor Index At IBx Delete: %d", currentIndex);
 	}
 
 	if (App->input->GetKey(SDL_SCANCODE_DELETE) == KEY_DOWN)	//See j1Input				// --------------------------------------------------------------------------
 	{
-		currentIndex = GetCurrentCursorIndex();
-		SetCursorPosWithCursorIndex(currentIndex);
+		currentIndex = GetCurrentCursorIndex();												//Gets the current cursor index. In this case current index will be 0. See j1Input.
+		SetCursorPosWithCursorIndex(currentIndex);											//Sets the cursor's poition to the one stored in the cursorPositions[] array for the passed index.
 		
 		for (int i = 0; i < prevLength; i++)												//Cleans Up all previously recorded positions in the cursorPositions[] array.
 		{
@@ -289,8 +295,8 @@ void UI_InputBox::CheckCursorInputs()														// --------------------------
 
 	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN)								// --------------------------------------------------------------------------
 	{
-		currentIndex = GetCurrentCursorIndex();
-		SetCursorPosWithCursorIndex(currentIndex);
+		currentIndex = GetCurrentCursorIndex();												//Gets the current cursor index. In this case current index will be 0. See j1Input.
+		SetCursorPosWithCursorIndex(currentIndex);											//Sets the cursor's poition to the one stored in the cursorPositions[] array for the passed index.
 
 		for (int i = 0; i < prevLength; i++)												//Cleans Up all previously recorded positions in the cursorPositions[] array..
 		{
@@ -300,23 +306,20 @@ void UI_InputBox::CheckCursorInputs()														// --------------------------
 
 	if (App->input->GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)		//See j1Input				// --------------------------------------------------------------------------
 	{
-		currentIndex = GetCurrentCursorIndex();
+		currentIndex = GetCurrentCursorIndex();												//Gets the current cursor index. In this case current index will be 0. See j1Input.
 
-		SetCursorPosWithCursorIndex(currentIndex);
+		SetCursorPosWithCursorIndex(currentIndex);											//Sets the cursor's poition to the one stored in the cursorPositions[] array for the passed index.
 	}
 
 	if (App->input->GetKey(SDL_SCANCODE_END) == KEY_DOWN)		//See j1Input				// --------------------------------------------------------------------------
 	{
-		currentIndex = GetCurrentCursorIndex();
+		currentIndex = GetCurrentCursorIndex();												//Gets the current cursor index. In this case current index will be the length of the input_string.
 		
-		SetCursorPosWithCursorIndex(currentIndex);
-
-		//cursorIndex = TextLength();
-
-		LOG("END CURSOR INDEX %d", GetCurrentCursorIndex());
+		SetCursorPosWithCursorIndex(currentIndex);											//Sets the cursor's poition to the one stored in the cursorPositions[] array for the passed index.
 	}
 }
 
+// ------------------------------ REFRESH TEXT AND CURSOR METHODS ------------------------------
 void UI_InputBox::RefreshInputText()														// --------------------------------------------------------------------------
 {
 	text.DeleteCurrentStringTex();															//Sets to NULL the text's currentTex.
@@ -337,7 +340,7 @@ void UI_InputBox::RefreshCursorPos()														// ---------------------------
 
 	if (currentIndex == TextLength())														//If cursor is at the text's end.
 	{
-		SetCursorPosWithTextWidth(App->input->GetInputText());								//Sets the cursor position as the cursor's origin position + textWidth.
+		SetCursorPosWithTextWidth(App->input->GetInputText());								//Sets the cursor's position as the cursor's origin position + textWidth.
 	}
 	else
 	{
@@ -386,7 +389,7 @@ void UI_InputBox::ResetCursorPositions(int index)											// -----------------
 		cursorPositions[i] = cursor.GetHitbox().x;											//Stores the new cursor position for index [i] in the positions array.
 	}
 }
-// ----------------------------------------------
+// -------------------------------------------------------------------------------------------
 
 void UI_InputBox::SetInputBoxVisibility()
 {

@@ -17,13 +17,8 @@ public:
 	void CheckInput();
 
 	SDL_Texture* GetCurrentStringTex();
-	//void SetCurrentStringTex(SDL_Texture* newTex);
 	void DeleteCurrentStringTex();
 
-	p2SString* GetPreviousInputString();
-	void SetPreviousInputString(p2SString* newString);
-	void SetInputStringTex(p2SString* newString);
-	
 	void RefreshTextInput(const char* newString);
 
 private:
@@ -35,7 +30,6 @@ private:
 	SDL_Texture*	leftClickTex;			//Texture for the left-Clicked state of the text.
 	SDL_Texture*	rightClickTex;			//Texture for the right-Clicked state of the text.
 
-	p2SString*		previousInputString;	//Keeps track of the previous Input Text String.
 	SDL_Texture*	inputTextTex;			//Texture that is constantly being refreshed. If text is inputted, this texture will show the text input on screen.
 
 	SDL_Texture*	currentTex;				//Current texture to be blitted. Depends on the input the UI Text element receives.
