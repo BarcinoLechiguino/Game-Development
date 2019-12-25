@@ -13,7 +13,7 @@ class UI_InputBox : public UI
 public:
 	UI_InputBox();
 	UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, SDL_Rect cursorSize, SDL_Color cursorColor, iPoint textOffset,
-		float blinkFrequency = 0.5f, bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr, p2SString* defaultString = nullptr);
+		float blinkFrequency = 0.0f, bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr, p2SString* defaultString = nullptr);
 
 	bool Draw();
 
@@ -52,7 +52,7 @@ private:
 
 	SDL_Color		cursorColour;							//Colour of the cursor.
 	float			blinkTimer;								//Keeps track of the time (dt). Applied to the blinking of the cursor.
-	float			blinkFrequency;							//Amount of time that the cursor will spend in one state (visible/not visible).
+	float			blinkFrequency;							//Amount of time that the cursor will spend in one state (visible/not visible). Set to 0 to make it always visible.
 	int				prevLength;								//Amount of letters currently in the text.
 	int				currentIndex;							//Each number of the cursorIndex corresponds with a letter. First letter: cursorIndex = 1...
 	int				cursorPositions[MAX_SIZE];				//Array that will keep track of all the positions that the cursor has been in. Each postion correspond with a cursor index.

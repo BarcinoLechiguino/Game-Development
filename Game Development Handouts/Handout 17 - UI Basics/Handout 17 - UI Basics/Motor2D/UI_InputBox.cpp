@@ -14,30 +14,30 @@ UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF
 {
 	tex = App->gui->GetAtlas();
 	
-	if (isInteractible)														//If the Input Box element is interactible.
+	if (isInteractible)																//If the Input Box element is interactible.
 	{
-		listener = App->gui;												//This button's listener is set to the App->gui module (For OnCallEvent()).
+		listener = App->gui;														//This button's listener is set to the App->gui module (For OnCallEvent()).
 	}
 
-	if (parent != NULL)														//If a parent is passed as argument.
+	if (parent != NULL)																//If a parent is passed as argument.
 	{
-		int localPosX = x - this->parent->GetScreenPos().x;					//Gets the local position of the Button element in the X Axis.
-		int localPosY = y - this->parent->GetScreenPos().y;					//Gets the local position of the Button element in the Y Axis.
+		int localPosX = x - this->parent->GetScreenPos().x;							//Gets the local position of the Button element in the X Axis.
+		int localPosY = y - this->parent->GetScreenPos().y;							//Gets the local position of the Button element in the Y Axis.
 
-		iPoint localPos = { localPosX,localPosY };							//Buffer iPoint to pass it as argument to SetLocalPos().
+		iPoint localPos = { localPosX,localPosY };									//Buffer iPoint to pass it as argument to SetLocalPos().
 
-		SetLocalPos(localPos);												//Sets the local poisition of this Button element to the given localPos.
+		SetLocalPos(localPos);														//Sets the local poisition of this Button element to the given localPos.
 	}
 
 	// ----------------------------- INPUT BOX VARIABLES ---------------------------------
 	// --- Input Box Flags
-	this->isVisible = isVisible;											//Sets the isVisible flag of the input box to the one passed as argument.
-	this->isInteractible = isInteractible;									//Sets the isInteractible flag of the input box to the one passed as argument.
-	this->isDraggable = isDraggable;										//Sets the isDraggable flag of the input box to the one passed as argument.
+	this->isVisible = isVisible;													//Sets the isVisible flag of the input box to the one passed as argument.
+	this->isInteractible = isInteractible;											//Sets the isInteractible flag of the input box to the one passed as argument.
+	this->isDraggable = isDraggable;												//Sets the isDraggable flag of the input box to the one passed as argument.
 
-	prevMousePos = iPoint(0, 0);											//Initializes prevMousePos for this UI Element. Safety measure to avoid weird dragging behaviour.
+	prevMousePos = iPoint(0, 0);													//Initializes prevMousePos for this UI Element. Safety measure to avoid weird dragging behaviour.
 
-	initialPosition = GetScreenPos();	//
+	initialPosition = GetScreenPos();												//Records the initial position where the input box is at game start.
 
 	// --- Input Box Elements
 	background = UI_Image(UI_Element::IMAGE, x, y, hitbox, true, false, false, this);
@@ -56,7 +56,12 @@ UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF
 	this->cursorPositions[GetCurrentCursorIndex()] = cursor.GetScreenPos().x;		//As there will be no initial text, the first cursor position (index 0) will be the cursor's origin position.
 	cursor.isVisible = false;
 	blinkTimer = 0.0f;
-	this->blinkFrequency = blinkFrequency;
+	
+	if (blinkFrequency >= 0.0f)
+		this->blinkFrequency = blinkFrequency;
+
+	if (blinkFrequency < 0.0f)
+		this->blinkFrequency = -blinkFrequency;
 	// --------------------------------------------------------------------------------------
 }
 
@@ -226,12 +231,19 @@ void UI_InputBox::CheckFocus()																// -------------------------------
 	{
 		text.ui_event = UI_Event::FOCUSED;													//The text's ui_event will be set to FOCUSED.
 
-		blinkTimer += App->GetDT();															//Accumulates dt on blinkTimer.
-
-		if (blinkTimer >= blinkFrequency)													//If blink timer is larger or equal to blinkFrequency. blinkFrequency is the blink limit in seconds.
+		if (blinkFrequency != 0.0f)															//If the cursor's blinkFrequency is different than 0;
 		{
-			cursor.isVisible = !cursor.isVisible;											//Sets the cursor's isVisible bool to true. Shows the cursor on screen.
-			blinkTimer = 0.0f;																//Resets blinkTimer.
+			blinkTimer += App->GetDT();														//Accumulates dt on blinkTimer.
+			
+			if (blinkTimer >= blinkFrequency)												//If blink timer is larger or equal to blinkFrequency. blinkFrequency is the blink limit in seconds.
+			{
+				cursor.isVisible = !cursor.isVisible;										//Sets the cursor's isVisible bool to true. Shows the cursor on screen.
+				blinkTimer = 0.0f;															//Resets blinkTimer.
+			}
+		}
+		else
+		{
+			cursor.isVisible = true;
 		}
 		
 		CheckCursorInputs();																//Calls CheckCursorInputs(). Depending on the input the cursor's position on screen will change.
