@@ -20,15 +20,22 @@ public:
 public:
 	void DrawScrollbarElements();
 	void LinkScroll(UI* element);
+	void SetNewThumbPos();
 	void UpdateLinkedElements();
 	float GetDragFactor(UI* element);
 
-	bool GetDragXAxis();
-	bool GetDragYAxis();
+	bool GetDragXAxis() const;
+	bool GetDragYAxis() const;
+	void PlaceThumbOnMousePos();
 	void DragThumbWithMousewheel();
-	bool ThumbIsWithinScrollbarBounds();
-	bool ThumbAtUpperBound();
-	bool ThumbAtLowerBound();
+	
+	bool ThumbIsWithinVerticalScrollbarBounds();
+	bool ThumbIsAtUpperBound();
+	bool ThumbIsAtLowerBound();
+	bool ThumbIsWithinHorizontalScrollbarBounds();
+	bool ThumbIsAtLeftBound();
+	bool ThumbIsAtRightBound();
+	void CheckScrollbarBounds();
 
 private:
 	SDL_Texture* tex;
@@ -45,7 +52,7 @@ private:
 	iPoint		dragDisplacement;
 	iPoint		mouseWheelScroll;
 	bool		invertedScrolling;
-	int			thumbPos;
+	iPoint		newThumbPos;
 
 	p2List<UI*> linkedElements;
 

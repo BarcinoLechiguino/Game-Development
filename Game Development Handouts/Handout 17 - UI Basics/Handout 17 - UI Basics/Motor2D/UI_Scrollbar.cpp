@@ -62,7 +62,9 @@ bool UI_Scrollbar::Draw()
 {
 	CheckInput();
 
-	DrawScrollbarElements();
+	UpdateLinkedElements();
+	
+	//DrawScrollbarElements();
 
 	//BlitElement()
 
@@ -85,57 +87,59 @@ void UI_Scrollbar::CheckInput()
 			DragThumbWithMousewheel();
 		}
 
-		if (isDraggable)																		//If the image element is draggable.
+		if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)		//If the mouse is on the image and the left mouse button is pressed.
 		{
-			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)		//If the mouse is on the image and the left mouse button is pressed.
+			if (IsForemostElement() || !IsFocused())
 			{
-				if (IsForemostElement())
+				prevMousePos = GetMousePos();												//Sets the initial position where the mouse was before starting to drag the element.
+				initialPosition = GetScreenPos();											//Sets initialPosition with the current position at mouse KEY_DOWN.
+				isDragTarget = true;														//Sets the element as the drag target.
+				App->gui->focusedElement = this;											//Set the focus on the Input Box element when it is clicked.
+			}
+
+			if (IsFocused())
+			{
+				PlaceThumbOnMousePos();
+			}
+		}
+
+		if (!IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)		//Unfocus when the mouse clicks outside the input box.
+		{
+			if (App->gui->focusedElement == this)
+			{
+				App->gui->focusedElement = nullptr;
+			}
+		}
+
+		if ((IsHovered() || isDragTarget) && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)	//If the mouse is on the image and the left mouse button is continuously pressed.
+		{
+			if (IsForemostElement() || isDragTarget);														//If it is the first element under the mouse (in inverse order of draw)
+			{
+				ui_event = UI_Event::CLICKED;
+
+				if (ElementCanBeDragged() && isDraggable)									//If the UI Image element is draggable and is the foremost element under the mouse.
 				{
-					prevMousePos = GetMousePos();												//Sets the initial position where the mouse was before starting to drag the element.
-					initialPosition = GetScreenPos();											//Sets initialPosition with the current position at mouse KEY_DOWN.
-					isDragTarget = true;														//Sets the element as the drag target.
-					App->gui->focusedElement = this;											//Set the focus on the Input Box element when it is clicked.
+					DragElement();															//The element is dragged around.
+
+					CheckElementChilds();													//Checks if this image element has any childs and updates them in case the image element (parent) has had any change in position.
+
+					prevMousePos = GetMousePos();											//prevMousePos is set with the new position where the mouse is after dragging for a frame.
 				}
 			}
+		}
 
-			if (!IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN)		//Unfocus when the mouse clicks outside the input box.
+		if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)
+		{
+			if (isDragTarget)
 			{
-				if (App->gui->focusedElement == this)
-				{
-					App->gui->focusedElement = nullptr;
-				}
+				isDragTarget = false;
+				initialPosition = GetScreenPos();
 			}
+		}
 
-			if ((IsHovered() || isDragTarget) && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)	//If the mouse is on the image and the left mouse button is continuously pressed.
-			{
-				if (IsForemostElement() || isDragTarget);														//If it is the first element under the mouse (in inverse order of draw)
-				{
-					ui_event = UI_Event::CLICKED;
-
-					if (ElementCanBeDragged())													//If the UI Image element is draggable and is the foremost element under the mouse.
-					{
-						DragElement();															//The element is dragged around.
-
-						CheckElementChilds();													//Checks if this image element has any childs and updates them in case the image element (parent) has had any change in position.
-
-						prevMousePos = GetMousePos();											//prevMousePos is set with the new position where the mouse is after dragging for a frame.
-					}
-				}
-			}
-
-			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)
-			{
-				if (/*IsForemostElement() &&*/ isDragTarget)
-				{
-					isDragTarget = false;
-					initialPosition = GetScreenPos();
-				}
-			}
-
-			if (isInteractible)																	//If the image element is interactible.
-			{
-				listener->OnEventCall(this, ui_event);											//The listener call the OnEventCall() method passing this UI_Image and it's event as arguments.
-			}
+		if (isInteractible)																	//If the image element is interactible.
+		{
+			listener->OnEventCall(this, ui_event);											//The listener call the OnEventCall() method passing this UI_Image and it's event as arguments.
 		}
 	}
 }
@@ -145,8 +149,6 @@ void UI_Scrollbar::DrawScrollbarElements()
 	//bar.Draw();
 	//thumb.Draw();
 	//scrollMask->isVisible = false;
-
-	UpdateLinkedElements();
 }
 
 void UI_Scrollbar::LinkScroll(UI* element)
@@ -223,60 +225,163 @@ float UI_Scrollbar::GetDragFactor(UI* element)
 	return dragFactor;
 }
 
-bool UI_Scrollbar::GetDragXAxis()
+bool UI_Scrollbar::GetDragXAxis() const
 {
 	return dragXAxis;
 }
 
-bool UI_Scrollbar::GetDragYAxis()
+bool UI_Scrollbar::GetDragYAxis() const
 {
 	return dragYAxis;
 }
 
-void UI_Scrollbar::DragThumbWithMousewheel()
+void UI_Scrollbar::PlaceThumbOnMousePos()
+{
+	if (dragXAxis)
+	{
+		newThumbPos = { GetMousePos().x, thumb->GetScreenPos().y };
+
+		thumb->SetScreenPos(newThumbPos);
+		thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+	}
+
+	if (dragYAxis)
+	{
+		newThumbPos = { thumb->GetScreenPos().x, GetMousePos().y };
+
+		thumb->SetScreenPos(newThumbPos);
+		thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+	}
+}
+
+void UI_Scrollbar::DragThumbWithMousewheel()																							// ----------------------------------------------
 {
 	App->input->GetMousewheelScrolling(mouseWheelScroll.x, mouseWheelScroll.y);
+
+	mouseWheelScroll = { mouseWheelScroll.x * 3, mouseWheelScroll.y * 3 };																//It is multiplied by 3 to increase scroll speed.
 
 	if (dragXAxis)
 	{
 		if (invertedScrolling)
 		{
-			thumb->SetScreenPos(iPoint(thumb->GetScreenPos().x - mouseWheelScroll.x, thumb->GetScreenPos().y));
-			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			if (ThumbIsWithinHorizontalScrollbarBounds())
+			{
+				newThumbPos = { thumb->GetScreenPos().x - mouseWheelScroll.x, thumb->GetScreenPos().y };									// Done for readability.
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
 		}
 		else
 		{
-			thumb->SetScreenPos(iPoint(thumb->GetScreenPos().x + mouseWheelScroll.x, thumb->GetScreenPos().y));
-			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			if (ThumbIsWithinHorizontalScrollbarBounds())
+			{
+				newThumbPos = { thumb->GetScreenPos().x + mouseWheelScroll.x, thumb->GetScreenPos().y };
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
 		}
+
+		CheckScrollbarBounds();
 	}
 
 	if (dragYAxis)
 	{
 		if (invertedScrolling)
 		{
-			thumb->SetScreenPos(iPoint(thumb->GetScreenPos().x, thumb->GetScreenPos().y - mouseWheelScroll.y));
-			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			if (ThumbIsWithinVerticalScrollbarBounds())
+			{
+				newThumbPos = { thumb->GetScreenPos().x, thumb->GetScreenPos().y - mouseWheelScroll.y };
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
 		}
 		else
 		{
-			thumb->SetScreenPos(iPoint(thumb->GetScreenPos().x, thumb->GetScreenPos().y + mouseWheelScroll.y));
-			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			if (ThumbIsWithinVerticalScrollbarBounds())
+			{
+				newThumbPos = { thumb->GetScreenPos().x, thumb->GetScreenPos().y + mouseWheelScroll.y };
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
 		}
+
+		CheckScrollbarBounds();
 	}
 }
 
-bool UI_Scrollbar::ThumbIsWithinScrollbarBounds()
+bool UI_Scrollbar::ThumbIsWithinVerticalScrollbarBounds()
 {
-	return true;
+	return (thumb->GetScreenPos().y != this->GetScreenPos().y 
+			&& thumb->GetScreenPos().y + thumb->GetHitbox().h != this->GetScreenPos().y + this->GetHitbox().h);
 }
 
-bool UI_Scrollbar::ThumbAtUpperBound()
+bool UI_Scrollbar::ThumbIsAtUpperBound()
 {
-	return true;
+	return (thumb->GetScreenPos().y <= this->GetScreenPos().y);
 }
 
-bool UI_Scrollbar::ThumbAtLowerBound()
+bool UI_Scrollbar::ThumbIsAtLowerBound()
 {
-	return true;
+	return (thumb->GetScreenPos().y + thumb->GetHitbox().h >= this->GetScreenPos().y + this->GetHitbox().h);
+}
+
+bool UI_Scrollbar::ThumbIsWithinHorizontalScrollbarBounds()
+{
+	return (thumb->GetScreenPos().x != this->GetScreenPos().x
+		&& thumb->GetScreenPos().x + thumb->GetHitbox().w != this->GetScreenPos().x + this->GetHitbox().w);
+}
+
+bool UI_Scrollbar::ThumbIsAtLeftBound()
+{
+	return (thumb->GetScreenPos().x <= this->GetScreenPos().x);
+}
+
+bool UI_Scrollbar::ThumbIsAtRightBound()
+{
+	return (thumb->GetScreenPos().x + thumb->GetHitbox().w >= this->GetScreenPos().x + this->GetHitbox().w);
+}
+
+void UI_Scrollbar::CheckScrollbarBounds()
+{
+	if (dragXAxis)
+	{
+		if (ThumbIsAtLeftBound())
+		{
+			newThumbPos = { this->GetScreenPos().x + DRAG_LIMIT_OFFSET,  thumb->GetScreenPos().y };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+
+		if (ThumbIsAtRightBound())
+		{
+			newThumbPos = { ((this->GetScreenPos().x + this->GetHitbox().w) - (thumb->GetHitbox().w + DRAG_LIMIT_OFFSET)), thumb->GetScreenPos().y };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+	}
+
+	if (dragYAxis)
+	{
+		if (ThumbIsAtUpperBound())
+		{
+			newThumbPos = { thumb->GetScreenPos().x,  this->GetScreenPos().y + DRAG_LIMIT_OFFSET };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+
+		if (ThumbIsAtLowerBound())
+		{
+			newThumbPos = { thumb->GetScreenPos().x,  ((this->GetScreenPos().y + this->GetHitbox().h) - (thumb->GetHitbox().h + DRAG_LIMIT_OFFSET)) };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+	}
 }

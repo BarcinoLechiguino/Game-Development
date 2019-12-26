@@ -204,20 +204,20 @@ void UI::AxisRestrictedDragElement(bool X_Axis, bool Y_Axis)
 		}
 		else
 		{
-			if (position.y != parent->position.y && position.y + GetHitbox().h != parent->position.y + parent->GetHitbox().h)
+			if (position.x != parent->position.x && position.x + GetHitbox().w != parent->position.x + parent->GetHitbox().w)
 			{
-				position.y += GetMousePos().y - prevMousePos.y;
+				position.x += GetMousePos().x - prevMousePos.x;
 				SetScreenPos(position);
 			}
 
-			if (position.y <= parent->position.y)
+			if (position.x <= parent->position.x)
 			{
-				position.y = parent->position.y + DRAG_LIMIT_OFFSET;
+				position.x = parent->position.x + DRAG_LIMIT_OFFSET;
 			}
 
-			if (position.y + GetHitbox().h >= parent->position.y + parent->GetHitbox().h)
+			if (position.x + GetHitbox().w >= parent->position.x + parent->GetHitbox().w)
 			{
-				position.y = (parent->position.y + parent->GetHitbox().h) - (GetHitbox().h + DRAG_LIMIT_OFFSET);
+				position.x = (parent->position.x + parent->GetHitbox().w) - (GetHitbox().w + DRAG_LIMIT_OFFSET);
 			}
 		}
 	}
@@ -239,12 +239,12 @@ void UI::AxisRestrictedDragElement(bool X_Axis, bool Y_Axis)
 
 			if (position.y <= parent->position.y)
 			{
-				position.y = parent->position.y + 1;
+				position.y = parent->position.y + DRAG_LIMIT_OFFSET;
 			}
 
 			if (position.y + GetHitbox().h >= parent->position.y + parent->GetHitbox().h)
 			{
-				position.y = (parent->position.y + parent->GetHitbox().h) - (GetHitbox().h + 1);
+				position.y = (parent->position.y + parent->GetHitbox().h) - (GetHitbox().h + DRAG_LIMIT_OFFSET);
 			}
 		}
 	}
