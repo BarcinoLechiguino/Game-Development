@@ -15,6 +15,7 @@
 //class UI;
 
 #define CURSOR_WIDTH 2
+#define DRAG_LIMIT_OFFSET 1
 
 // TODO 1: Create your structure of classes
 
@@ -62,8 +63,9 @@ public:
 	UI* CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, SDL_Rect cursor, SDL_Color cursorColour, iPoint textOffset,
 		float blinkFrequency = 0.0f, bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr, p2SString* defaultString = nullptr);
 
-	UI* CreateScrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SDL_Rect thumbSize, iPoint thumbOffset, SDL_Rect dragArea, float dragFactor,
-		bool isVisible = true, bool isInteractible = true, bool isDraggable = false, UI* parent = nullptr);
+	UI* CreateScrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SDL_Rect thumbSize, iPoint thumbOffset, SDL_Rect dragArea, float dragFactor, bool dragXAxis = false,
+		bool dragYAxis = true, bool invertedScrolling = false, bool isVisible = true, bool isInteractible = true, bool isDraggable = false,
+		UI* parent = nullptr, SDL_Rect* scrollMask = nullptr, iPoint maskOffset = iPoint(0, 0));
 
 
 	void OnEventCall(UI* element, UI_Event ui_event);					//This function is called whenever an new event happens, it receives the pointer of the element that caused the event and the kind of event it is.
@@ -71,6 +73,7 @@ public:
 	bool ElementCanBeFocused(UI* focusElement) const;					//If an element fulfills all requirements (is a button or a scrollbar), then this method returns true. Used to filter which UI elements can or cannot have focus.
 	
 	UI* FirstElementUnderMouse() const;									//Returs the first element under the mouse.
+	bool ElementCanBeClicked(UI* clickedElement) const;
 
 	bool ElementHasChilds(UI* parentElement) const;						//Returns true if the element passed as argument has at least one child.
 	void UpdateChilds(UI* parentElement);								//Updates all UI Elements that have the element passed as argument as a parent.

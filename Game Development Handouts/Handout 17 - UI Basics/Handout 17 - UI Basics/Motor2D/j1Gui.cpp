@@ -60,6 +60,7 @@ bool j1Gui::PreUpdate()
 	{
 		//ShowElement(App->scene->draggableButton2);
 		SetElementsVisibility(App->scene->window, !App->scene->window->isVisible);
+		SetElementsVisibility(App->scene->scrollWindow, !App->scene->scrollWindow->isVisible);
 	}
 	
 	return true;
@@ -130,6 +131,7 @@ bool j1Gui::CleanUp()
 	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 	{
 		RELEASE(element_iterator->data);
+		//UnLoad textures.
 	}
 
 	elements.clear();
@@ -216,12 +218,13 @@ UI* j1Gui::CreateInputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TT
 	return elem;
 }
 
-UI* j1Gui::CreateScrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SDL_Rect thumbSize, iPoint thumbOffset, SDL_Rect dragArea, float dragFactor,
-					bool isVisible, bool isInteractible, bool isDraggable, UI* parent)
+UI* j1Gui::CreateScrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SDL_Rect thumbSize, iPoint thumbOffset, SDL_Rect dragArea, float dragFactor, bool dragXAxis, bool dragYAxis,
+					bool invertedScrolling, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, SDL_Rect* scrollMask, iPoint maskOffset)
 {
 	UI* elem = nullptr;
 
-	elem = new UI_Scrollbar(element, x, y, hitbox, thumbSize, thumbOffset, dragArea, dragFactor, isVisible, isInteractible, isDraggable, parent);
+	elem = new UI_Scrollbar(element, x, y, hitbox, thumbSize, thumbOffset, dragArea, dragFactor, dragXAxis, dragYAxis, invertedScrolling,
+					isVisible, isInteractible, isDraggable, parent, scrollMask, maskOffset);
 
 	if (elem != nullptr)
 	{
@@ -262,7 +265,7 @@ UI* j1Gui::FirstElementUnderMouse() const
 
 	for (p2List_item<UI*>* iterator = elements.start; iterator != NULL; iterator = iterator->next)
 	{
-		if (iterator->data->CheckMousePos() && (iterator->data->isInteractible || iterator->data->isDraggable))						//Checks that the element being iterated has the mouse on it.
+		if (ElementCanBeClicked(iterator->data))													//Checks that the element being iterated has the mouse on it.
 		{
 			firstElement = iterator->data;															//The element being iterated is assigned to firstElement.
 		}
@@ -272,6 +275,21 @@ UI* j1Gui::FirstElementUnderMouse() const
 	{
 		return firstElement;																		//The last element that was checked to have the mouse on it will be returned.
 	}
+}
+
+bool j1Gui::ElementCanBeClicked(UI* clickedElement) const
+{
+	bool ret = false;
+
+	if (clickedElement->CheckMousePos()
+		&& clickedElement->isVisible
+		&& (clickedElement->isInteractible
+			|| clickedElement->isDraggable))
+	{
+		ret = true;
+	}
+	
+	return ret;
 }
 
 //----------------------------------- FOCUS MANAGEMENT METHODS -----------------------------------
@@ -317,13 +335,13 @@ void j1Gui::PassFocus()
 	}
 }
 
-// --- Method that returns true if the passed element is a BUTTON or a SCROLLBAR
+// --- Method that returns true if the passed element is a visible BUTTON, INPUTBOX or a SCROLLBAR
 bool j1Gui::ElementCanBeFocused(UI* focusElement) const
 {
 	bool ret = false;
 
 	if (focusElement->isVisible 
-		&& focusElement->isInteractible
+		/*&& focusElement->isInteractible */
 		&& (focusElement->element == UI_Element::BUTTON 
 			|| focusElement->element == UI_Element::SCROLLBAR 
 			|| focusElement->element == UI_Element::INPUTBOX))
@@ -399,31 +417,38 @@ void j1Gui::Debug_UI()
 	{
 		for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 		{	
-			switch (element_iterator->data->element)
+			if (element_iterator->data->isVisible)
 			{
-			case UI_Element::IMAGE:
-				App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 255, 255, 255, false, false);		//UI_Image will be WHITE.
+				switch (element_iterator->data->element)
+				{
+				case UI_Element::EMPTY:
+					App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 255, 255, 255, false, false);		//UI_Empty will be WHITE.
+						break;
+				
+				case UI_Element::IMAGE:
+					App->render->DrawQuad(element_iterator->data->GetHitbox(), 0, 0, 255, 255, false, false);			//UI_Image will be BLUE.
 
-				break;
+					break;
 
-			case UI_Element::TEXT:
-				App->render->DrawQuad(element_iterator->data->GetHitbox(), 0, 255, 0, 255, false, false);			//UI_Text will be GREEN.
+				case UI_Element::TEXT:
+					App->render->DrawQuad(element_iterator->data->GetHitbox(), 0, 255, 0, 255, false, false);			//UI_Text will be GREEN.
 
-				break;
+					break;
 
-			case UI_Element::BUTTON:
-				App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 0, 0, 255, false, false);			//UI_Button will be RED.
+				case UI_Element::BUTTON:
+					App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 0, 0, 255, false, false);			//UI_Button will be RED.
 
-				break;
+					break;
 
-			case UI_Element::SCROLLBAR:
-				App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 255, 0, 255, false, false);			//UI_Scrollbar will be YELLOW.
-				break;
+				case UI_Element::SCROLLBAR:
+					App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 255, 0, 255, false, false);			//UI_Scrollbar will be YELLOW.
+					break;
 
-			case UI_Element::INPUTBOX:
-				App->render->DrawQuad(element_iterator->data->GetHitbox(), 0, 0, 255, 255, false, false);			//UI_Input Box will be BLUE.
-				break;
-			}	
+				case UI_Element::INPUTBOX:
+					App->render->DrawQuad(element_iterator->data->GetHitbox(), 255, 0, 255, 255, false, false);			//UI_Input Box will be PURPLE.
+					break;
+				}
+			}
 		}
 	}
 }

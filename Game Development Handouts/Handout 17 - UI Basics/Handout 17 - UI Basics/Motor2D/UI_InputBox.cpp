@@ -16,7 +16,7 @@ UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF
 	
 	if (isInteractible)																//If the Input Box element is interactible.
 	{
-		listener = App->gui;														//This button's listener is set to the App->gui module (For OnCallEvent()).
+		listener = App->gui;														//This input box's listener is set to the App->gui module (For OnCallEvent()).
 	}
 
 	if (parent != NULL)																//If a parent is passed as argument.
@@ -34,13 +34,15 @@ UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF
 	this->isVisible = isVisible;													//Sets the isVisible flag of the input box to the one passed as argument.
 	this->isInteractible = isInteractible;											//Sets the isInteractible flag of the input box to the one passed as argument.
 	this->isDraggable = isDraggable;												//Sets the isDraggable flag of the input box to the one passed as argument.
+	this->dragXAxis = isDraggable;													//
+	this->dragYAxis = isDraggable;													//
 	prevMousePos = iPoint(0, 0);													//Initializes prevMousePos for this UI Element. Safety measure to avoid weird dragging behaviour.
 	initialPosition = GetScreenPos();												//Records the initial position where the input box is at app execution start.
 
 	// --- Input Box Elements
-	background = UI_Image(UI_Element::IMAGE, x, y, hitbox, true, false, false, this);
-	text = UI_Text(UI_Element::TEXT, x + textOffset.x, y + textOffset.y, hitbox, font, fontColour, true, false, false, this, defaultString);
-	cursor = UI_Image(UI_Element::IMAGE, x + textOffset.x, y + textOffset.y, cursorSize, false, false, false, this);
+	this->background = UI_Image(UI_Element::IMAGE, x, y, hitbox, isVisible, false, false, this);
+	this->text = UI_Text(UI_Element::TEXT, x + textOffset.x, y + textOffset.y, hitbox, font, fontColour, isVisible, false, false, this, defaultString);
+	this->cursor = UI_Image(UI_Element::IMAGE, x + textOffset.x, y + textOffset.y, cursorSize, isVisible, false, false, this);
 	
 	// --- Text Variables
 	this->font = font;																//Sets the UI input box font to the one being passed as argument.
@@ -108,6 +110,7 @@ void UI_InputBox::CheckInput()
 			{
 				prevMousePos = GetMousePos();														//Sets the initial position where the mouse was before starting to drag the element.
 				initialPosition = GetScreenPos();													//Sets initialPosition with the current position at mouse KEY_DOWN.
+				isDragTarget = true;
 				App->gui->focusedElement = this;													//Set the focus on the Input Box element when it is clicked.
 			}
 
@@ -119,29 +122,38 @@ void UI_InputBox::CheckInput()
 				}
 			}
 
-			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the text and the left mouse button is being pressed.
+			if (isDraggable)
 			{
-				if (IsForemostElement() /*|| IsFocused()*/)											//If the UI Text element is the foremost element under the mouse. 
+				if ((IsHovered() || isDragTarget) && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the text and the left mouse button is being pressed.
 				{
-					ui_event = UI_Event::CLICKED;
-
-					if (ElementCanBeDragged())														//If the UI Text element is draggable and is the foremost element under the mouse. 
+					if (IsForemostElement() || isDragTarget)											//If the UI Text element is the foremost element under the mouse. 
 					{
-						DragElement();																//The Text element is dragged.
+						ui_event = UI_Event::CLICKED;
 
-						CheckElementChilds();														//Checks if this Text element has any childs and updates them in consequence.
+						if (ElementCanBeDragged())														//If the UI Text element is draggable and is the foremost element under the mouse. 
+						{
+							DragElement();																//The Text element is dragged.
 
-						prevMousePos = GetMousePos();												//Updates prevMousePos so it can be dragged again next frame.
+							CheckElementChilds();														//Checks if this Text element has any childs and updates them in consequence.
+
+							prevMousePos = GetMousePos();												//Updates prevMousePos so it can be dragged again next frame.
+						}
 					}
 				}
 			}
 
 			// --- UNCLICKED EVENT (Left Click)
-			if (IsHovered() == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)	//If the mouse is on the text and the left mouse button is released.
+			if ((IsHovered() || isDragTarget) && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)	//If the mouse is on the text and the left mouse button is released.
 			{
 				if (IsForemostElement() && ElementRemainedInPlace())								//If the UI Text element is the foremost element under the mouse and has not been dragged. 
 				{
 					ui_event = UI_Event::UNCLICKED;
+				}
+
+				if (isDragTarget)
+				{
+					isDragTarget = false;
+					initialPosition = GetScreenPos();
 				}
 
 				//currentRect = clicked;															//Button Hover sprite.
@@ -153,6 +165,11 @@ void UI_InputBox::CheckInput()
 			listener->OnEventCall(this, ui_event);
 		}
 	}
+	/*else
+	{
+		App->input->ClearTextInput();
+		text.DeleteCurrentStringTex();
+	}*/
 	
 	return;
 }

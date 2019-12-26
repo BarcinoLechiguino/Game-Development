@@ -134,8 +134,8 @@ bool j1Input::PreUpdate()
 				//	}
 				//}
 
-				break;
-			
+			break;
+
 			case SDL_TEXTEDITING:
 				//composition = event.edit.text;
 				//cursor = event.edit.text;
@@ -152,6 +152,14 @@ bool j1Input::PreUpdate()
 				//LOG("Mouse button %d up", event.button.button-1);
 			break;
 
+			case SDL_MOUSEWHEEL:
+				//event.wheel.direction = SDL_MOUSEWHEEL_FLIPPED;
+				
+				mouse_scroll_x = event.wheel.x;			// +X SCROLL RIGHT / -X SCROLL LEFT.
+				mouse_scroll_y = event.wheel.y;			// +Y SCROLL UP / -Y SCROLL DOWN.
+
+			break;
+			
 			case SDL_MOUSEMOTION:
 				int scale = App->win->GetScale();
 				mouse_motion_x = event.motion.xrel / scale;
@@ -190,6 +198,15 @@ void j1Input::GetMouseMotion(int& x, int& y)
 {
 	x = mouse_motion_x;
 	y = mouse_motion_y;
+}
+
+void j1Input::GetMousewheelScrolling(int&x, int& y)
+{
+	x = mouse_scroll_x;
+	y = mouse_scroll_y;
+
+	mouse_scroll_x = 0;
+	mouse_scroll_y = 0;
 }
 
 // ---------------------------- TEXT INPUT METHODS ----------------------------

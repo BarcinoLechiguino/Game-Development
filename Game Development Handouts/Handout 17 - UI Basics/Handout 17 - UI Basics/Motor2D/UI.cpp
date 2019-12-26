@@ -76,34 +76,6 @@ SDL_Rect UI::GetHitbox() const
 
 void UI::SetLocalPos(iPoint localPosition)
 {
-	/*int localPosX = this->parent->position.x + localPosition.x;
-	int localPosY = this->parent->position.y + localPosition.y;	*/
-
-	//int localPosX = this->localPosition.x + (-localPosition.x);
-	//int localPosY = this->localPosition.y + (-localPosition.y);
-	////iPoint localPos = { localPosX, localPosY };
-
-	//iPoint offset = { localPosX, localPosY };
-
-	//if (this->localPosition > localPosition)
-	//	position -= offset;
-
-	//if (this->localPosition < localPosition)
-	//	position += offset;
-
-	//if (this->localPosition.x > localPosition.x && this->localPosition.y < localPosition.y)
-	//	position += iPoint(-offset.x, offset.y);
-
-	//if (this->localPosition.x < localPosition.x && this->localPosition.y > localPosition.y)
-	//	position += iPoint(offset.x, -offset.y);
-
-	//this->localPosition = localPosition;
-
-
-	//SDL_Rect newPos = { this->localPosition.x, this->localPosition.y, rect.w, rect.h };
-	//SetLocalRect(newPos);
-	//SetLocalHitbox(newPos);
-
 	this->localPosition = localPosition;
 }
 
@@ -187,7 +159,7 @@ bool UI::IsForemostElement() const
 // --- This method checks whether or not the element that called the method fulfills the conditions to be dragged.
 bool UI::ElementCanBeDragged() const
 {
-	return (isDraggable && isDragTarget && App->gui->FirstElementUnderMouse() == this);
+	return ((isDraggable && isDragTarget && App->gui->FirstElementUnderMouse() == this) || isDragTarget);
 }
 
 // --- This method checks whetheror not the element that called the method has been clicked but not dragged anywhere.
@@ -199,21 +171,87 @@ bool UI::ElementRemainedInPlace() const
 // --- Drags an element around taking into account where the mouse was and where it currently is.
 void UI::DragElement()
 {	
-	// --- Updating the UI Element's position when it is being dragged.
-	iPoint origin(0, 0);												//This prevents sending undragged elements to undesired places when passing from dragging one element to another as prevMousePos in undragged elements is (0,0).
+																			// --- Updating the UI Element's position when it is being dragged.
+	iPoint origin(0, 0);													//This prevents sending undragged elements to undesired places when passing from dragging one element to another as prevMousePos in undragged elements is (0,0).
 
-	if (prevMousePos != GetMousePos() && prevMousePos != origin)
+	if (prevMousePos != GetMousePos() && prevMousePos != origin)			//If the recorded prevMousePos is different than the current mousePos and prevMouse pos is not origin.
 	{
-		position += GetMousePos() - prevMousePos;						//Check this, mouse is not at a fixed point, the UI Element moves too slow.
+		position += GetMousePos() - prevMousePos;							//Check this, mouse is not at a fixed point, the UI Element moves too slow.
 		SetScreenPos(position);
 	}
 
-	// --- Updating the UI Element's hitbox rect when it is being dragged.
+																			// --- Updating the UI Element's hitbox rect when it is being dragged.
 	SDL_Rect newPosRect = { position.x, position.y, rect.w, rect.h };
 
 	this->SetHitbox(newPosRect);
 
 	//iPoint draggingPos = position + GetMouseMotion();
+}
+
+void UI::AxisRestrictedDragElement(bool X_Axis, bool Y_Axis)
+{
+	if (X_Axis == Y_Axis)
+	{
+		return;
+	}
+	
+	if (X_Axis)
+	{
+		if (parent == NULL)
+		{
+			position.x += GetMousePos().x - prevMousePos.x;
+			SetScreenPos(position);
+		}
+		else
+		{
+			if (position.y != parent->position.y && position.y + GetHitbox().h != parent->position.y + parent->GetHitbox().h)
+			{
+				position.y += GetMousePos().y - prevMousePos.y;
+				SetScreenPos(position);
+			}
+
+			if (position.y <= parent->position.y)
+			{
+				position.y = parent->position.y + DRAG_LIMIT_OFFSET;
+			}
+
+			if (position.y + GetHitbox().h >= parent->position.y + parent->GetHitbox().h)
+			{
+				position.y = (parent->position.y + parent->GetHitbox().h) - (GetHitbox().h + DRAG_LIMIT_OFFSET);
+			}
+		}
+	}
+	
+	if (Y_Axis)
+	{
+		if (parent == NULL)
+		{
+			position.y += GetMousePos().y - prevMousePos.y;
+			SetScreenPos(position);
+		}
+		else
+		{
+			if (position.y != parent->position.y && position.y + GetHitbox().h != parent->position.y + parent->GetHitbox().h)
+			{
+				position.y += GetMousePos().y - prevMousePos.y;
+				SetScreenPos(position);
+			}
+
+			if (position.y <= parent->position.y)
+			{
+				position.y = parent->position.y + 1;
+			}
+
+			if (position.y + GetHitbox().h >= parent->position.y + parent->GetHitbox().h)
+			{
+				position.y = (parent->position.y + parent->GetHitbox().h) - (GetHitbox().h + 1);
+			}
+		}
+	}
+
+	SDL_Rect newPosRect = { position.x, position.y, rect.w, rect.h };
+
+	this->SetHitbox(newPosRect);
 }
 
 // --- This method Checks if a UI Element has childs and updates them in case the UI Element (parent) has been moved/dragged.

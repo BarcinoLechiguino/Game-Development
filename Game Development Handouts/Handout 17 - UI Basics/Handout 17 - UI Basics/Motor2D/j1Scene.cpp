@@ -60,7 +60,7 @@ bool j1Scene::Start()
 	_TTF_Font* font = App->font->Load("fonts/open_sans/OpenSans-SemiboldItalic.ttf");
 	SDL_Color fontRgb = { 255, 255, 255, 255 };
 
-	interactibleText = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 280, 75, interactibleTextHitbox, font, fontRgb, true, true, false, NULL, &interactibleString);
+	interactibleText = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 280, 75, interactibleTextHitbox, font, fontRgb, true, true, false, window, &interactibleString);
 	text = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 432, 75, textHitbox, font, fontRgb, true, false, false, window, &bufferString);
 
 	
@@ -98,13 +98,30 @@ bool j1Scene::Start()
 												blinkFrequency, true, true, false, window, &defaultTxt);
 
 	//Creating a Scrollbar:
-	SDL_Rect scrollbarBar		= { 973, 786, 11,  158 };
-	SDL_Rect scrollbarThumb		= { 1004, 431, 15, 26 };
+	SDL_Rect scrollbarBar		= { 973, 786, 11, 158 };
+	//SDL_Rect scrollbarThumb		= { 843, 330, 15, 10 };
+	SDL_Rect scrollbarThumb		= { 1004, 439, 15, 10 };
 	iPoint thumbOffset			= { -2, 0 };
+	SDL_Rect scrollMask			= { 0, 0, 350, 158 };
+	iPoint maskOffset			= { -360, 0 };
 	SDL_Rect dragArea			= { 0, 0, 11, 158 };
 	float dragFactor			= 1.0f;
 
-	scrollbar = (UI_Scrollbar*)App->gui->CreateScrollbar(UI_Element::SCROLLBAR, 650, 325, scrollbarBar, scrollbarThumb, thumbOffset, dragArea, dragFactor, true, true, false, window);
+	char* txt = "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer blandit arcu turpis,\n vitae blandit lacus \n malesuada commodo.";
+	p2SString scrollTxt = "Lorem ipsum dolor sit amet";
+	_TTF_Font* scrollFont = App->font->Load("fonts/open_sans/OpenSans-Regular.ttf", 24);
+	SDL_Color scrollFontColour = { 255, 255, 255, 255 };
+
+	scrollWindow = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 225, 25, winRect, false, false, false, NULL);
+	scrollText = (UI_Text*)App->gui->CreateText(UI_Element::TEXT, 290, 325, textHitbox, scrollFont, scrollFontColour, false, false, false, scrollWindow, &scrollTxt);
+	scrollInputBox = (UI_InputBox*)App->gui->CreateInputBox(UI_Element::INPUTBOX, 295, 155, inputBoxBg, inputFont, fontColour, textCursor, cursorColour, textOffset,
+													blinkFrequency, false, true, false, scrollWindow, &defaultTxt);
+
+	scrollbar = (UI_Scrollbar*)App->gui->CreateScrollbar(UI_Element::SCROLLBAR, 650, 325, scrollbarBar, scrollbarThumb, thumbOffset, dragArea, dragFactor, false, true, true,
+													false, false, false, scrollWindow, &scrollMask, maskOffset);
+	
+	scrollbar->LinkScroll(scrollText);
+	//thumbo = (UI_Image*)App->gui->CreateImage(UI_Element::IMAGE, 650 + thumbOffset.x, 300 + thumbOffset.y, scrollbarThumb, true, true, true, NULL);
 
 	return true;
 }

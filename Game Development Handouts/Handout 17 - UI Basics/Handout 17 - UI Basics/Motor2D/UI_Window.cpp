@@ -7,8 +7,14 @@ UI_Window::UI_Window(UI_Element element, int x, int y, SDL_Rect hitbox, bool isV
 {
 	tex = App->gui->GetAtlas();
 
-	this->isInteractible = isInteractible;			//A UI_Image type of UI Element will never be interactible.
-	this->isDraggable = isDraggable;
+	// --- Setting this element's flags to the ones passed as argument.
+	this->isVisible = isVisible;												//Sets the isVisible flag to the one passed as argument.
+	this->isInteractible = isInteractible;										//Sets the isInteractible flag to the one passed as argument. 
+	this->isDraggable = isDraggable;											//Sets the isDraggable flag to the one passed as argument.
+	this->dragXAxis = isDraggable;												//Sets the dragXaxis flag to the same as isDraggable. If it needs to be changed, it has to be done externally.
+	this->dragYAxis = isDraggable;												//Sets the dragYaxis flag to the same as isDraggable. If it needs to be changed, it has to be done externally.
+	prevMousePos = iPoint(0, 0);												//Initializes prevMousePos for this UI Element. Safety measure to avoid weird dragging behaviour.
+	initialPosition = GetScreenPos();											//Records the initial position where the element is at at app execution start.
 }
 
 bool UI_Window::Draw()

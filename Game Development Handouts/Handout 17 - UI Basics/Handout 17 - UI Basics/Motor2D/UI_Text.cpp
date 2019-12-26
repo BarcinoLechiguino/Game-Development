@@ -6,15 +6,18 @@
 
 //UI_Text can be interactible and draggable. Can potentially have all events.
 //This element can receive up to 5 different strings (one for each possible event).
-UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* string,
-			p2SString* hoverString, p2SString* leftClickString, p2SString* rightClickString): UI(UI_Element::TEXT, x, y, hitbox, parent),
-			idleTex(nullptr), hoverTex(nullptr), leftClickTex(nullptr), rightClickTex(nullptr), inputTextTex (nullptr)
+UI_Text::UI_Text(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* string,
+			p2SString* hoverString, p2SString* leftClickString, p2SString* rightClickString): UI(element, x, y, hitbox, parent),
+			idleTex(nullptr), hoverTex(nullptr), leftClickTex(nullptr), rightClickTex(nullptr), inputTextTex (nullptr), currentTex (nullptr)
 {	
 	// --- Setting this element's flags to the ones passed as argument.
-	this->isVisible = isVisible;
-	this->isInteractible = isInteractible;
-	this->isDraggable = isDraggable;
-	prevMousePos = iPoint(0, 0);
+	this->isVisible = isVisible;												//Sets the isVisible flag to the one passed as argument.
+	this->isInteractible = isInteractible;										//Sets the isInteractible flag to the one passed as argument. 
+	this->isDraggable = isDraggable;											//Sets the isDraggable flag to the one passed as argument.
+	this->dragXAxis = isDraggable;												//Sets the dragXaxis flag to the same as isDraggable. If it needs to be changed, it has to be done externally.
+	this->dragYAxis = isDraggable;												//Sets the dragYaxis flag to the same as isDraggable. If it needs to be changed, it has to be done externally.
+	prevMousePos = iPoint(0, 0);												//Initializes prevMousePos for this UI Element. Safety measure to avoid weird dragging behaviour.
+	initialPosition = GetScreenPos();											//Records the initial position where the element is at at app execution start.
 	// ---------------------------------------------------------------
 
 	//Loading all strings. Print() generates a texture with the given string with the a font and a colour.
@@ -56,6 +59,8 @@ UI_Text::UI_Text(UI_Element type, int x, int y, SDL_Rect hitbox, _TTF_Font* font
 
 	this->font = font;
 	this->font_colour = fontColour;
+
+	textRect = { 0, 0, 0, 0 };			//
 }
 
 UI_Text::UI_Text() : UI ()		//Default Constructor
@@ -67,7 +72,12 @@ bool UI_Text::Draw()
 
 	if (currentTex != nullptr)
 	{
-		BlitElement(currentTex, GetScreenPos().x, GetScreenPos().y, NULL);
+		SDL_QueryTexture(currentTex, NULL, NULL, &textRect.w, &textRect.h);			//REVISE  THIS  LATER
+
+		//SetScreenRect({ 0, 0, textRect.w, textRect.h });
+		SetHitbox({ GetHitbox().x, GetHitbox().y, textRect.w, textRect.h });
+
+		BlitElement(currentTex, GetScreenPos().x, GetScreenPos().y, /*&textRect*//*&GetScreenRect()*/ NULL);
 	}
 
 	return true;
@@ -76,6 +86,11 @@ bool UI_Text::Draw()
 // --- This Method checks for any inputs that the UI_Text element might have received and "returns" an event.
 void UI_Text::CheckInput()
 {	
+	if (!isVisible)
+	{
+		currentTex = NULL;
+	}
+	
 	if (isVisible)																						//If the Text element is visible.
 	{	
 		GetMousePos();																					//Gets the mouse's position on the screen.
@@ -124,9 +139,9 @@ void UI_Text::CheckInput()
 				}
 			}
 
-			if (IsHovered() && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)			//If the mouse is on the text and the left mouse button is being pressed.
+			if ((IsHovered() || isDragTarget) && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)		//If the mouse is on the text and the left mouse button is being pressed.
 			{
-				if (IsForemostElement())																//If the UI Text element is the foremost element under the mouse. 
+				if (IsForemostElement() || isDragTarget)															//If the UI Text element is the foremost element under the mouse. 
 				{
 					ui_event = UI_Event::CLICKED;
 
@@ -147,7 +162,7 @@ void UI_Text::CheckInput()
 			}
 
 			// --- UNCLICKED EVENT (Left Click)
-			if (IsHovered() == true && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)		//If the mouse is on the text and the left mouse button is released.
+			if ((IsHovered() || isDragTarget) && App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_UP)		//If the mouse is on the text and the left mouse button is released.
 			{
 				if (IsForemostElement() && ElementRemainedInPlace())									//If the UI Text element is the foremost element under the mouse and has not been dragged. 
 				{
@@ -157,6 +172,7 @@ void UI_Text::CheckInput()
 				if (isDragTarget)
 				{
 					isDragTarget = false;
+					initialPosition = GetScreenPos();
 				}
 
 				//currentRect = clicked;																//Button Hover sprite.
@@ -178,7 +194,6 @@ void UI_Text::CheckInput()
 
 			listener->OnEventCall(this, ui_event);														//The listener call the OnEventCall() method passing this UI_Text and it's event as arguments.
 		}
-		
 	}
 }
 

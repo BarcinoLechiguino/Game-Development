@@ -68,6 +68,7 @@ public:
 	// Get mouse / axis position
 	void GetMousePosition(int &x, int &y);
 	void GetMouseMotion(int& x, int& y);
+	void GetMousewheelScrolling(int&x, int& y);
 
 	// Text Input
 	void TextInput();
@@ -98,6 +99,8 @@ private:
 	int			mouse_motion_y;
 	int			mouse_x;
 	int			mouse_y;
+	int			mouse_scroll_x;
+	int			mouse_scroll_y;
 	
 	char*		input_string;
 	int			text_size;

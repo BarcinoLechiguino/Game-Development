@@ -11,11 +11,12 @@
 
 enum class UI_Element 
 {
+	EMPTY,
 	IMAGE,
 	TEXT,
 	BUTTON,
 	SCROLLBAR,
-	INPUTBOX
+	INPUTBOX,
 };
 
 enum class UI_Event
@@ -76,8 +77,9 @@ public:
 	bool ElementCanBeDragged() const;				//Returns true if all dragging conditions are met.
 	bool ElementRemainedInPlace() const;			//If a UI Element was clicked but not dragged, this will return true.
 
-	void DragElement();								//Drags a draggable UI Element to the mouse's position.
-	void CheckElementChilds();						//Checks if a UI Element has childs and updates them in case the parent element had changed its position (dragged)
+	void DragElement();											//Drags a draggable UI Element to the mouse's position.
+	void AxisRestrictedDragElement(bool X_Axis, bool Y_Axis);	//If the UI element is a scrollbar element, then dragging will be limitied to the Y axis.
+	void CheckElementChilds();									//Checks if a UI Element has childs and updates them in case the parent element had changed its position (dragged)
 
 public:
 	bool		isVisible;							//Keeps track of whether or not a UI Element is visible or not. Can be overlapped with isInteractible.
@@ -88,6 +90,8 @@ public:
 	//UI*		dragTarget;							//Keeps track of which element is being dragged to avoid dragging unwanted elements. Same as isDragTarget. Maybe move to j1Gui?
 	bool		isDragTarget;						//Keeps track whether or not an element susceptible to be dragged is the element wanted to be dragged. Set on KEY_DOWN / KEY_UP.
 													//Used to avoid dragging the window after moving the mouse outside an element while keeping the mouse button clicked (button to window...).
+	bool		dragXAxis;							//Keeps track of which axis an element can be dragged in, in this case the X axis. If both bools are true or false, drag will be free.
+	bool		dragYAxis;							//Keeps track of which axis an element can be dragged in, in this case the Y axis. If both bools are true or false, drag will be free.
 
 	UI_Event	ui_event;							//Defines which events will the UI_Elements send when interacted with.
 	UI_Element	element;							//Enum that defines which kind of element a UI element is.

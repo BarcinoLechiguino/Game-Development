@@ -54,7 +54,11 @@ public:
 
 	UI_InputBox*	inputBox;
 
+	UI_Image*		scrollWindow;
+	UI_Text*		scrollText;
+	UI_InputBox*	scrollInputBox;
 	UI_Scrollbar*	scrollbar;
+	UI_Image*		thumbo;
 
 private:
 	SDL_Texture* debug_tex;
