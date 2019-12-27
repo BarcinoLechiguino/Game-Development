@@ -105,7 +105,7 @@ bool j1Scene::Start()
 	SDL_Rect scrollMask			= { 0, 0, 350, 158 };
 	iPoint maskOffset			= { -360, 0 };
 	SDL_Rect dragArea			= { 0, 0, 11, 158 };
-	float dragFactor			= 1.0f;
+	float dragFactor			= 0.2f;
 
 	char* txt = "Lorem ipsum dolor sit amet,\n consectetur adipiscing elit.\n Integer blandit arcu turpis,\n vitae blandit lacus \n malesuada commodo.";
 	p2SString scrollTxt = "Lorem ipsum dolor sit amet";

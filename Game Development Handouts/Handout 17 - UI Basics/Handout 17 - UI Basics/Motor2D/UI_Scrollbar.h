@@ -27,6 +27,7 @@ public:
 	bool GetDragXAxis() const;
 	bool GetDragYAxis() const;
 	void PlaceThumbOnMousePos();
+	void CheckKeyboardInputs();
 	void DragThumbWithMousewheel();
 	
 	bool ThumbIsWithinVerticalScrollbarBounds();
@@ -47,11 +48,15 @@ private:
 	UI_Image* thumb;
 	UI_Image* scrollMask;
 	
+	int scrollbarWidth;
+	int scrollbarHeight;
+
 	SDL_Rect	dragArea;
 	float		dragFactor;
 	iPoint		dragDisplacement;
 	iPoint		mouseWheelScroll;
 	bool		invertedScrolling;
+	float		arrowPosFactor;
 	iPoint		newThumbPos;
 
 	p2List<UI*> linkedElements;

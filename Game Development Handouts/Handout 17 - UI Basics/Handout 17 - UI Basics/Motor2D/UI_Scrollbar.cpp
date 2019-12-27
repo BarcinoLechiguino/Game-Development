@@ -50,11 +50,22 @@ UI_Scrollbar::UI_Scrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SD
 	}
 
 	// --- Other Scrollbar Variables
+	this->scrollbarWidth		= this->GetHitbox().w;
+	this->scrollbarHeight		= this->GetHitbox().h;
 	this->dragArea				= {x, y, dragArea.w, dragArea.h};
+	//this->dragArea			= {x, y, scrollbarWidth, scrollbarHeight };
 	this->dragFactor			= dragFactor;
+	this->dragDisplacement		= iPoint(0, 0);
+	this->invertedScrolling		= invertedScrolling;
+	this->arrowPosFactor		= dragFactor;
 	this->dragXAxis				= dragXAxis;
 	this->dragYAxis				= dragYAxis;
-	this->invertedScrolling		= invertedScrolling;
+
+	if (this->dragXAxis == this->dragYAxis)
+	{
+		this->dragYAxis = true;
+		this->dragXAxis = false;
+	}
 	// -----------------------------------------------------------------------------------
 }
 
@@ -84,6 +95,7 @@ void UI_Scrollbar::CheckInput()
 		
 		if (IsFocused())
 		{
+			CheckKeyboardInputs();
 			DragThumbWithMousewheel();
 		}
 
@@ -213,7 +225,7 @@ float UI_Scrollbar::GetDragFactor(UI* element)
 	{
 		float elemWidth = element->GetHitbox().w;
 		float dragAreaWidth = dragArea.w;
-		dragFactor = elemWidth / dragAreaWidth;
+		dragFactor = (elemWidth / dragAreaWidth);
 	}
 	if (dragYAxis)
 	{
@@ -252,6 +264,97 @@ void UI_Scrollbar::PlaceThumbOnMousePos()
 		thumb->SetScreenPos(newThumbPos);
 		thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
 	}
+}
+
+void UI_Scrollbar::CheckKeyboardInputs()
+{
+	if (dragXAxis)
+	{
+		if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN)
+		{
+			if (!ThumbIsAtLeftBound())
+			{
+				int arrowFactorLeft = thumb->GetScreenPos().x - (scrollbarWidth * arrowPosFactor);
+				newThumbPos = { arrowFactorLeft, thumb->GetScreenPos().y };
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
+		{
+			if (!ThumbIsAtRightBound())
+			{
+				int arrowFactorRight = thumb->GetScreenPos().x + (scrollbarWidth * arrowPosFactor);
+				newThumbPos = { arrowFactorRight, thumb->GetScreenPos().y };
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)
+		{
+			newThumbPos = { this->GetScreenPos().x + DRAG_LIMIT_OFFSET,  thumb->GetScreenPos().y };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_END) == KEY_DOWN)
+		{
+			newThumbPos = { ((this->GetScreenPos().x + this->GetHitbox().w) - (thumb->GetHitbox().w + DRAG_LIMIT_OFFSET)), thumb->GetScreenPos().y };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+	}
+
+	if (dragYAxis)
+	{
+		if (App->input->GetKey(SDL_SCANCODE_UP) == KEY_DOWN)
+		{
+			if (!ThumbIsAtUpperBound())
+			{
+				int arrowFactorUp = thumb->GetScreenPos().y - (scrollbarHeight * arrowPosFactor);
+				newThumbPos = { thumb->GetScreenPos().x, arrowFactorUp };
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
+		}
+
+		if(App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_DOWN)
+		{
+			if (!ThumbIsAtLowerBound())
+			{
+				int arrowFactorDown = thumb->GetScreenPos().y + (scrollbarHeight * arrowPosFactor);
+				newThumbPos = { thumb->GetScreenPos().x, arrowFactorDown };
+
+				thumb->SetScreenPos(newThumbPos);
+				thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+			}
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_HOME) == KEY_DOWN)
+		{
+			newThumbPos = { thumb->GetScreenPos().x,  this->GetScreenPos().y + DRAG_LIMIT_OFFSET };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_END) == KEY_DOWN)
+		{
+			newThumbPos = { thumb->GetScreenPos().x,  ((this->GetScreenPos().y + this->GetHitbox().h) - (thumb->GetHitbox().h + DRAG_LIMIT_OFFSET)) };
+
+			thumb->SetScreenPos(newThumbPos);
+			thumb->SetHitbox({ thumb->GetScreenPos().x, thumb->GetScreenPos().y, thumb->GetHitbox().w, thumb->GetHitbox().h });
+		}
+	}
+	
+	CheckScrollbarBounds();
 }
 
 void UI_Scrollbar::DragThumbWithMousewheel()																							// ----------------------------------------------
