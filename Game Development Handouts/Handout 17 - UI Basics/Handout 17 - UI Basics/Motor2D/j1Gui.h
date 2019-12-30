@@ -17,10 +17,6 @@
 #define CURSOR_WIDTH 2
 #define DRAG_LIMIT_OFFSET 1
 
-// TODO 1: Create your structure of classes
-
-// ---------------------------------------------------
-
 class j1Gui : public j1Module
 {
 public:
@@ -47,9 +43,7 @@ public:
 
 public:
 	/*const*/ SDL_Texture* GetAtlas() const;
-	
-	// TODO 2: Create the factory methods
-	// Gui creation functions
+
 	UI* CreateImage(UI_Element element, int x, int y, SDL_Rect rect, bool isVisible = false, bool isInteractible = false, bool isDraggable = false, UI* parent = nullptr);
 
 	UI* CreateText(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, bool isVisible = true, bool isInteractible = false, bool isDraggable = false,
@@ -84,8 +78,6 @@ public:
 public:
 	UI*					focusedElement;					//Change to list item
 	p2List_item<UI*>*	iteratedElement;
-
-	p2SString inputString;
 
 	bool escape;										//When this bool is true the game is exited.
 	bool ui_debug;										//When this bool is true, debug mode is activated.

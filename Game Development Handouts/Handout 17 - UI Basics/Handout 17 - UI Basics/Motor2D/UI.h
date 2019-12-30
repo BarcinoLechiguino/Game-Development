@@ -45,6 +45,8 @@ public:
 
 	virtual void CheckInput();
 
+	virtual void CleanUp();
+
 	void BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect);
 
 public:
@@ -87,7 +89,6 @@ public:
 	bool		isDraggable;						//Keeps track of whether a UI Element is draggable or not.
 	iPoint		prevMousePos;						//Keeps track of the previous position of the mouse in the screen before starting to drag anything.
 
-	//UI*		dragTarget;							//Keeps track of which element is being dragged to avoid dragging unwanted elements. Same as isDragTarget. Maybe move to j1Gui?
 	bool		isDragTarget;						//Keeps track whether or not an element susceptible to be dragged is the element wanted to be dragged. Set on KEY_DOWN / KEY_UP.
 													//Used to avoid dragging the window after moving the mouse outside an element while keeping the mouse button clicked (button to window...).
 	bool		dragXAxis;							//Keeps track of which axis an element can be dragged in, in this case the X axis. If both bools are true or false, drag will be free.

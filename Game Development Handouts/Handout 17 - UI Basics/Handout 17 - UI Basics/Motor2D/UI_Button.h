@@ -14,6 +14,8 @@ public:
 
 	void CheckInput();				//If any UI element can be interactible, then this function needs to be declared at UI as virtual void.
 
+	void CleanUp();
+
 private:
 	SDL_Texture*	tex;			//Texture of the button. Its set with the UI Atlas/Spritesheet.
 	SDL_Rect		idle;			//Position and size of the Button's Idle Sprite for the button's idle event.

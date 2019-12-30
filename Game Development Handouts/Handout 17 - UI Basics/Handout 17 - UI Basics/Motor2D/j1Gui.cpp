@@ -130,8 +130,8 @@ bool j1Gui::CleanUp()
 	//Iterate the elements list and frees all allocated memory.
 	for (p2List_item<UI*>* element_iterator = elements.start; element_iterator != NULL; element_iterator = element_iterator->next)
 	{
+		element_iterator->data->CleanUp();
 		RELEASE(element_iterator->data);
-		//UnLoad textures.
 	}
 
 	elements.clear();

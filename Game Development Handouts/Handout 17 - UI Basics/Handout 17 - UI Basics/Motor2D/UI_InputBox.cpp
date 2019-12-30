@@ -12,7 +12,7 @@
 UI_InputBox::UI_InputBox(UI_Element element, int x, int y, SDL_Rect hitbox, _TTF_Font* font, SDL_Color fontColour, SDL_Rect cursorSize, SDL_Color cursorColour, iPoint textOffset,
 		float blinkFrequency, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, p2SString* defaultString) : UI(element, x, y, hitbox, parent)
 {
-	tex = App->gui->GetAtlas();
+	//tex = App->gui->GetAtlas();
 	
 	if (isInteractible)																//If the Input Box element is interactible.
 	{

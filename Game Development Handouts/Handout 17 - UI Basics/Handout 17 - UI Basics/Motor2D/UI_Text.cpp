@@ -197,6 +197,19 @@ void UI_Text::CheckInput()
 	}
 }
 
+void UI_Text::CleanUp()
+{
+	if (idleTex != NULL)
+	{
+		App->tex->UnLoad(idleTex);
+	}
+
+	if (inputTextTex != NULL)
+	{
+		App->tex->UnLoad(inputTextTex);
+	}
+}
+
 SDL_Texture* UI_Text::GetCurrentStringTex()
 {
 	return currentTex;

@@ -133,3 +133,8 @@ void UI_Button::CheckInput()
 		listener->OnEventCall(this, ui_event);													//This UI element's pointer and ui_event are passed as arguments to the OnEventCall() function.
 	}
 }
+
+void UI_Button::CleanUp()
+{
+	App->tex->UnLoad(tex);
+}

@@ -119,3 +119,9 @@ void UI_Image::CheckInput()
 		}
 	}
 }
+
+void UI_Image::CleanUp()
+{
+	LOG("Unloading UI_Image Textures");
+	App->tex->UnLoad(tex);
+}

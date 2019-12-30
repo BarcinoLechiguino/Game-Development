@@ -41,7 +41,7 @@ public:
 	int GetCurrentCursorIndex();							//Gets the current cursor index.
 
 private:
-	SDL_Texture*	tex;
+	//SDL_Texture*	tex;
 	UI_Image		background;								//Background element of the Input Box.
 	UI_Text			text;									//Text element of the Input Box.
 	UI_Image		cursor;									//Cursor element of the Input Box.

@@ -7,7 +7,7 @@
 UI_Scrollbar::UI_Scrollbar(UI_Element element, int x, int y, SDL_Rect hitbox, SDL_Rect thumbSize, iPoint thumbOffset, SDL_Rect dragArea, float dragFactor, bool dragXAxis, bool dragYAxis,
 				bool invertedScrolling, bool isVisible, bool isInteractible, bool isDraggable, UI* parent, SDL_Rect* scrollMask, iPoint maskOffset) : UI(element, x, y, hitbox, parent)
 {
-	tex = App->gui->GetAtlas();
+	//tex = App->gui->GetAtlas();
 
 	if (isInteractible)																//If the Scrollbar element is interactible.
 	{

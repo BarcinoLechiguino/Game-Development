@@ -38,6 +38,11 @@ void UI::CheckInput()
 	return;
 }
 
+void UI::CleanUp()
+{
+	return;
+}
+
 void UI::BlitElement(SDL_Texture* texture, int x, int y, SDL_Rect* rect)
 {
 	App->render->Blit(texture, x, y, rect, 0.0f);		//Setting the blit's speed argument to 0 will make the UI Element remain static in relation to the camera.

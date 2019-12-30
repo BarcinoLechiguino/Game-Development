@@ -13,6 +13,8 @@ public:
 
 	void CheckInput();
 
+	void CleanUp();
+
 private:
 	SDL_Texture*	tex;						//Texture of the UI_Image.
 };

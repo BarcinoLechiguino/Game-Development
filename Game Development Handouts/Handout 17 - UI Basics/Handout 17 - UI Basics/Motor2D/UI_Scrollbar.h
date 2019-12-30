@@ -20,7 +20,6 @@ public:
 public:
 	void DrawScrollbarElements();
 	void LinkScroll(UI* element);
-	void SetNewThumbPos();
 	void UpdateLinkedElements();
 	float GetDragFactor(UI* element);
 
@@ -39,11 +38,6 @@ public:
 	void CheckScrollbarBounds();
 
 private:
-	SDL_Texture* tex;
-	//UI_Image bar;
-	//UI_Image thumb;
-	//UI_Image scrollMask;
-
 	UI_Image* bar;
 	UI_Image* thumb;
 	UI_Image* scrollMask;
@@ -60,7 +54,5 @@ private:
 	iPoint		newThumbPos;
 
 	p2List<UI*> linkedElements;
-
-	SDL_Rect	currentRect;
 };
 #endif // !__UI_SCROLLBAR_H__
