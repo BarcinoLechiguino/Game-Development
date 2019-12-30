@@ -20,10 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AimBot.h">
-      <Filter>Archivos de origen</Filter>
-    </ClInclude>
-    <ClInclude Include="EulerIntegrator.h">
+    <ClInclude Include="EulerIntegratorAndAimBot.h">
       <Filter>Archivos de origen</Filter>
     </ClInclude>
   </ItemGroup>

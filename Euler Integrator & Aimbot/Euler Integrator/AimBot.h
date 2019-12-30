@@ -1,2 +1,0 @@
-
-void Monte_Carlo();
