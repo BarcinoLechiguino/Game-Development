@@ -29,7 +29,7 @@ Particle eulerProjectile;
 // --- AIMBOT
 void Monte_Carlo(int iterations, const Particle& target);
 void MonteCarloTest();
-void PropagateAll(const vec3d& velocity, float angle);
+void PropagateAll(vec3d& velocity, float angle);
 bool CheckHit();
 
 Particle	projectile;

@@ -37,7 +37,7 @@ vec3d::vec3d()
 }
 
 // --- EULER INTEGRATOR
-void EulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt) //The value we want to "return" changed must be passed as reference so the variable passed as argument is changed.
+void EulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, /*float angle,*/ float dt) //The value we want to "return" changed must be passed as reference so the variable passed as argument is changed.
 {
 	//y = yo + vo * dt
 	//v = vo + a * dt
@@ -113,9 +113,9 @@ void Monte_Carlo(int iterations, const Particle& target)
 	}
 }
 
-void PropagateAll(const vec3d& velocity, float angle)
+void PropagateAll(vec3d& velocity, float angle)
 {
-	EulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1);
+	EulerIntegrator(projectile.position, velocity, projectile.acceleration, 1);
 	
 	if (CheckHit())
 	{
