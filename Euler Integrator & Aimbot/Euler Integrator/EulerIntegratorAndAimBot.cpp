@@ -6,6 +6,7 @@
 
 using namespace std;
 #define ITERATIONS 1000
+#define POS_MAX_RAND 10
 
 int main()
 {
@@ -15,7 +16,7 @@ int main()
 
 	// --- Monte-Carlo Test
 	targetWasHit = false;
-	target.position = { (float)(std::rand() % 10), (float)(std::rand() % 10), (float)(std::rand() % 10) };
+	target.position = { (float)(std::rand() % POS_MAX_RAND), (float)(std::rand() % POS_MAX_RAND), (float)(std::rand() % POS_MAX_RAND) };
 	Monte_Carlo(ITERATIONS, target);
 
 	system("pause");
@@ -40,9 +41,9 @@ void EulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, fl
 {
 	//y = yo + vo * dt
 	//v = vo + a * dt
-	iposition.x = iposition.x + ivelocity.x * dt;					//Gets the object's final position in the X axis.
-	iposition.y = iposition.y + ivelocity.y * dt;					//Gets the object's final position in the Y axis.
-	iposition.z = iposition.z + ivelocity.z * dt;					//Gets the object's final position in the Z axis.
+	iposition.x = iposition.x + ivelocity.x * cos(45) * dt;					//Gets the object's final position in the X axis.
+	iposition.y = iposition.y + ivelocity.y * cos(45) * dt;					//Gets the object's final position in the Y axis.
+	iposition.z = iposition.z + ivelocity.z * cos(45) * dt;					//Gets the object's final position in the Z axis.
 
 	ivelocity.x = ivelocity.x + acceleration.x * dt;				//Gets the object's final velocity in the X axis.
 	ivelocity.y = ivelocity.y + acceleration.y * dt;				//Gets the object's final velocity in the Y axis.
@@ -86,9 +87,10 @@ void Monte_Carlo(int iterations, const Particle& target)
 		
 		// --- Randomizing the initial Position, velocity and acceleration.
 		projectile.position			= { 0, 0, 0 };
-		projectile.speed			= { (float)(std::rand() % 10), (float)(std::rand() % 10), (float)(std::rand() % 10) };
-		projectile.acceleration		= { (float)(std::rand() % 1), (float)(std::rand() % 1), (float)(std::rand() % 1) };
-		//projectile.acceleration		= { 0.0f, -9.8f, 0.0f };
+		//projectile.speed			= { (float)(std::rand() % 10), (float)(std::rand() % 10), (float)(std::rand() % 10) };
+		//projectile.acceleration	= { (float)(std::rand() % 1), (float)(std::rand() % 1), (float)(std::rand() % 1) };
+		projectile.speed			= { (float)(std::rand() % 100), (float)(std::rand() % 100), (float)(std::rand() % 100) };
+		projectile.acceleration		= { 0.0f, -9.8f, 0.0f };
 		angle						= std::rand() % 360;
 
 		// --- Running the integrator to propagate the state of the projectile.
@@ -123,7 +125,8 @@ void PropagateAll(const vec3d& velocity, float angle)
 
 bool CheckHit()
 {
-	if (projectile.position.x == target.position.x && projectile.position.y == target.position.y)
+	if (projectile.position.x >= target.position.x && projectile.position.x <= target.position.x + 1
+		&& projectile.position.y >= target.position.y && projectile.position.y <= target.position.y + 1)
 	{
 		return true;
 	}
@@ -137,6 +140,7 @@ void MonteCarloTest()
 	cout << "Initial velocity: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 	cout << "Initial acceleration: (" << projectile.acceleration.x << " " << projectile.acceleration.y << " " << projectile.acceleration.z << ")" << endl;
 	cout << "Initial angle: " << angle << endl;
+	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
 
 	for (int j = 0; j < 5; j++)
 	{
