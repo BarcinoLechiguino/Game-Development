@@ -41,9 +41,9 @@ void EulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, /*
 {
 	//y = yo + vo * dt
 	//v = vo + a * dt
-	iposition.x = iposition.x + ivelocity.x * cos(45) * dt;					//Gets the object's final position in the X axis.
-	iposition.y = iposition.y + ivelocity.y * cos(45) * dt;					//Gets the object's final position in the Y axis.
-	iposition.z = iposition.z + ivelocity.z * cos(45) * dt;					//Gets the object's final position in the Z axis.
+	iposition.x = iposition.x + ivelocity.x * dt;					//Gets the object's final position in the X axis.
+	iposition.y = iposition.y + ivelocity.y * dt;					//Gets the object's final position in the Y axis.
+	iposition.z = iposition.z + ivelocity.z * dt;					//Gets the object's final position in the Z axis.
 
 	ivelocity.x = ivelocity.x + acceleration.x * dt;				//Gets the object's final velocity in the X axis.
 	ivelocity.y = ivelocity.y + acceleration.y * dt;				//Gets the object's final velocity in the Y axis.
@@ -99,9 +99,11 @@ void Monte_Carlo(int iterations, const Particle& target)
 		cout << "Monte-Carlo " << i << endl;
 		
 		// --- Randomizing the initial Position, velocity and acceleration.
-		projectile.position			= { 0, 0, 0 };
+		//projectile.position		= { 0, 0, 0 };
 		//projectile.speed			= { (float)(std::rand() % 10), (float)(std::rand() % 10), (float)(std::rand() % 10) };
 		//projectile.acceleration	= { (float)(std::rand() % 1), (float)(std::rand() % 1), (float)(std::rand() % 1) };
+
+		projectile.position			= { 0, 0, 0 };
 		projectile.speed			= { (float)(std::rand() % 100), (float)(std::rand() % 100), (float)(std::rand() % 100) };
 		projectile.acceleration		= { 0.0f, -9.8f, 0.0f };
 		angle						= std::rand() % 90;
