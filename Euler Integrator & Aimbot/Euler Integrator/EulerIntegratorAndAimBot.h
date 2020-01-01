@@ -27,6 +27,7 @@ void RunIntegratorTest();
 Particle eulerProjectile;
 
 // --- AIMBOT
+void ParabolicEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float angle, float dt);
 void Monte_Carlo(int iterations, const Particle& target);
 void MonteCarloTest();
 void PropagateAll(vec3d& velocity, float angle);

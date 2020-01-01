@@ -77,6 +77,19 @@ void RunIntegratorTest()
 }
 
 // ---  AIMBOT / MONTE-CARLO
+void ParabolicEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float angle, float dt)
+{
+	//y = yo + vo * dt
+	//v = vo + a * dt
+	iposition.x = iposition.x + ivelocity.x * cos(angle) * dt;					//Gets the object's final position in the X axis.
+	iposition.y = iposition.y + ivelocity.y * cos(angle) * dt;					//Gets the object's final position in the Y axis.
+	iposition.z = iposition.z + ivelocity.z * cos(angle) * dt;					//Gets the object's final position in the Z axis.
+
+	ivelocity.x = ivelocity.x + acceleration.x * dt;				//Gets the object's final velocity in the X axis.
+	ivelocity.y = ivelocity.y + acceleration.y * dt;				//Gets the object's final velocity in the Y axis.
+	ivelocity.z = ivelocity.z + acceleration.z * dt;				//Gets the object's final velocity in the Z axis.
+}
+
 void Monte_Carlo(int iterations, const Particle& target)
 {
 	//target.position				= { 10, 10, 0 };
@@ -91,7 +104,7 @@ void Monte_Carlo(int iterations, const Particle& target)
 		//projectile.acceleration	= { (float)(std::rand() % 1), (float)(std::rand() % 1), (float)(std::rand() % 1) };
 		projectile.speed			= { (float)(std::rand() % 100), (float)(std::rand() % 100), (float)(std::rand() % 100) };
 		projectile.acceleration		= { 0.0f, -9.8f, 0.0f };
-		angle						= std::rand() % 360;
+		angle						= std::rand() % 90;
 
 		// --- Running the integrator to propagate the state of the projectile.
 		MonteCarloTest();
@@ -116,7 +129,8 @@ void Monte_Carlo(int iterations, const Particle& target)
 void PropagateAll(vec3d& velocity, float angle)
 {
 	EulerIntegrator(projectile.position, velocity, projectile.acceleration, 1);
-	
+	ParabolicEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, angle, 1);
+
 	if (CheckHit())
 	{
 		targetWasHit = true;
@@ -144,7 +158,8 @@ void MonteCarloTest()
 
 	for (int j = 0; j < 5; j++)
 	{
-		EulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1);
+		//EulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1);
+		ParabolicEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, angle, 1);
 
 		cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
 		cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z<< ")" << endl;
