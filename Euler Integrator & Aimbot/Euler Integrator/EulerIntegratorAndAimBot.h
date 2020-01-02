@@ -6,17 +6,38 @@ public:
 	vec3d();
 	vec3d(float x, float y, float z);
 
-	float x;
-	float y;
-	float z;
+	float	x;
+	float	y;
+	float	z;
 };
 
 class Particle	//Class that will be used to declare objects / particles.
 {
 public:
-	vec3d position;
-	vec3d speed;
-	vec3d acceleration;
+	Particle();
+	Particle(vec3d position, vec3d speed, vec3d acceleration, float mass, float surface, float dragCoefficient, float restitutionCoefficient);
+	
+	vec3d	position;								//Position of the particle in space.
+	vec3d	speed;									//Speed of the particle.
+	vec3d	acceleration;							//Acceleration of the particle.
+	float	mass;									//Mass of the particle.
+	float	surface;								//Front surface area of a particle.
+	float	dragCoefficient;						//Drag coefficient of the particle.
+	float	restitutionCoefficient;					//Restitution coefficient of the particle.
+};
+
+class World		//Class that will be used to define the simulation world's base properties.
+{
+public:
+	World();
+	World(float gravity, int worldWidth, int worldHeight, vec3d fluidVelocity, float fluidDensity, float dt);
+	
+	float	gravity;								//Gravity of the simulation world.
+	int		worldWidth;								//Width of the simulation world.
+	int		worldHeight;							//Height of the simulation world.
+	vec3d	fluidVelocity;							//Fluid velocity in the simulation world. (Air, Water...)
+	float	fluidDensity;							//Fluid density in the simulation world. (Air, Water...)
+	float	dt;										//Timestep of the world (1/fps --> 1/60 = 0.016s)
 };
 
 // --- EULER INTEGRATOR

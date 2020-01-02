@@ -23,19 +23,6 @@ int main()
 	return 0;
 }
 
-// --- vec3d class constructor definitions
-vec3d::vec3d(float x, float y, float z)
-{
-	this->x = x;
-	this->y = y;
-	this->z = z;
-}
-
-vec3d::vec3d()
-{
-
-}
-
 // --- EULER INTEGRATOR
 void EulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, /*float angle,*/ float dt) //The value we want to "return" changed must be passed as reference so the variable passed as argument is changed.
 {
@@ -85,6 +72,10 @@ void ParabolicEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceler
 	iposition.y = iposition.y + ivelocity.y * cos(angle) * dt;					//Gets the object's final position in the Y axis.
 	iposition.z = iposition.z + ivelocity.z * cos(angle) * dt;					//Gets the object's final position in the Z axis.
 
+	//iposition.x = ivelocity.x * cos(angle) * dt;														//Gets the object's final position in the X axis.
+	//iposition.y = iposition.y + ivelocity.y * sin(angle) * dt + 0.5f * acceleration.y * dt * dt;		//Gets the object's final position in the Y axis.
+	//iposition.z = iposition.z + ivelocity.z * cos(angle) * dt;											//Gets the object's final position in the Z axis.
+
 	ivelocity.x = ivelocity.x + acceleration.x * dt;				//Gets the object's final velocity in the X axis.
 	ivelocity.y = ivelocity.y + acceleration.y * dt;				//Gets the object's final velocity in the Y axis.
 	ivelocity.z = ivelocity.z + acceleration.z * dt;				//Gets the object's final velocity in the Z axis.
@@ -104,7 +95,7 @@ void Monte_Carlo(int iterations, const Particle& target)
 		//projectile.acceleration	= { (float)(std::rand() % 1), (float)(std::rand() % 1), (float)(std::rand() % 1) };
 
 		projectile.position			= { 0, 0, 0 };
-		projectile.speed			= { (float)(std::rand() % 100), (float)(std::rand() % 100), (float)(std::rand() % 100) };
+		projectile.speed			= { (float)(std::rand() % 50), (float)(std::rand() % 50), (float)(std::rand() % 50) };
 		projectile.acceleration		= { 0.0f, -9.8f, 0.0f };
 		angle						= std::rand() % 90;
 
@@ -131,7 +122,11 @@ void Monte_Carlo(int iterations, const Particle& target)
 void PropagateAll(vec3d& velocity, float angle)
 {
 	EulerIntegrator(projectile.position, velocity, projectile.acceleration, 1);
-	ParabolicEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, angle, 1);
+	
+	for (int i = 0; i < 5; i++)
+	{
+		ParabolicEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, angle, 1);
+	}
 
 	if (CheckHit())
 	{
@@ -176,3 +171,48 @@ void MonteCarloTest()
 
 	cout << endl;
 }
+
+// ------------------------------------- CLASS CONSTRUCTORS -------------------------------------
+vec3d::vec3d()
+{
+
+}
+
+vec3d::vec3d(float x, float y, float z)
+{
+	this->x = x;
+	this->y = y;
+	this->z = z;
+}
+
+Particle::Particle()
+{
+
+}
+
+Particle::Particle(vec3d position, vec3d speed, vec3d acceleration, float mass, float surface, float dragCoefficient, float restitutionCoefficient)
+{
+	this->position					= position;
+	this->speed						= speed;
+	this->acceleration				= acceleration;
+	this->mass						= mass;
+	this->surface					= surface;
+	this->dragCoefficient			= dragCoefficient;
+	this->restitutionCoefficient	= restitutionCoefficient;
+}
+
+World::World()
+{
+
+}
+
+World::World(float gravity, int worldWidth, int worldHeight, vec3d fluidVelocity, float fluidDensity, float dt)
+{
+	this->gravity					= gravity;
+	this->worldWidth				= worldWidth;
+	this->worldHeight				= worldHeight;
+	this->fluidVelocity				= fluidVelocity;
+	this->fluidDensity				= fluidDensity;
+	this->dt						= dt;
+}
+// ----------------------------------------------------------------------------------------------
