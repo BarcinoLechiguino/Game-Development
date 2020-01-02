@@ -11,16 +11,17 @@ public:
 	float	z;
 };
 
-class Particle	//Class that will be used to declare objects / particles.
+class Particle	//Class that will be used to declare objects / particles. All particles will be spherical.
 {
 public:
 	Particle();
-	Particle(vec3d position, vec3d speed, vec3d acceleration, float mass, float surface, float dragCoefficient, float restitutionCoefficient);
+	Particle(vec3d position, vec3d speed, vec3d acceleration, float mass = 0.0f, float radius = 1.0f, float surface = 0.0f, float dragCoefficient = 0.0f, float restitutionCoefficient = 0.0f);
 	
 	vec3d	position;								//Position of the particle in space.
 	vec3d	speed;									//Speed of the particle.
 	vec3d	acceleration;							//Acceleration of the particle.
 	float	mass;									//Mass of the particle.
+	float	radius;									//Radius of the particle.
 	float	surface;								//Front surface area of a particle.
 	float	dragCoefficient;						//Drag coefficient of the particle.
 	float	restitutionCoefficient;					//Restitution coefficient of the particle.
@@ -41,20 +42,37 @@ public:
 };
 
 // --- EULER INTEGRATOR
-void EulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt);		//The value we want to "return" changed must be passed as reference so the variable passed as argument is changed.
+void EulerIntegratorCore(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt);		//The value we want to "return" changed must be passed as reference so the variable passed as argument is changed.
 void LoadIntegratorTestVariables();
 void RunIntegratorTest();
 
 Particle eulerProjectile;
 
 // --- AIMBOT
-void ParabolicEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float angle, float dt);
-void Monte_Carlo(int iterations, const Particle& target);
-void MonteCarloTest();
-void PropagateAll(vec3d& velocity, float angle);
-bool CheckHit();
+void InitSimulation();
+void InitSimulationWorld();
+void InitSimulationElements();
 
+void RandomizeVariables();
+void RandomizeVelocityAndAngle();
+void RandomizeWindVelocity();
+
+void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt);
+void Monte_Carlo(int iterations, const Particle& target);
+void PropagateAll(vec3d& velocity, float angle);
+
+bool CheckHit();
+float DistBetweenElements(vec3d projectilePos, vec3d targetPos);
+void CheckRebound();
+
+void MonteCarloTest();
+
+World		world;
 Particle	projectile;
 Particle	target;
 float		angle;
-bool		targetWasHit;
+
+bool		targetWasHit;					//Flag that keeps track of whether or not the projectile has hit the target.
+float		simulation_fps;					//Average fps of the simulation.
+float		simulation_time;				//Total amount of time simulated for a specific Monte-Carlo case. In Seconds.
+float		total_time;						//Total time allocated to Monte-Carlo.
