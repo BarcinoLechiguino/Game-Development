@@ -19,7 +19,7 @@ int main()
 
 	// --- Monte-Carlo Test
 	InitSimulation();
-	Monte_Carlo(ITERATIONS, target);
+	Monte_Carlo(ITERATIONS);
 
 	system("pause");
 	return 0;
@@ -69,10 +69,22 @@ void RunIntegratorTest()
 // ------------------------------------------ AIMBOT / MONTE-CARLO ------------------------------------------
 void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt)
 {	
-	
+	cout << "Fluid Velocity: (" << world.fluidVelocity.x << " " << world.fluidVelocity.y << " " << world.fluidVelocity.z << ")"<<  endl;
 	
 	for (int i = 0; i < total_time; i++)
 	{
+		fg = projectile.mass * world.gravity;							//Calculates the gravitational force applied to the projectile.
+
+		totalVel = projectile.speed.x - world.fluidVelocity.x;			//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
+
+		fd = 0.5f * world.fluidDensity * (totalVel * totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
+		
+		f = fg + fd;													//Calculates the total force. (D'Alembert Principle)
+
+		acceleration.x = fd / projectile.mass;
+		acceleration.y = fg / projectile.mass;
+		acceleration.z = acceleration.z;
+
 		//y = yo + vo * dt
 		//v = vo + a * dt
 		iposition.x = iposition.x + ivelocity.x * dt;					//Gets the object's final position in the X axis.
@@ -86,16 +98,18 @@ void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& accelerati
 		CheckRebound();													//Checks whehter or not the projectile has collided against a wall. 
 																		//If there has been a collision the velocity vector will be flipped/inverted.
 
-
 		if (CheckHit())													//Checks whether or not the projectile has collided against the target.
 		{
 			targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
 			break;
 		}
+
+		//cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
+		//cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 	}
 }
 
-void Monte_Carlo(int iterations, const Particle& target)
+void Monte_Carlo(int iterations)
 {
 	for (int i = 0; i < iterations; i++)
 	{
@@ -135,18 +149,14 @@ void PropagateAll(vec3d& velocity, float angle)
 	cout << "Initial angle: " << angle << endl;
 	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
 	
-	for (int j = 0; j < 5; j++)
-	{
-		AimBotEulerIntegrator(projectile.position, velocity, projectile.acceleration, world.dt);
+	AimBotEulerIntegrator(projectile.position, velocity, projectile.acceleration, world.dt);
 
-		cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
-		cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
-		
-		if (CheckHit())
-		{
-			targetWasHit = true;
-			break;
-		}
+	cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
+	cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
+
+	if (CheckHit())
+	{
+		targetWasHit = true;
 	}
 
 	cout << "Final position: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")" << endl;

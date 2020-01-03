@@ -49,30 +49,36 @@ void RunIntegratorTest();
 Particle eulerProjectile;
 
 // --- AIMBOT
-void InitSimulation();
-void InitSimulationWorld();
-void InitSimulationElements();
+void InitSimulation();																			//Method that calls both InitSimulationWorld() and InitSimulationElements(). Done for readability.
+void InitSimulationWorld();																		//Initializes the variables of the Simulation World (gravity, boundaries...)
+void InitSimulationElements();																	//Initializes the variables of the elements of the simulation (projectile and target)
 
-void RandomizeVariables();
-void RandomizeVelocityAndAngle();
-void RandomizeWindVelocity();
+void RandomizeVariables();																		//Method that calls both RandomizeVelocityAndAngle() and RandomizeWindVelocity(). Done for readability.
+void RandomizeVelocityAndAngle();																//Method that randomizes projectile.speed and angle.
+void RandomizeWindVelocity();																	//Method that randomizes fluidVelocity.
 
-void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt);
-void Monte_Carlo(int iterations, const Particle& target);
-void PropagateAll(vec3d& velocity, float angle);
+void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt);	//Euler Integrator adapted to take into account the drag force.
+void Monte_Carlo(int iterations);																//Randomizes projectile.speed, angle and fluidVelocity and calls the PropagateAll() mehtod.
+void PropagateAll(vec3d& velocity, float angle);												//Propagates the state of the projectile. Calls the AimbotEulerIntegrator() method.
 
-bool CheckHit();
-float DistBetweenElements(vec3d projectilePos, vec3d targetPos);
-void CheckRebound();
+bool CheckHit();																				//Checks whether the projectile has hit the target or not.
+float DistBetweenElements(vec3d projectilePos, vec3d targetPos);								//Calculates the distance between the two positions passed as arguments.
+void CheckRebound();																			//Checks whether the projectile has collided against a wall or not.
 
 void MonteCarloTest();
 
-World		world;
-Particle	projectile;
-Particle	target;
-float		angle;
+World		world;													//Simulation World where the projectile and the Target exist.
+Particle	projectile;												//Projectile which needs to hit the target.
+Particle	target;													//Target that the projectile has to hit.
+float		angle;													//Angle at which the projectile is trown.
 
-bool		targetWasHit;					//Flag that keeps track of whether or not the projectile has hit the target.
-float		simulation_fps;					//Average fps of the simulation.
-float		simulation_time;				//Total amount of time simulated for a specific Monte-Carlo case. In Seconds.
-float		total_time;						//Total time allocated to Monte-Carlo.
+bool		targetWasHit;											//Flag that keeps track of whether or not the projectile has hit the target.
+float		simulation_fps;											//Average fps of the simulation.
+float		simulation_time;										//Total amount of time simulated for a specific Monte-Carlo case. In Seconds.
+float		total_time;												//Total time allocated to Monte-Carlo.
+
+float		f;														//Total amount of force that the projectile is subjected to. F = ma;
+float		fg;														//Gravitational Force. Fg = mg;
+float		fd;														//Drag Force. Fd = 0.5 * rho * v^2 * Cd * A;
+float		totalVel;												//Velocity variable of Fd. Only takes into account the X Axis: totalVel = projectile.speed.x - world.fluidVelocity;
+float		uVel;
