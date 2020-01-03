@@ -5,11 +5,13 @@
 #include "EulerIntegratorAndAimBot.h"
 
 using namespace std;
-#define ITERATIONS 1000
-#define POS_MAX_RAND 10
+#define PI 3.1416f
 #define GRAVITY -9.8f
 #define ORIGIN vec3d({0.0f, 0.0f, 0.0f})
-#define MAX_WIND_VEL 10
+#define ITERATIONS 1000
+#define MAX_ANGLE 180.0f
+#define MAX_WIND_VEL 10.0f
+#define POS_MAX_RAND 10
 
 int main()
 {
@@ -55,7 +57,7 @@ void RunIntegratorTest()
 
 	for (int i = 0; i < 4; i++)
 	{
-		EulerIntegratorCore(eulerProjectile.position, eulerProjectile.speed, eulerProjectile.acceleration, 1);		//EulerIntegrator() function declaration.
+		EulerIntegratorCore(eulerProjectile.position, eulerProjectile.speed, eulerProjectile.acceleration, 1.0f);		//EulerIntegrator() function declaration.
 
 		cout << "fpos is: (" << eulerProjectile.position.x << " " << eulerProjectile.position.y << " " << eulerProjectile.position.z << ")";
 		cout << "	fvel is: (" << eulerProjectile.speed.x << " " << eulerProjectile.speed.y << " " << eulerProjectile.speed.y << ")" << endl;
@@ -71,18 +73,16 @@ void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& accelerati
 {	
 	cout << "Fluid Velocity: (" << world.fluidVelocity.x << " " << world.fluidVelocity.y << " " << world.fluidVelocity.z << ")"<<  endl;
 	
-	for (int i = 0; i < total_time; i++)
+	for (int i = 0; i < world.total_time; i++)
 	{
-		fg = projectile.mass * world.gravity;							//Calculates the gravitational force applied to the projectile.
+		aimbot.fg = projectile.mass * world.gravity;							//Calculates the gravitational force applied to the projectile.
 
-		totalVel = projectile.speed.x - world.fluidVelocity.x;			//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
+		aimbot.totalVel = projectile.speed.x - world.fluidVelocity.x;			//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
 
-		fd = 0.5f * world.fluidDensity * (totalVel * totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
-		
-		f = fg + fd;													//Calculates the total force. (D'Alembert Principle)
+		aimbot.fd = 0.5f * world.fluidDensity * (aimbot.totalVel * aimbot.totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
 
-		acceleration.x = fd / projectile.mass;
-		acceleration.y = fg / projectile.mass;
+		acceleration.x = aimbot.fd / projectile.mass;
+		acceleration.y = aimbot.fg / projectile.mass;
 		acceleration.z = acceleration.z;
 
 		//y = yo + vo * dt
@@ -100,7 +100,7 @@ void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& accelerati
 
 		if (CheckHit())													//Checks whether or not the projectile has collided against the target.
 		{
-			targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
+			aimbot.targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
 			break;
 		}
 
@@ -109,21 +109,104 @@ void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& accelerati
 	}
 }
 
+void AimBotEulerIntegrator(Particle& projectile, Particle& target)
+{
+	cout << "Fluid Velocity: (" << world.fluidVelocity.x << " " << world.fluidVelocity.y << " " << world.fluidVelocity.z << ")" << endl;
+
+	for (int i = 0; i < world.total_time; i++)
+	{
+		aimbot.fg = projectile.mass * world.gravity;													//Calculates the gravitational force applied to the projectile.
+
+		aimbot.totalVel = projectile.speed.x - world.fluidVelocity.x;								//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
+
+		aimbot.fd = 0.5f * world.fluidDensity * (aimbot.totalVel * aimbot.totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
+
+		projectile.acceleration.x = aimbot.fd / projectile.mass;
+		projectile.acceleration.y = aimbot.fg / projectile.mass;
+		projectile.acceleration.z = projectile.acceleration.z;
+
+		//y = yo + vo * dt
+		//v = vo + a * dt
+		projectile.position.x = projectile.position.x + projectile.speed.x * world.dt;				//Gets the object's final position in the X axis.
+		projectile.position.y = projectile.position.y + projectile.speed.y * world.dt;				//Gets the object's final position in the Y axis.
+		projectile.position.z = projectile.position.z + projectile.speed.z * world.dt;				//Gets the object's final position in the Z axis.
+
+		projectile.speed.x = projectile.speed.x + projectile.acceleration.x * world.dt;				//Gets the object's final velocity in the X axis.
+		projectile.speed.y = projectile.speed.y + projectile.acceleration.y * world.dt;				//Gets the object's final velocity in the Y axis.
+		projectile.speed.z = projectile.speed.z + projectile.acceleration.z * world.dt;				//Gets the object's final velocity in the Z axis.
+
+		CheckRebound();													//Checks whehter or not the projectile has collided against a wall. 
+																		//If there has been a collision the velocity vector will be flipped/inverted.
+
+		if (CheckHit(projectile, target))								//Checks whether or not the projectile has collided against the target.
+		{
+			aimbot.targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
+			break;
+		}
+
+		//cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
+		//cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
+	}
+}
+
+//void AimBotEulerIntegrator()
+//{
+//	cout << "Fluid Velocity: (" << world.fluidVelocity.x << " " << world.fluidVelocity.y << " " << world.fluidVelocity.z << ")" << endl;
+//
+//	for (int i = 0; i < total_time; i++)
+//	{
+//		fg = projectile.mass * world.gravity;							//Calculates the gravitational force applied to the projectile.
+//
+//		totalVel = projectile.speed.x - world.fluidVelocity.x;			//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
+//
+//		fd = 0.5f * world.fluidDensity * (totalVel * totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
+//
+//		projectile.acceleration.x = fd / projectile.mass;
+//		projectile.acceleration.y = fg / projectile.mass;
+//		projectile.acceleration.z = projectile.acceleration.z;
+//
+//		//y = yo + vo * dt
+//		//v = vo + a * dt
+//		projectile.position.x = projectile.position.x + projectile.speed.x * world.dt;				//Gets the object's final position in the X axis.
+//		projectile.position.y = projectile.position.y + projectile.speed.y * world.dt;				//Gets the object's final position in the Y axis.
+//		projectile.position.z = projectile.position.z + projectile.speed.z * world.dt;				//Gets the object's final position in the Z axis.
+//
+//		projectile.speed.x = projectile.speed.x + projectile.acceleration.x * world.dt;				//Gets the object's final velocity in the X axis.
+//		projectile.speed.y = projectile.speed.y + projectile.acceleration.y * world.dt;				//Gets the object's final velocity in the Y axis.
+//		projectile.speed.z = projectile.speed.z + projectile.acceleration.z * world.dt;				//Gets the object's final velocity in the Z axis.
+//
+//		CheckRebound();													//Checks whehter or not the projectile has collided against a wall. 
+//																		//If there has been a collision the velocity vector will be flipped/inverted.
+//
+//		if (CheckHit())													//Checks whether or not the projectile has collided against the target.
+//		{
+//			targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
+//			break;
+//		}
+//
+//		//cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
+//		//cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
+//	}
+//}
+
 void Monte_Carlo(int iterations)
 {
+	//RandomizeWindVelocity();					//Revise this, maybe set wind speed somewhere else?
+
 	for (int i = 0; i < iterations; i++)
 	{
 		cout << "Monte-Carlo " << i << endl;
 		
 		projectile.position = ORIGIN;												//Resetting the projectile's position back to ORIGIN.
 
-		RandomizeVariables();														//Randomizing all relevant variables.
+		//RandomizeVariables();														//Randomizing all relevant variables.
+		RandomizeVelocityAndAngle();
 
 		//MonteCarloTest();															//Running the integrator to propagate the state of the projectile.
 
-		PropagateAll(projectile.speed, angle);										//Running the integrator to propagate the state of the projectile.
+		PropagateAll(projectile.speed, aimbot.angle);										//Running the integrator to propagate the state of the projectile.
 
-		if (targetWasHit)
+		if (aimbot.targetWasHit)
 		{	
 			cout << endl;
 
@@ -131,7 +214,7 @@ void Monte_Carlo(int iterations)
 				") was hit at iteration " << i << " of the Monte-Carlo method." << endl;
 
 			cout << "Initial Speed: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
-			cout << "Throwing Angle: " << angle << endl;
+			cout << "Throwing Angle: " << aimbot.angle << endl;
 
 			break;
 		}
@@ -154,9 +237,9 @@ void PropagateAll(vec3d& velocity, float angle)
 	cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
 	cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 
-	if (CheckHit())
+	if (CheckHit())									// This check here makes the projectile be like a grenade, as the check happens after the projectile has stopped being propagated.
 	{
-		targetWasHit = true;
+		aimbot.targetWasHit = true;
 	}
 
 	cout << "Final position: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")" << endl;
@@ -173,6 +256,16 @@ bool CheckHit()
 		return true;
 	}*/
 
+	if (DistBetweenElements(projectile.position, target.position) <= target.radius)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CheckHit(const Particle& projectile, const Particle& target)
+{
 	if (DistBetweenElements(projectile.position, target.position) <= target.radius)
 	{
 		return true;
@@ -215,19 +308,19 @@ void MonteCarloTest()
 	cout << "Initial position: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")" << endl;
 	cout << "Initial velocity: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 	cout << "Initial acceleration: (" << projectile.acceleration.x << " " << projectile.acceleration.y << " " << projectile.acceleration.z << ")" << endl;
-	cout << "Initial angle: " << angle << endl;
+	cout << "Initial angle: " << aimbot.angle << endl;
 	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
 
 	for (int j = 0; j < 5; j++)
 	{
-		AimBotEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1);
+		AimBotEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1.0f);
 
 		cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
 		cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z<< ")" << endl;
 
 		if (CheckHit())
 		{
-			targetWasHit = true;
+			aimbot.targetWasHit = true;
 		}
 	}
 
@@ -242,43 +335,43 @@ void InitSimulation()
 	InitSimulationWorld();
 	InitSimulationElements();
 
-	targetWasHit		= false;
-	simulation_fps		= 60;
-	simulation_time		= 5;
-	total_time			= simulation_fps * simulation_time;
+	RandomizeWindVelocity();					//Revise this, maybe set wind speed somewhere else?
 }
 
 void InitSimulationWorld()
 {
-	vec3d fluidSpeed	= ORIGIN;
-
-	// Gravity will be -9.8f.
-	// World Width will be 20m.
-	// World Height will be 10m.
-	// Fluid velocity will be randomized (-10.0f ~ 10.0f) at the MonteCarlo() method.
-	// Fluid Density will be 1.2f (Air, 20º at 1 atm).
-	// Dt will be 0.016f (1 / 60).
+	world.gravity			= GRAVITY;													// Gravity will be -9.8f.
+	world.worldWidth		= 20;														// World Width will be 20m.
+	world.worldHeight		= 10;														// World Height will be 10m.
+	world.fluidVelocity		= ORIGIN;													// Fluid velocity will be a random value (-10.0f ~ 10.0f)
+	world.fluidDensity		= 1.2f;														// Fluid Density will be 1.2f (Air, 20º at 1 atm).
+	world.simulation_fps	= 60;														// The simulation will run at 60 FPS. Change later to match real time (syncronized with the game).	
+	world.dt				= 1 / world.simulation_fps;									// Dt will be 0.016f (1 / 60).	
+	world.simulation_time	= 5;														// For each simulation case, the simulation will run for 5 seconds. (5s of propagation).
+	world.total_time		= world.simulation_fps * world.simulation_time;				// Total amount of frames that the AimBot will propagate the state of the projectile for. 
 	
-	world = World(GRAVITY, 20, 10, fluidSpeed, 1.2f, 0.016f);
+	//world = World(GRAVITY, 20, 10, fluidSpeed, 1.2f, 60, 5);
 }
 
 void InitSimulationElements()
 {
 	// --- INITIALIZING THE PROJECTILE
-	vec3d originPos				= ORIGIN;
-	vec3d originSpeed			= ORIGIN;
-	vec3d originAcceleration	= { 0.0f, world.gravity, 0.0f };
 
-	// Initial Position will be set at ORIGIN ({0.0f, 0.0f, 0.0f})
-	// Velocity will be randomized (0.0f ~ 50.0f) at the MonteCarlo() method.
-	// The Acceleration applied to the projectile will be the World's gravity.
-	// Mass will be set to 1 Kg.
-	// Radius will be set to 0.5m.
-	// As the projectile will have a radius of 0.5m, the Surface Area will be 0.78 m^2.
-	// The Drag Coefficient (Cd) of a sphere is 0.47.
-	// The Restitution Coefficient of the projectile will be set to 0.95 (0 ~ 1)
+	projectile.position					= ORIGIN;										// Initial Position will be set at ORIGIN ({0.0f, 0.0f, 0.0f})
+	projectile.speed					= ORIGIN;										// Velocity will be randomized (0.0f ~ 50.0f) at the MonteCarlo() method.
+	projectile.acceleration				= ORIGIN;										// The Acceleration applied to the projectile will be the World's gravity.
+	projectile.mass						= 1.0f;											// Mass will be set to 1 Kg.
+	projectile.radius					= 0.5f;											// Radius will be set to 0.5m.
+	//projectile.surface				= 0.78f;										// As the projectile will have a radius of 0.5m, the Surface Area will be 0.78 m^2.
+	projectile.surface					= PI * projectile.radius * projectile.radius;	// As the projectile will have a radius of 0.5m, the Surface Area will be 0.78 m^2.
+	projectile.dragCoefficient			= 0.47f;										// The Drag Coefficient (Cd) of a sphere is 0.47.
+	projectile.restitutionCoefficient	= 0.95f;										// The Restitution Coefficient of the projectile will be set to 0.95 (0 ~ 1)
 	
-	projectile = Particle(originPos, originSpeed, originAcceleration, 1.0f, 0.5f, 0.78f, 0.47f, 0.95f);
+	/*vec3d originPos = ORIGIN;
+	vec3d originSpeed = ORIGIN;
+	vec3d originAcceleration = { 0.0f, world.gravity, 0.0f };
+
+	projectile = Particle(originPos, originSpeed, originAcceleration, 1.0f, 0.5f, 0.78f, 0.47f, 0.95f);*/
 
 	cout << projectile.position.x << endl;
 
@@ -289,15 +382,15 @@ void InitSimulationElements()
 	vec3d targetAcceleration	= ORIGIN;
 
 	// Initial Target Position will be randomized (for now).
-	// Target Radius will be set to 0.5m.
+	// Target Radius will be set to 1.0m.
 	// As the target will be static:
 	//	- Speed will be NIL.
 	//	- Acceration will be NIL.
 	//	- All other variables will be set to 0.0f (default).
 	
-	target = Particle(targetPos, targetSpeed, targetAcceleration, 0.0f, 0.5f);
+	target = Particle(targetPos, targetSpeed, targetAcceleration);
 
-	targetWasHit = false;												//If this bool will be set to true when the projectile hits the target. Stops the Monte-Carlo.
+	aimbot.targetWasHit = false;												//If this bool will be set to true when the projectile hits the target. Stops the Monte-Carlo.
 }
 // ----------------------------------------------------------------------------------------------
 
@@ -312,23 +405,13 @@ void RandomizeVelocityAndAngle()
 {
 	// --- Randomizing the velocity & throwing angle of the projectile.
 	projectile.speed	= { (float)(std::rand() % 50), (float)(std::rand() % 50), (float)(std::rand() % 50) };
-	angle				= std::rand() % 90;
+	aimbot.angle		= -MAX_ANGLE + (float)(std::rand() % 360);
 }
 
 void RandomizeWindVelocity()
 {
 	// --- Randomizing the wind's velocity.
-	world.fluidVelocity = { (float)(std::rand() % 20), 0.0f, 0.0f };
-
-	// --- To be able to have random negative numbers:
-	if (world.fluidVelocity.x <= MAX_WIND_VEL)
-	{
-		world.fluidVelocity.x = -world.fluidVelocity.x;					// If rand is lower than the maximum wind velocity (10 m/s) then velocity will be negative. 
-	}
-	else
-	{
-		world.fluidVelocity.x = world.fluidVelocity.x - MAX_WIND_VEL; 	// If rand is higher than MAX, then it will be positive. However it will be subtracted MAX_WIND_VEL so as to keep it within the limits.
-	}
+	world.fluidVelocity = { -MAX_WIND_VEL + (float)(std::rand() % 20), 0.0f, 0.0f }; //-MAX_WIND_VEL allows to have negative random numbers (-10.0f + rand % 20 = -10.0f + 5.0f = -5.0f)
 }
 // ----------------------------------------------------------------------------------------------
 
@@ -362,18 +445,37 @@ Particle::Particle(vec3d position, vec3d speed, vec3d acceleration, float mass, 
 	this->restitutionCoefficient	= restitutionCoefficient;
 }
 
+AimBotVariables::AimBotVariables()
+{
+
+}
+
+AimBotVariables::AimBotVariables(float angle, bool targetWasHit, float fg, float fd, float totalVel)
+{
+	this->angle						= angle;
+	this->targetWasHit				= targetWasHit;
+	this->fg						= fg;
+	this->fg						= fd;
+	this->f							= fg + fd;
+	this->totalVel					= totalVel;
+}
+
 World::World()
 {
 
 }
 
-World::World(float gravity, int worldWidth, int worldHeight, vec3d fluidVelocity, float fluidDensity, float dt)
+World::World(float gravity, int worldWidth, int worldHeight, vec3d fluidVelocity, float fluidDensity, float simulation_fps, float simulation_time)
 {
 	this->gravity					= gravity;
 	this->worldWidth				= worldWidth;
 	this->worldHeight				= worldHeight;
 	this->fluidVelocity				= fluidVelocity;
 	this->fluidDensity				= fluidDensity;
-	this->dt						= dt;
+
+	this->simulation_fps			= simulation_fps;
+	this->dt						= 1 / simulation_fps;
+	this->simulation_time			= simulation_time;
+	this->total_time				= simulation_fps * simulation_time;
 }
 // ----------------------------------------------------------------------------------------------
