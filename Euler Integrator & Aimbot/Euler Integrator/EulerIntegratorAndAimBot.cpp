@@ -21,7 +21,7 @@ int main()
 
 	// --- Monte-Carlo Test
 	InitSimulation();
-	Monte_Carlo(ITERATIONS);
+	Monte_Carlo(ITERATIONS, projectile, target);
 
 	system("pause");
 	return 0;
@@ -69,60 +69,25 @@ void RunIntegratorTest()
 // ----------------------------------------------------------------------------------------------------------
 
 // ------------------------------------------ AIMBOT / MONTE-CARLO ------------------------------------------
-void AimBotEulerIntegrator(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt)
-{	
-	cout << "Fluid Velocity: (" << world.fluidVelocity.x << " " << world.fluidVelocity.y << " " << world.fluidVelocity.z << ")"<<  endl;
-	
-	for (int i = 0; i < world.total_time; i++)
-	{
-		aimbot.fg = projectile.mass * world.gravity;							//Calculates the gravitational force applied to the projectile.
-
-		aimbot.totalVel = projectile.speed.x - world.fluidVelocity.x;			//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
-
-		aimbot.fd = 0.5f * world.fluidDensity * (aimbot.totalVel * aimbot.totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
-
-		acceleration.x = aimbot.fd / projectile.mass;
-		acceleration.y = aimbot.fg / projectile.mass;
-		acceleration.z = acceleration.z;
-
-		//y = yo + vo * dt
-		//v = vo + a * dt
-		iposition.x = iposition.x + ivelocity.x * dt;					//Gets the object's final position in the X axis.
-		iposition.y = iposition.y + ivelocity.y * dt;					//Gets the object's final position in the Y axis.
-		iposition.z = iposition.z + ivelocity.z * dt;					//Gets the object's final position in the Z axis.
-
-		ivelocity.x = ivelocity.x + acceleration.x * dt;				//Gets the object's final velocity in the X axis.
-		ivelocity.y = ivelocity.y + acceleration.y * dt;				//Gets the object's final velocity in the Y axis.
-		ivelocity.z = ivelocity.z + acceleration.z * dt;				//Gets the object's final velocity in the Z axis.
-
-		CheckRebound();													//Checks whehter or not the projectile has collided against a wall. 
-																		//If there has been a collision the velocity vector will be flipped/inverted.
-
-		if (CheckHit())													//Checks whether or not the projectile has collided against the target.
-		{
-			aimbot.targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
-			break;
-		}
-
-		//cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
-		//cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
-	}
-}
-
 void AimBotEulerIntegrator(Particle& projectile, Particle& target)
 {
 	cout << "Fluid Velocity: (" << world.fluidVelocity.x << " " << world.fluidVelocity.y << " " << world.fluidVelocity.z << ")" << endl;
 
 	for (int i = 0; i < world.total_time; i++)
 	{
-		aimbot.fg = projectile.mass * world.gravity;													//Calculates the gravitational force applied to the projectile.
+		world.fg = projectile.mass * world.gravity;													//Calculates the gravitational force applied to the projectile.
 
-		aimbot.totalVel = projectile.speed.x - world.fluidVelocity.x;								//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
+		if (projectile.speed.x > 100.0f)
+		{
+			projectile.speed.x = 100.0f;
+		}
 
-		aimbot.fd = 0.5f * world.fluidDensity * (aimbot.totalVel * aimbot.totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
+		world.totalVel = projectile.speed.x - world.fluidVelocity.x;								//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
 
-		projectile.acceleration.x = aimbot.fd / projectile.mass;
-		projectile.acceleration.y = aimbot.fg / projectile.mass;
+		world.fd = 0.5f * world.fluidDensity * world.totalVel * world.totalVel * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
+
+		projectile.acceleration.x = world.fd / projectile.mass;
+		projectile.acceleration.y = world.fg / projectile.mass;
 		projectile.acceleration.z = projectile.acceleration.z;
 
 		//y = yo + vo * dt
@@ -135,12 +100,14 @@ void AimBotEulerIntegrator(Particle& projectile, Particle& target)
 		projectile.speed.y = projectile.speed.y + projectile.acceleration.y * world.dt;				//Gets the object's final velocity in the Y axis.
 		projectile.speed.z = projectile.speed.z + projectile.acceleration.z * world.dt;				//Gets the object's final velocity in the Z axis.
 
-		CheckRebound();													//Checks whehter or not the projectile has collided against a wall. 
-																		//If there has been a collision the velocity vector will be flipped/inverted.
+		//cout << "(" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
+		
+		CheckRebound(projectile);																	//Checks whehter or not the projectile has collided against a wall. 
+																									//If there has been a collision the velocity vector will be flipped/inverted.
 
-		if (CheckHit(projectile, target))								//Checks whether or not the projectile has collided against the target.
+		if (CheckHit(projectile, target))															//Checks whether or not the projectile has collided against the target.
 		{
-			aimbot.targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
+			aimbot.targetWasHit = true;																//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
 			break;
 		}
 
@@ -149,62 +116,20 @@ void AimBotEulerIntegrator(Particle& projectile, Particle& target)
 	}
 }
 
-//void AimBotEulerIntegrator()
-//{
-//	cout << "Fluid Velocity: (" << world.fluidVelocity.x << " " << world.fluidVelocity.y << " " << world.fluidVelocity.z << ")" << endl;
-//
-//	for (int i = 0; i < total_time; i++)
-//	{
-//		fg = projectile.mass * world.gravity;							//Calculates the gravitational force applied to the projectile.
-//
-//		totalVel = projectile.speed.x - world.fluidVelocity.x;			//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
-//
-//		fd = 0.5f * world.fluidDensity * (totalVel * totalVel) * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
-//
-//		projectile.acceleration.x = fd / projectile.mass;
-//		projectile.acceleration.y = fg / projectile.mass;
-//		projectile.acceleration.z = projectile.acceleration.z;
-//
-//		//y = yo + vo * dt
-//		//v = vo + a * dt
-//		projectile.position.x = projectile.position.x + projectile.speed.x * world.dt;				//Gets the object's final position in the X axis.
-//		projectile.position.y = projectile.position.y + projectile.speed.y * world.dt;				//Gets the object's final position in the Y axis.
-//		projectile.position.z = projectile.position.z + projectile.speed.z * world.dt;				//Gets the object's final position in the Z axis.
-//
-//		projectile.speed.x = projectile.speed.x + projectile.acceleration.x * world.dt;				//Gets the object's final velocity in the X axis.
-//		projectile.speed.y = projectile.speed.y + projectile.acceleration.y * world.dt;				//Gets the object's final velocity in the Y axis.
-//		projectile.speed.z = projectile.speed.z + projectile.acceleration.z * world.dt;				//Gets the object's final velocity in the Z axis.
-//
-//		CheckRebound();													//Checks whehter or not the projectile has collided against a wall. 
-//																		//If there has been a collision the velocity vector will be flipped/inverted.
-//
-//		if (CheckHit())													//Checks whether or not the projectile has collided against the target.
-//		{
-//			targetWasHit = true;										//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
-//			break;
-//		}
-//
-//		//cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
-//		//cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
-//	}
-//}
-
-void Monte_Carlo(int iterations)
+void Monte_Carlo(int iterations, Particle& projectile, Particle& target)
 {
-	//RandomizeWindVelocity();					//Revise this, maybe set wind speed somewhere else?
-
 	for (int i = 0; i < iterations; i++)
 	{
 		cout << "Monte-Carlo " << i << endl;
 		
-		projectile.position = ORIGIN;												//Resetting the projectile's position back to ORIGIN.
+		projectile.position			= ORIGIN;											//Resetting the projectile's position back to ORIGIN.
+		//projectile.acceleration		= ORIGIN;											//Resetting the projectile's position back to ORIGIN.
 
-		//RandomizeVariables();														//Randomizing all relevant variables.
 		RandomizeVelocityAndAngle();
 
 		//MonteCarloTest();															//Running the integrator to propagate the state of the projectile.
 
-		PropagateAll(projectile.speed, aimbot.angle);										//Running the integrator to propagate the state of the projectile.
+		PropagateAll(projectile, target, aimbot.velModule, aimbot.angle);			//Running the integrator to propagate the state of the projectile.
 
 		if (aimbot.targetWasHit)
 		{	
@@ -221,10 +146,11 @@ void Monte_Carlo(int iterations)
 	}
 }
 
-void PropagateAll(vec3d& velocity, float angle)
+void PropagateAll(Particle& projectile, Particle& target, float velModule, float angle)
 {
-	velocity.x = velocity.x * cos(angle);
-	velocity.y = velocity.y * sin(angle);
+	projectile.speed.x = velModule * cos(angle);
+	projectile.speed.y = velModule * sin(angle);
+	projectile.speed.z = (float)(std::rand() % 50);
 
 	cout << "Initial position: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")" << endl;
 	cout << "Initial velocity: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
@@ -232,12 +158,13 @@ void PropagateAll(vec3d& velocity, float angle)
 	cout << "Initial angle: " << angle << endl;
 	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
 	
-	AimBotEulerIntegrator(projectile.position, velocity, projectile.acceleration, world.dt);
+	//AimBotEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, world.dt);
+	AimBotEulerIntegrator(projectile, target);
 
 	cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
 	cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 
-	if (CheckHit())									// This check here makes the projectile be like a grenade, as the check happens after the projectile has stopped being propagated.
+	if (CheckHit(projectile, target))									// This check here makes the projectile be like a grenade, as the check happens after the projectile has stopped being propagated.
 	{
 		aimbot.targetWasHit = true;
 	}
@@ -248,22 +175,6 @@ void PropagateAll(vec3d& velocity, float angle)
 }
 
 // ------------------------------------- SIMULATION CHECKS --------------------------------------
-bool CheckHit()
-{
-	/*if (projectile.position.x >= target.position.x && projectile.position.x <= target.position.x + 1
-		&& projectile.position.y >= target.position.y && projectile.position.y <= target.position.y + 1)
-	{
-		return true;
-	}*/
-
-	if (DistBetweenElements(projectile.position, target.position) <= target.radius)
-	{
-		return true;
-	}
-
-	return false;
-}
-
 bool CheckHit(const Particle& projectile, const Particle& target)
 {
 	if (DistBetweenElements(projectile.position, target.position) <= target.radius)
@@ -288,7 +199,7 @@ float DistBetweenElements(vec3d projectilePos, vec3d targetPos)
 	//return distNoSqrt;
 }
 
-void CheckRebound()
+void CheckRebound(Particle& projectile)
 {
 	// --- Projectile hits the walls on the X Axis.
 	if (projectile.position.x <= 0.0f || projectile.position.x >= world.worldWidth)
@@ -313,12 +224,12 @@ void MonteCarloTest()
 
 	for (int j = 0; j < 5; j++)
 	{
-		AimBotEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1.0f);
+		//AimBotEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1.0f);
 
 		cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
 		cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z<< ")" << endl;
 
-		if (CheckHit())
+		if (CheckHit(projectile, target))
 		{
 			aimbot.targetWasHit = true;
 		}
@@ -404,7 +315,7 @@ void RandomizeVariables()
 void RandomizeVelocityAndAngle()
 {
 	// --- Randomizing the velocity & throwing angle of the projectile.
-	projectile.speed	= { (float)(std::rand() % 50), (float)(std::rand() % 50), (float)(std::rand() % 50) };
+	aimbot.velModule	= (float)(std::rand() % 50);
 	aimbot.angle		= -MAX_ANGLE + (float)(std::rand() % 360);
 }
 
@@ -450,14 +361,11 @@ AimBotVariables::AimBotVariables()
 
 }
 
-AimBotVariables::AimBotVariables(float angle, bool targetWasHit, float fg, float fd, float totalVel)
+AimBotVariables::AimBotVariables(float velModule, float angle, bool targetWasHit)
 {
+	this->velModule					= velModule;
 	this->angle						= angle;
 	this->targetWasHit				= targetWasHit;
-	this->fg						= fg;
-	this->fg						= fd;
-	this->f							= fg + fd;
-	this->totalVel					= totalVel;
 }
 
 World::World()
