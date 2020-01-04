@@ -8,6 +8,7 @@ public:
 	
 	float norm();
 
+	const vec3d& operator +(const vec3d &vec);
 	const vec3d& operator -(const vec3d &vec);
 	const vec3d& operator /(const vec3d &vec);
 	const vec3d& operator /(const float &v);
@@ -67,13 +68,12 @@ public:
 	float	f;										//Total amount of force that the projectile is subjected to by the Simulation World. F = ma;
 	float	fg;										//Gravitational Force of the Simulation World. Fg = mg;
 	float	fd;										//Drag Force of the Simulation World. Fd = 0.5 * rho * v^2 * Cd * A;
-	float	totalVel;								//Velocity variable of Fd. Only takes into account the X Axis: totalVel = projectile.speed.x - world.fluidVelocity;
-	vec3d	totalVelVec;							//Velocity variable of Fd. Only takes into account the X Axis: totalVel = projectile.speed.x - world.fluidVelocity;
-	vec3d	uVel;
+	vec3d	totalVel;								//Velocity variable of Fd. Only takes into account the X Axis: totalVel = projectile.speed.x - world.fluidVelocity;
+	vec3d	uVel;									//Unitary particle-wind velocity vector. uVel = totalVel / totalVel.norm();
 };
 
 // --- EULER INTEGRATOR
-void EulerIntegratorCore(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt);		//The value we want to "return" changed must be passed as reference so the variable passed as argument is changed.
+void EulerIntegratorCore(vec3d& iposition, vec3d& ivelocity, vec3d& acceleration, float dt);	//The value we want to "return" changed must be passed as reference so the variable passed as argument is changed.
 void LoadIntegratorTestVariables();
 void RunIntegratorTest();
 
@@ -96,6 +96,7 @@ void PropagateAll(Particle& projectile, Particle& target, float velModule, float
 bool CheckHit(const Particle& projectile, const Particle& target);								//Checks whether the projectile has hit the target or not.
 float DistBetweenElements(vec3d projectilePos, vec3d targetPos);								//Calculates the distance between the two positions passed as arguments.
 void CheckRebound(Particle& projectile);														//Checks whether the projectile has collided against a wall or not.
+void TotalVelSafetyCheck(vec3d& totalVel);														//Checks that the totalVel vector is not 0, which would break the aimbot as totalVel.norm() = 0;
 
 void MonteCarloTest();
 
@@ -104,5 +105,3 @@ World				world;													//Simulation World where the projectile and the Targ
 AimBotVariables		aimbot;													//AimBot relevant variables (angle, targetWasHit...)
 Particle			projectile;												//Projectile which needs to hit the target.
 Particle			target;													//Target that the projectile has to hit.
-
-float prevSpeed;

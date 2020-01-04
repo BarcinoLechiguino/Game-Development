@@ -21,7 +21,6 @@ int main()
 
 	// --- Monte-Carlo Test
 	InitSimulation();
-	prevSpeed = 0.0f;
 	Monte_Carlo(ITERATIONS, projectile, target);
 
 	system("pause");
@@ -77,16 +76,18 @@ void AimBotEulerIntegrator(Particle& projectile, Particle& target)
 	for (int i = 0; i < world.total_time; i++)
 	{
 		world.fg = projectile.mass * world.gravity;													//Calculates the gravitational force applied to the projectile.
+		
+		world.totalVel = projectile.speed - world.fluidVelocity;									//Calculates the total velocity vector from the projectile's speed vector and the fluid velocity vector.
 
-		world.totalVelVec = projectile.speed - world.fluidVelocity;									//Calculates the total velocity vector from the projectile's speed vector and the fluid velocity vector.
+		TotalVelSafetyCheck(world.totalVel);														//Checks that world.totalVel vector is not 0 (world.totalVel.norm() == 0).
+		
+		world.uVel = world.totalVel / world.totalVel.norm();										//Calculates the unitary particle-wind velocity vector.
 
-		world.uVel = world.totalVelVec / world.totalVelVec.norm();									//Calculates the unitary particle-wind velocity vector.
+		world.fd = 0.5f * world.fluidDensity * world.totalVel.x * world.totalVel.x * projectile.dragCoefficient * projectile.surface * -world.uVel.x;	//Calculates the drag force applied to the projectile.
 
-		world.fd = 0.5f * world.fluidDensity * world.totalVelVec.x * world.totalVelVec.x * projectile.dragCoefficient * projectile.surface * -world.uVel.x;	//Calculates the drag force applied to the projectile.
-
-		projectile.acceleration.x = world.fd / projectile.mass;
-		projectile.acceleration.y = world.fg / projectile.mass;
-		projectile.acceleration.z = projectile.acceleration.z;
+		projectile.acceleration.x = world.fd / projectile.mass;										//Calculates the acceleration of the projectile for the X axis.
+		projectile.acceleration.y = world.fg / projectile.mass;										//Calculates the acceleration of the projectile for the Y axis.
+		projectile.acceleration.z = projectile.acceleration.z;										//Calculates the acceleration of the projectile for the Z axis.
 
 		//y = yo + vo * dt
 		//v = vo + a * dt
@@ -106,9 +107,6 @@ void AimBotEulerIntegrator(Particle& projectile, Particle& target)
 			aimbot.targetWasHit = true;																//If the target was hit, the targetWasHit flag will be set to true and the loop will be terminated.
 			break;
 		}
-
-		//cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
-		//cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 	}
 }
 
@@ -182,11 +180,9 @@ bool CheckHit(const Particle& projectile, const Particle& target)
 
 float DistBetweenElements(vec3d projectilePos, vec3d targetPos)
 {
-	vec3d distBuffer = { projectilePos.x - targetPos.x,
-						projectilePos.y - targetPos.y,
-						projectilePos.z - targetPos.z};
+	vec3d distBuffer = projectilePos - targetPos;
 
-	float distNoSqrt = distBuffer.x * distBuffer.x + distBuffer.y * distBuffer.y + distBuffer.z * distBuffer.z;
+	float distNoSqrt = distBuffer.norm();
 
 	float dist = sqrt(distNoSqrt);
 
@@ -206,6 +202,14 @@ void CheckRebound(Particle& projectile)
 	if (projectile.position.y <= 0.0f || projectile.position.y >= world.worldHeight)
 	{
 		projectile.speed.y = -(projectile.restitutionCoefficient * projectile.speed.y);		//The component y of the vector speed will be flipped/inverted.
+	}
+}
+
+void TotalVelSafetyCheck(vec3d& totalVel)
+{
+	if (totalVel.norm() == 0.0f || (totalVel.norm() < 1.0f && totalVel.norm() > -1.0f))
+	{
+		totalVel = totalVel + vec3d(1.0f, 1.0f, 1.0f);
 	}
 }
 
@@ -251,9 +255,9 @@ void InitSimulationWorld()
 	world.worldHeight		= 10;														// World Height will be 10m.
 	world.fluidVelocity		= ORIGIN;													// Fluid velocity will be a random value (-10.0f ~ 10.0f)
 	world.fluidDensity		= 1.2f;														// Fluid Density will be 1.2f (Air, 20º at 1 atm).
-	world.simulation_fps	= 60;														// The simulation will run at 60 FPS. Change later to match real time (syncronized with the game).	
-	world.dt				= 1 / world.simulation_fps;									// Dt will be 0.016f (1 / 60).	
-	world.simulation_time	= 5;														// For each simulation case, the simulation will run for 5 seconds. (5s of propagation).
+	world.simulation_fps	= 60.0f;													// The simulation will run at 60 FPS. Change later to match real time (syncronized with the game).	
+	world.dt				= 1.0f / world.simulation_fps;								// Dt will be 0.016f (1 / 60).	
+	world.simulation_time	= 5.0f;														// For each simulation case, the simulation will run for 5 seconds. (5s of propagation).
 	world.total_time		= world.simulation_fps * world.simulation_time;				// Total amount of frames that the AimBot will propagate the state of the projectile for. 
 	
 	//world = World(GRAVITY, 20, 10, fluidSpeed, 1.2f, 60, 5);
@@ -268,7 +272,6 @@ void InitSimulationElements()
 	projectile.acceleration				= ORIGIN;										// The Acceleration applied to the projectile will be the World's gravity.
 	projectile.mass						= 1.0f;											// Mass will be set to 1 Kg.
 	projectile.radius					= 0.5f;											// Radius will be set to 0.5m.
-	//projectile.surface				= 0.78f;										// As the projectile will have a radius of 0.5m, the Surface Area will be 0.78 m^2.
 	projectile.surface					= PI * projectile.radius * projectile.radius;	// As the projectile will have a radius of 0.5m, the Surface Area will be 0.78 m^2.
 	projectile.dragCoefficient			= 0.47f;										// The Drag Coefficient (Cd) of a sphere is 0.47.
 	projectile.restitutionCoefficient	= 0.95f;										// The Restitution Coefficient of the projectile will be set to 0.95 (0 ~ 1)
@@ -278,9 +281,6 @@ void InitSimulationElements()
 	vec3d originAcceleration = { 0.0f, world.gravity, 0.0f };
 
 	projectile = Particle(originPos, originSpeed, originAcceleration, 1.0f, 0.5f, 0.78f, 0.47f, 0.95f);*/
-
-	cout << projectile.position.x << endl;
-
 	
 	// --- INITIALIZING THE TARGET
 	vec3d targetPos				= { (float)(std::rand() % POS_MAX_RAND), (float)(std::rand() % POS_MAX_RAND), (float)(std::rand() % POS_MAX_RAND) };
@@ -344,6 +344,17 @@ float vec3d::norm()
 	normV = sqrt(bufferNorm);
 
 	return normV;
+}
+
+const vec3d& vec3d::operator +(const vec3d &vec)
+{
+	vec3d r;
+
+	r.x = x + vec.x;
+	r.y = y + vec.y;
+	r.z = z + vec.z;
+
+	return(r);
 }
 
 const vec3d& vec3d::operator -(const vec3d &vec)
