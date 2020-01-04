@@ -21,6 +21,7 @@ int main()
 
 	// --- Monte-Carlo Test
 	InitSimulation();
+	prevSpeed = 0.0f;
 	Monte_Carlo(ITERATIONS, projectile, target);
 
 	system("pause");
@@ -77,14 +78,11 @@ void AimBotEulerIntegrator(Particle& projectile, Particle& target)
 	{
 		world.fg = projectile.mass * world.gravity;													//Calculates the gravitational force applied to the projectile.
 
-		if (projectile.speed.x > 100.0f)
-		{
-			projectile.speed.x = 100.0f;
-		}
+		world.totalVelVec = projectile.speed - world.fluidVelocity;									//Calculates the total velocity vector from the projectile's speed vector and the fluid velocity vector.
 
-		world.totalVel = projectile.speed.x - world.fluidVelocity.x;								//Calculates the total velocity for the X Axis (Could be also applied to the other 2 axis).
+		world.uVel = world.totalVelVec / world.totalVelVec.norm();									//Calculates the unitary particle-wind velocity vector.
 
-		world.fd = 0.5f * world.fluidDensity * world.totalVel * world.totalVel * projectile.dragCoefficient * projectile.surface;	//Calculates the drag force applied to the projectile.
+		world.fd = 0.5f * world.fluidDensity * world.totalVelVec.x * world.totalVelVec.x * projectile.dragCoefficient * projectile.surface * -world.uVel.x;	//Calculates the drag force applied to the projectile.
 
 		projectile.acceleration.x = world.fd / projectile.mass;
 		projectile.acceleration.y = world.fg / projectile.mass;
@@ -99,8 +97,6 @@ void AimBotEulerIntegrator(Particle& projectile, Particle& target)
 		projectile.speed.x = projectile.speed.x + projectile.acceleration.x * world.dt;				//Gets the object's final velocity in the X axis.
 		projectile.speed.y = projectile.speed.y + projectile.acceleration.y * world.dt;				//Gets the object's final velocity in the Y axis.
 		projectile.speed.z = projectile.speed.z + projectile.acceleration.z * world.dt;				//Gets the object's final velocity in the Z axis.
-
-		//cout << "(" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 		
 		CheckRebound(projectile);																	//Checks whehter or not the projectile has collided against a wall. 
 																									//If there has been a collision the velocity vector will be flipped/inverted.
@@ -123,13 +119,13 @@ void Monte_Carlo(int iterations, Particle& projectile, Particle& target)
 		cout << "Monte-Carlo " << i << endl;
 		
 		projectile.position			= ORIGIN;											//Resetting the projectile's position back to ORIGIN.
-		//projectile.acceleration		= ORIGIN;											//Resetting the projectile's position back to ORIGIN.
+		//projectile.acceleration		= ORIGIN;											//Resetting the projectile's aceleration back to ORIGIN. Not necessary. Helps with debugging.
 
 		RandomizeVelocityAndAngle();
 
-		//MonteCarloTest();															//Running the integrator to propagate the state of the projectile.
+		//MonteCarloTest();																//Running the integrator to propagate the state of the projectile.
 
-		PropagateAll(projectile, target, aimbot.velModule, aimbot.angle);			//Running the integrator to propagate the state of the projectile.
+		PropagateAll(projectile, target, aimbot.velModule, aimbot.angle);				//Running the integrator to propagate the state of the projectile.
 
 		if (aimbot.targetWasHit)
 		{	
@@ -158,7 +154,6 @@ void PropagateAll(Particle& projectile, Particle& target, float velModule, float
 	cout << "Initial angle: " << angle << endl;
 	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
 	
-	//AimBotEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, world.dt);
 	AimBotEulerIntegrator(projectile, target);
 
 	cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
@@ -326,7 +321,8 @@ void RandomizeWindVelocity()
 }
 // ----------------------------------------------------------------------------------------------
 
-// ------------------------------------- CLASS CONSTRUCTORS -------------------------------------
+// ------------------------------------- CLASS CONSTRUCTORS & METHODS -------------------------------------
+// --- VEC3D CLASS
 vec3d::vec3d()
 {
 
@@ -339,6 +335,50 @@ vec3d::vec3d(float x, float y, float z)
 	this->z = z;
 }
 
+float vec3d::norm()
+{
+	float normV;
+
+	float bufferNorm = this->x * this->x + this->y * this->y + this->z * this->z;
+
+	normV = sqrt(bufferNorm);
+
+	return normV;
+}
+
+const vec3d& vec3d::operator -(const vec3d &vec)
+{
+	vec3d r;
+
+	r.x = x - vec.x;
+	r.y = y - vec.y;
+	r.z = z - vec.z;
+
+	return(r);
+}
+
+const vec3d& vec3d::operator /(const vec3d &vec)
+{
+	x = x / vec.x;
+	y = y / vec.y;
+	z = z / vec.z;
+
+	return (*this);
+}
+
+const vec3d& vec3d::operator /(const float &v)
+{
+	vec3d r;
+
+	r.x = x / v;
+	r.y = y / v;
+	r.z = z / v;
+
+	return(r);
+}
+//-------------------
+
+// --- PARTICLE CLASS
 Particle::Particle()
 {
 
@@ -355,7 +395,9 @@ Particle::Particle(vec3d position, vec3d speed, vec3d acceleration, float mass, 
 	this->dragCoefficient			= dragCoefficient;
 	this->restitutionCoefficient	= restitutionCoefficient;
 }
+//-------------------
 
+// --- AIMBOTVARIABLES CLASS
 AimBotVariables::AimBotVariables()
 {
 
@@ -367,7 +409,9 @@ AimBotVariables::AimBotVariables(float velModule, float angle, bool targetWasHit
 	this->angle						= angle;
 	this->targetWasHit				= targetWasHit;
 }
+//-------------------
 
+// --- WORLD CLASS
 World::World()
 {
 
@@ -386,4 +430,5 @@ World::World(float gravity, int worldWidth, int worldHeight, vec3d fluidVelocity
 	this->simulation_time			= simulation_time;
 	this->total_time				= simulation_fps * simulation_time;
 }
+//-------------------
 // ----------------------------------------------------------------------------------------------

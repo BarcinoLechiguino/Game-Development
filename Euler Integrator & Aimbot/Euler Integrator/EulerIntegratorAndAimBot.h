@@ -5,7 +5,14 @@ class vec3d				//Class that will be used to declare 3D Vectors.
 public:
 	vec3d();
 	vec3d(float x, float y, float z);
+	
+	float norm();
 
+	const vec3d& operator -(const vec3d &vec);
+	const vec3d& operator /(const vec3d &vec);
+	const vec3d& operator /(const float &v);
+
+public:
 	float	x;
 	float	y;
 	float	z;
@@ -61,6 +68,8 @@ public:
 	float	fg;										//Gravitational Force of the Simulation World. Fg = mg;
 	float	fd;										//Drag Force of the Simulation World. Fd = 0.5 * rho * v^2 * Cd * A;
 	float	totalVel;								//Velocity variable of Fd. Only takes into account the X Axis: totalVel = projectile.speed.x - world.fluidVelocity;
+	vec3d	totalVelVec;							//Velocity variable of Fd. Only takes into account the X Axis: totalVel = projectile.speed.x - world.fluidVelocity;
+	vec3d	uVel;
 };
 
 // --- EULER INTEGRATOR
@@ -95,3 +104,5 @@ World				world;													//Simulation World where the projectile and the Targ
 AimBotVariables		aimbot;													//AimBot relevant variables (angle, targetWasHit...)
 Particle			projectile;												//Projectile which needs to hit the target.
 Particle			target;													//Target that the projectile has to hit.
+
+float prevSpeed;
