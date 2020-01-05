@@ -65,11 +65,12 @@ public:
 	float	simulation_time;						//Total amount of time simulated for a specific Monte-Carlo case. In Seconds.
 	float	total_time;								//Total time allocated to Monte-Carlo.
 
-	float	f;										//Total amount of force that the projectile is subjected to by the Simulation World. F = ma;
-	float	fg;										//Gravitational Force of the Simulation World. Fg = mg;
-	float	fd;										//Drag Force of the Simulation World. Fd = 0.5 * rho * v^2 * Cd * A;
-	vec3d	totalVel;								//Velocity variable of Fd. Only takes into account the X Axis: totalVel = projectile.speed.x - world.fluidVelocity;
-	vec3d	uVel;									//Unitary particle-wind velocity vector. uVel = totalVel / totalVel.norm();
+	float	f;										//Total amount of force that the projectile is subjected to by the Simulation World. [F = ma];
+	float	fg;										//Gravitational Force of the Simulation World. [Fg = mg];
+	float	fd;										//Drag Force of the Simulation World. [Fd = 0.5 * rho * v^2 * Cd * A];
+	vec3d	totalVel;								//Velocity variable of Fd. Only takes into account the X Axis: [totalVel = projectile.speed.x - world.fluidVelocity];
+	vec3d	uVel;									//Unitary particle-wind velocity vector. [uVel = totalVel / totalVel.norm()];
+	float	minVel;									//Threshold value for the minimum velocity allowed in the world [m/s]
 };
 
 // --- EULER INTEGRATOR
@@ -85,7 +86,6 @@ void InitSimulation();																			//Method that calls both InitSimulation
 void InitSimulationWorld();																		//Initializes the variables of the Simulation World (gravity, boundaries...)
 void InitSimulationElements();																	//Initializes the variables of the elements of the simulation (projectile and target)
 
-void RandomizeVariables();																		//Method that calls both RandomizeVelocityAndAngle() and RandomizeWindVelocity(). Done for readability.
 void RandomizeVelocityAndAngle();																//Method that randomizes projectile.speed and angle.
 void RandomizeWindVelocity();																	//Method that randomizes fluidVelocity.
 
@@ -96,7 +96,7 @@ void PropagateAll(Particle& projectile, Particle& target, float velModule, float
 bool CheckHit(const Particle& projectile, const Particle& target);								//Checks whether the projectile has hit the target or not.
 float DistBetweenElements(vec3d projectilePos, vec3d targetPos);								//Calculates the distance between the two positions passed as arguments.
 void CheckRebound(Particle& projectile);														//Checks whether the projectile has collided against a wall or not.
-void TotalVelSafetyCheck(vec3d& totalVel);														//Checks that the totalVel vector is not 0, which would break the aimbot as totalVel.norm() = 0;
+void TotalVelSafetyCheck(vec3d& totalVel);														//Checks that the totalVel vector is not below the world.minVel threshold, which would break the aimbot as totalVel.norm() = 0;
 
 void MonteCarloTest();
 
