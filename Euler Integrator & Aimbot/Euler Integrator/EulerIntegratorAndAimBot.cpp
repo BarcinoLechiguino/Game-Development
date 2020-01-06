@@ -224,7 +224,7 @@ void MonteCarloTest()
 
 	for (int j = 0; j < 5; j++)
 	{
-		//AimBotEulerIntegrator(projectile.position, projectile.speed, projectile.acceleration, 1.0f);
+		AimBotEulerIntegrator(projectile, target);
 
 		cout << "fpos is: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")";
 		cout << "	fvel is: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z<< ")" << endl;
