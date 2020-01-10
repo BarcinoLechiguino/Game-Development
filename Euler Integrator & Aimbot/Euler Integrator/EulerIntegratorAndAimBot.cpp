@@ -117,7 +117,7 @@ void Monte_Carlo(int iterations, Particle& projectile, Particle& target)
 		cout << "Monte-Carlo " << i << endl;
 		
 		projectile.position			= ORIGIN;														// Resetting the projectile's position back to ORIGIN.
-		//projectile.acceleration		= ORIGIN;													// Resetting the projectile's aceleration back to ORIGIN. Helps with debugging.
+		projectile.acceleration		= ORIGIN;														// Resetting the projectile's aceleration back to ORIGIN. Helps with debugging.
 
 		RandomizeVelocityAndAngle();																// Method that randomizes both the initial velocity module and the throwing angle.
 
@@ -135,7 +135,7 @@ void Monte_Carlo(int iterations, Particle& projectile, Particle& target)
 			cout << "Final Speed: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 			cout << "Throwing Angle: " << aimbot.angle << endl;
 
-			break;
+			break;																					// Stops the Monte-Carlo loop.
 		}
 	}
 }
@@ -149,7 +149,8 @@ void PropagateAll(Particle& projectile, Particle& target, float velModule, float
 	cout << "Initial position: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")" << endl;
 	cout << "Initial velocity: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
 	cout << "Initial acceleration: (" << projectile.acceleration.x << " " << projectile.acceleration.y << " " << projectile.acceleration.z << ")" << endl;
-	cout << "Initial angle: " << angle << endl;
+	cout << "Initial velocity module: " << velModule << " m/s" << endl;
+	cout << "Initial angle: " << angle << " Degrees" << endl;
 	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
 	
 	AimBotEulerIntegrator(projectile, target);
@@ -332,7 +333,7 @@ vec3d::vec3d(float x, float y, float z)
 float vec3d::norm()
 {
 	float normV;
-
+		
 	float bufferNorm = this->x * this->x + this->y * this->y + this->z * this->z;
 
 	normV = sqrt(bufferNorm);
