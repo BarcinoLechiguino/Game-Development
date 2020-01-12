@@ -101,11 +101,13 @@ float DistBetweenElements(vec3d projectilePos, vec3d targetPos);								//Calcul
 void CheckRebound(Particle& projectile);														//Checks whether the projectile has collided against the simulation world's limits/wallss or not.
 void TotalVelSafetyCheck(vec3d& totalVel);														//Checks that the totalVel vector is not below the world.minVel threshold, which would break the aimbot as totalVel.norm() = 0;
 
+void ConsoleOutput(Particle projectile, Particle target, float velModule, float angle);			//Outputs the initial position, velocity vector, acceleration vector, velocity module, and throwing angle as strings on the console. Done to improve readability.
+
 void MonteCarloTest();
 
 // -- Variables
-World				world;													//Simulation World where the projectile and the Target exist.
-AimBotVariables		aimbot;													//AimBot relevant variables (angle, targetWasHit...)
-Particle			projectile;												//Projectile which needs to hit the target.
-Particle			target;													//Target that the projectile has to hit.
+World				world;																		//Simulation World where the projectile and the Target exist.
+AimBotVariables		aimbot;																		//AimBot relevant variables (angle, targetWasHit...)
+Particle			projectile;																	//Projectile which needs to hit the target.
+Particle			target;																		//Target that the projectile has to hit.
 // ----------------------------

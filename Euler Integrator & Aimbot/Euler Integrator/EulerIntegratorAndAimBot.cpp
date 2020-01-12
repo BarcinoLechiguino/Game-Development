@@ -146,12 +146,7 @@ void PropagateAll(Particle& projectile, Particle& target, float velModule, float
 	projectile.speed.y = velModule * sin(angle);
 	projectile.speed.z = 0.0f;
 
-	cout << "Initial position: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")" << endl;
-	cout << "Initial velocity: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
-	cout << "Initial acceleration: (" << projectile.acceleration.x << " " << projectile.acceleration.y << " " << projectile.acceleration.z << ")" << endl;
-	cout << "Initial velocity module: " << velModule << " m/s" << endl;
-	cout << "Initial angle: " << angle << " Degrees" << endl;
-	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
+	ConsoleOutput(projectile, target, velModule, angle);
 	
 	AimBotEulerIntegrator(projectile, target);
 
@@ -213,6 +208,17 @@ void TotalVelSafetyCheck(vec3d& totalVel)													// -----------------------
 		totalVel = vec3d(world.minVel, world.minVel, 0.0f);									// totalVel vector components are set to the world's minimum velocity threshold.
 	}
 }
+
+void ConsoleOutput(Particle projectile, Particle target, float velModule, float angle)
+{
+	cout << "Initial position: (" << projectile.position.x << " " << projectile.position.y << " " << projectile.position.z << ")" << endl;
+	cout << "Initial velocity: (" << projectile.speed.x << " " << projectile.speed.y << " " << projectile.speed.z << ")" << endl;
+	cout << "Initial acceleration: (" << projectile.acceleration.x << " " << projectile.acceleration.y << " " << projectile.acceleration.z << ")" << endl;
+	cout << "Initial velocity module: " << velModule << " m/s" << endl;
+	cout << "Initial angle: " << angle << " Degrees" << endl;
+	cout << "Target position: (" << target.position.x << " " << target.position.y << " " << target.position.z << ")" << endl;
+}
+
 // ----------------------------------------------------------------------------------------------
 
 void MonteCarloTest()
