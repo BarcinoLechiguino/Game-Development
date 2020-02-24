@@ -260,7 +260,7 @@ void j1Input::EditTextInputs()															// --------------------------------
 			{
 				if (cursorIndex != 0)													// If the cursor's index is different than 0.
 				{					
-					char* tmp = GetCutText(cursorIndex - 1, cursorIndex - 1, false, true);	// Stores the chunk of the string to the right of the cursor's position.
+					char* tmp = GetCutText(cursorIndex- 1,cursorIndex- 1, false, true);	// Stores the chunk of the string to the right of the cursor's position.
 					
 					DeleteTextInput(cursorIndex);										// Deletes the character to the left of the cursor. (Along with the chunk to the left of the cursor)
 					AddTextInput(tmp);													// The stored chunk is added back to input_string.
