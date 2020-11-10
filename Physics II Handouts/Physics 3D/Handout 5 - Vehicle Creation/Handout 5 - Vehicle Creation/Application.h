@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "p2List.h"
 #include "Globals.h"
 #include "Timer.h"
@@ -48,6 +50,6 @@ private:
 
 	// -----------------------------------------------------
 	std::vector<Module*> modules;			//Module array.
-	std::shared_ptr<Module> ModulePtr2;		//Shared_ptr
+	//std::shared_ptr<Module> ModulePtr2;		//Shared_ptr
 	// -----------------------------------------------------
 };
